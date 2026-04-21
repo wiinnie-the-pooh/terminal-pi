@@ -1,127 +1,106 @@
 # Pi Coding Agent CLI for VS Code
 
 <p align="center">
-  <img src="resources/icons/pi-coding-agent.png" alt="Pi Coding Agent icon" width="72">
+  <img src="resources/icons/pi-coding-agent.png" alt="Pi Coding Agent" width="96">
 </p>
 
 <p align="center">
   <strong>Make <code>pi</code> feel native in VS Code.</strong><br>
-  Launch it from the status bar, send the current file with a right-click, and use Pi's external-editor flow directly in VS Code.
+  One click to launch. Right-click to add file context. <code>Ctrl+G</code> to write prompts like a human.
 </p>
 
-Pi itself is a minimal, extensible coding agent CLI. This extension keeps that terminal-first experience intact, but gives it the launch points VS Code users actually want.
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-coding-agent">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/wiinnie-the-pooh.pi-coding-agent?label=VS%20Marketplace&color=0066b8" alt="VS Marketplace Version">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-coding-agent">
+    <img src="https://img.shields.io/visual-studio-marketplace/i/wiinnie-the-pooh.pi-coding-agent?label=installs&color=0066b8" alt="Installs">
+  </a>
+  <a href="https://github.com/wiinnie-the-pooh/terminal-pi/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/wiinnie-the-pooh/terminal-pi?color=0066b8" alt="License">
+  </a>
+</p>
 
-## Start here: the status bar button
+<p align="center">
+  <img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/hero.png" alt="Pi Coding Agent in action" width="800">
+</p>
 
-If you only use one feature, make it this one.
+---
 
-<img src="resources/icons/pi-coding-agent.png" alt="Pi status bar icon" width="18">
-**Pi** appears in the VS Code status bar and opens a fresh Pi terminal with one click.
+## Quick Start
 
-Why it matters:
-
-- no need to leave your editor and type `pi` manually
-- every launch opens a fresh terminal beside your code
-- it is the fastest way to jump from “I need help here” to an active agent session
-
-For day-to-day use, this becomes the most natural entry point: open a workspace, click **Pi**, and start asking.
-
-## The three workflows that make this extension feel useful
-
-### 1. Launch Pi exactly when you need it
-Click the status bar button and a new terminal named **Pi Coding Agent** opens beside your editor and runs `pi`.
-
-This is ideal when you want to:
-
-- explore a codebase
-- ask for a refactor plan
-- review recent changes
-- start a fresh session without touching your existing terminals
-
-### 2. Use the right-click context menu for focused context
-The Explorer and editor context menus include **Run Pi Coding Agent with Current File**.
-
-When you already have a file open in the editor, this lets you jump straight into a Pi session with `@filepath` already attached.
-
-Typical use cases:
-
-- “Explain this module”
-- “Refactor this file but keep public APIs unchanged”
-- “Write tests for this component”
-- “Find a bug in this file and suggest a fix”
-
-If no editor is open, the extension falls back to the workspace root, so Pi still starts with useful project context.
-
-### 3. Edit longer prompts in VS Code with `Ctrl+G`
-With a **Pi terminal focused**, pressing `Ctrl+G` sends the control sequence Pi uses for **Edit message in external editor**.
-
-That is a surprisingly big quality-of-life improvement.
-
-Instead of squeezing a long instruction into a terminal input, you can draft it in a real VS Code editor, revise it comfortably, save, and drop back into Pi. This is especially helpful when you want to:
-
-- write a detailed implementation request
-- paste and refine structured instructions
-- prepare a careful bug report for the agent
-- edit a long multi-step prompt without fighting terminal editing
-
-By default, Pi terminals created by this extension export `EDITOR` and `VISUAL` as `code --wait`, so the external-editor flow lands right back in VS Code.
-
-## A simple story: how this fits into a real VS Code workflow
-
-You open a project and notice a piece of code you do not fully trust.
-
-First, you click the **Pi** status bar button to start a fresh session. Pi opens beside your editor, already in the workspace you are working in.
-
-Then you narrow the task. While viewing the file, you right-click in the editor and choose **Run Pi Coding Agent with Current File**. Now Pi starts with that file attached as context, so you do not need to explain where to look.
-
-As the task becomes more nuanced, you want to give Pi a better prompt: constraints, edge cases, things not to change. Instead of typing a long message in the terminal, you focus the Pi terminal and press `Ctrl+G`. VS Code opens the external-editor flow, you write the prompt properly, save it, and send it back.
-
-That is the value of this extension in one loop: **start fast, target the right file, and escalate to a full editor when the prompt deserves it**.
-
-## What this extension adds to Pi
-
-This extension does not replace Pi's CLI or hide it behind a custom panel. Instead, it makes the real Pi workflow easier to access inside VS Code.
-
-You keep Pi's normal capabilities, including:
-
-- interactive terminal sessions
-- print mode for one-off prompts
-- continuing the most recent session
-- browsing previous sessions
-- Pi's own tool-driven coding workflow
-
-## Quick start
-
-### Requirements
-
-You need `pi` installed and available in your `PATH`.
+**Prerequisite:** `pi` must be installed and on your PATH.
 
 ```sh
 npm install -g @mariozechner/pi-coding-agent
 ```
 
-Then open a terminal and verify it starts:
-
-```sh
-pi
-```
-
-If you are new to Pi, authenticate on first run with `/login` or your provider API key setup.
-
-### In VS Code
-
-1. Install this extension.
+1. Install this extension from the VS Code Marketplace.
 2. Open any workspace folder.
-3. Click **Pi** in the status bar.
-4. Start with a natural request, for example:
-   - `Summarize this codebase`
-   - `Review the active project structure`
-   - `Find likely test gaps`
+3. Click **Pi** in the status bar -- a Pi terminal opens beside your editor.
+4. Start with a request: `Summarize this codebase` or `Find likely test gaps`.
 
-Once that feels good, try the two faster context-driven workflows:
+Once that feels comfortable, try the two faster workflows:
 
-- right-click in the editor and run **Pi Coding Agent with Current File**
-- focus the Pi terminal and press `Ctrl+G` to edit a longer message in VS Code
+- Right-click a file -> **Run Pi Coding Agent with Current File** (adds `@filepath` context automatically)
+- Focus the Pi terminal and press `Ctrl+G` to draft long prompts in a real VS Code editor
+
+> **New to Pi?** On first run, authenticate with `/login` or set up your provider API key.
+
+---
+
+## Features
+
+- **Status bar launcher** -- open a fresh Pi session in one click, without leaving your editor
+- **File context via right-click** -- launch Pi with the current file already attached as `@filepath`
+- **Print mode** -- run a one-off `pi -p "message"` prompt without an interactive session
+- **Session management** -- continue the most recent session or browse past sessions
+- **Ctrl+G external editor** -- write long, structured prompts in a full VS Code editor tab
+- **Configurable** -- set default CLI args, choose your editor command, toggle the status bar button
+
+---
+
+## How It Works
+
+### Status bar launcher
+
+<img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/statusbar-click.png" alt="Pi status bar button" width="400">
+
+Click **Pi** in the status bar and a new terminal named **Pi Coding Agent** opens beside your editor running `pi`. Every click opens a fresh terminal, so your existing terminals stay untouched.
+
+### Right-click with file context
+
+<img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/context-menu.png" alt="Run Pi with current file context menu" width="400">
+
+Right-click any file in the Explorer or editor and choose **Run Pi Coding Agent with Current File**. Pi starts with that file attached -- no need to type the path.
+
+Good for: "Explain this module", "Refactor this file", "Write tests for this component", "Find a bug here".
+
+If no editor is open, the extension falls back to the workspace root so Pi still has useful project context.
+
+### Ctrl+G: write long prompts in VS Code
+
+<img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/ctrl-g-editor.png" alt="Ctrl+G external editor flow" width="600">
+
+Focus a Pi terminal and press `Ctrl+G` to open Pi's external-editor flow. Write your prompt in a real VS Code editor tab -- revise it, paste structured instructions, set constraints -- then save and it lands back in Pi.
+
+Pi terminals created by this extension export `EDITOR` and `VISUAL` as `code --wait`, so the flow opens right in your current VS Code window.
+
+---
+
+## Commands
+
+Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and search for **Pi**.
+
+| Command | Description |
+|---|---|
+| Pi: Run Pi Coding Agent | Open an interactive `pi` session |
+| Pi: Run Pi Coding Agent with Current File | Pass the active file (or workspace root) as `@filepath` context |
+| Pi: Run Pi Coding Agent (Print Mode) | Run a one-off `pi -p "message"` prompt |
+| Pi: Continue Most Recent Pi Session | Resume the last session with `pi -c` |
+| Pi: Browse Pi Sessions | Browse and select a past session with `pi -r` |
+
+---
 
 ## Settings
 
@@ -129,11 +108,11 @@ Configure via **File > Preferences > Settings** and search for **Pi Coding Agent
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `piCodingAgent.defaultArgs` | string | `""` | Extra CLI flags added to every `pi` invocation, for example `--model openai/gpt-4o` |
+| `piCodingAgent.defaultArgs` | string | `""` | Extra CLI flags added to every `pi` invocation, e.g. `--model openai/gpt-4o` |
 | `piCodingAgent.editorCommand` | string | `"code --wait"` | Command exported as `EDITOR` and `VISUAL` for Pi terminals |
 | `piCodingAgent.showStatusBar` | boolean | `true` | Show or hide the **Pi** status bar button |
 
-### Example `settings.json`
+### Example settings.json
 
 ```json
 {
@@ -143,43 +122,40 @@ Configure via **File > Preferences > Settings** and search for **Pi Coding Agent
 }
 ```
 
-## Advanced: Command Palette and extra commands
+---
 
-If you prefer keyboard-driven launching, open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and search for **Pi**.
+## How It Fits Together
 
-| Command Palette Title | Description |
-|---|---|
-| Pi: Run Pi Coding Agent | Open an interactive `pi` session |
-| Pi: Run Pi Coding Agent with Current File | Open `pi` and pass the active file, or workspace root, as `@filepath` context |
-| Pi: Run Pi Coding Agent (Print Mode) | Prompt for a message and run `pi -p "message"` |
-| Pi: Continue Most Recent Pi Session | Run `pi -c` to resume the last session |
-| Pi: Browse Pi Sessions | Run `pi -r` to browse and select a past session |
+This extension is a thin launcher. It does not embed Pi's logic or parse its output -- it constructs the right `pi` command, opens a VS Code terminal, and sends it. Everything after that is Pi's native terminal experience.
 
-Additional integration points:
+You keep all of Pi's capabilities: interactive sessions, print mode, session management, and Pi's own tool-driven coding workflow.
 
-- **Explorer context menu**: launch the command from the file tree while staying in your flow
-- **Editor context menu**: launch Pi for the file you are currently editing
-- **Pi terminal + `Ctrl+G`**: trigger Pi's external-editor flow in VS Code
+---
 
-Each Pi command opens a fresh terminal.
-
-## Building from source
+<details>
+<summary>Building from source</summary>
 
 ```sh
 npm install
-npm test
 npm run compile
+npm test
 ```
 
-## Packaging
+### Packaging
 
 ```sh
 npm run package
 # Produces: pi-coding-agent-<version>.vsix
-```
-
-Install locally:
-
-```sh
 code --install-extension pi-coding-agent-<version>.vsix
 ```
+
+</details>
+
+---
+
+## Links
+
+- [GitHub Repository](https://github.com/wiinnie-the-pooh/terminal-pi)
+- [Report an Issue](https://github.com/wiinnie-the-pooh/terminal-pi/issues)
+- [Pi Coding Agent CLI on npm](https://www.npmjs.com/package/@mariozechner/pi-coding-agent)
+- [Changelog](CHANGELOG.md)
