@@ -5,6 +5,14 @@
   "version": "0.1.0",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wiinnie-the-pooh/terminal-pi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wiinnie-the-pooh/terminal-pi/issues"
+  },
+  "homepage": "https://github.com/wiinnie-the-pooh/terminal-pi#readme",
   "engines": {
     "vscode": "^1.94.0"
   },
