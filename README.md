@@ -22,6 +22,8 @@ The **right-click context menu** in the Explorer and editor also exposes "Run Pi
 
 A **status bar button** (`$(terminal) Pi`) in the bottom-left launches the agent directly.
 
+Each Pi command opens a fresh terminal.
+
 ## Settings
 
 Configure via `File > Preferences > Settings` (search "Pi Coding Agent"):
@@ -29,7 +31,6 @@ Configure via `File > Preferences > Settings` (search "Pi Coding Agent"):
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `piCodingAgent.defaultArgs` | string | `""` | Extra CLI flags added to every `pi` invocation, e.g. `--model openai/gpt-4o` |
-| `piCodingAgent.reuseTerminal` | boolean | `true` | Reuse the existing Pi terminal; set to `false` to always open a fresh one |
 | `piCodingAgent.showStatusBar` | boolean | `true` | Show or hide the status bar button |
 
 ### Example `settings.json`
@@ -37,7 +38,6 @@ Configure via `File > Preferences > Settings` (search "Pi Coding Agent"):
 ```json
 {
   "piCodingAgent.defaultArgs": "--model anthropic/claude-sonnet-4-5 --thinking low",
-  "piCodingAgent.reuseTerminal": true,
   "piCodingAgent.showStatusBar": true
 }
 ```

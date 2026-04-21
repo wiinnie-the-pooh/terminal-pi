@@ -126,23 +126,12 @@ When a command needs context, the extension resolves a path in priority order:
 
 #### FR-TERM-1  Named terminal
 
-The extension creates terminals with the fixed name "Pi Coding Agent". This name
-is used to find existing terminals when reuse is enabled.
+The extension creates terminals with the fixed name "Pi Coding Agent".
 
-#### FR-TERM-2  Terminal reuse
+#### FR-TERM-2  Fresh terminal per invocation
 
-When `piCodingAgent.reuseTerminal` is `true` (the default):
-
-  - Before creating a new terminal, the extension checks whether a live terminal
-    named "Pi Coding Agent" already exists.
-  - A terminal is considered live if its `exitStatus` property is `undefined`
-    (VS Code sets this to a non-undefined value when the shell process exits).
-  - The check looks first at a cached reference, then scans
-    `vscode.window.terminals` by name. The scan handles the case where VS Code
-    persists terminals across window reloads.
-  - If a live terminal is found it is reused; otherwise a new one is created.
-
-When `piCodingAgent.reuseTerminal` is `false`, a new terminal is always created.
+Each Pi command creates a new terminal. The extension does not attempt to reuse
+existing terminals or track terminal liveness across invocations.
 
 #### FR-TERM-3  Terminal visibility
 
@@ -153,12 +142,6 @@ argument means the terminal panel opens but editor focus is not stolen.
 
 Commands are sent via `terminal.sendText(cmd, true)`. The `true` argument appends
 a newline, causing the shell to execute the command immediately.
-
-#### FR-TERM-5  Cleanup on close
-
-When the user closes the "Pi Coding Agent" terminal, the extension clears its
-cached reference so the next command creates a fresh terminal. This is done via
-the `vscode.window.onDidCloseTerminal` event.
 
 ### 3.4 Status bar button
 
@@ -185,7 +168,6 @@ All settings live under the `piCodingAgent` namespace.
 | Key                         | Type    | Default | Description                                              |
 |-----------------------------|---------|---------|----------------------------------------------------------|
 | `piCodingAgent.defaultArgs` | string  | ""      | Raw CLI flags appended to every `pi` invocation          |
-| `piCodingAgent.reuseTerminal` | boolean | true  | Reuse existing terminal vs. always create a new one      |
 | `piCodingAgent.showStatusBar` | boolean | true  | Show or hide the status bar button                       |
 
 `defaultArgs` is inserted between the mode flag (e.g. `-p`, `-c`) and the
@@ -262,11 +244,10 @@ pi [modeFlag] [defaultArgs] [@"filePath"] ["message"]
 Parts with no value are omitted. The modeFlag for interactive mode is an empty
 string (produces just `pi`).
 
-### 5.3 Terminal reuse pattern
+### 5.3 Terminal creation pattern
 
-`PiTerminalManager` holds a single `_terminal` reference and an
-`onDidCloseTerminal` listener that clears it. `getOrCreateTerminal(reuse)` checks
-liveness via `exitStatus === undefined` before deciding whether to reuse or create.
+`PiTerminalManager` creates a fresh VS Code terminal for each command invocation.
+It does not cache terminal instances or listen for terminal close events.
 
 
 ## 6. Out of scope

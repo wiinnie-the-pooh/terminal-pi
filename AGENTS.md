@@ -74,8 +74,8 @@ Run through these after every non-trivial change:
 |---|--------|----------------|
 | 1 | Open any workspace folder | `$(terminal) Pi` button visible in status bar bottom-left |
 | 2 | Click status bar button | Terminal named "Pi Coding Agent" opens; `pi` is sent |
-| 3 | Run same command again (terminal still open) | Same terminal reused — no new tab |
-| 4 | Close the terminal; run command again | New terminal created |
+| 3 | Run same command again (terminal still open) | A new terminal opens; the original terminal remains unchanged |
+| 4 | Close one Pi terminal; run command again | A new terminal opens |
 | 5 | Open a file; run "Pi: Run Pi Coding Agent with Current File" | Terminal sends `pi @"<absolute-path-to-file>"` |
 | 6 | Close all editors (keep folder open); run "with Current File" | Terminal sends `pi @"<workspace-root>"` |
 | 7 | Open VS Code with no folder; run "with Current File" | Warning notification shown; `pi` launched without `@filepath` |
