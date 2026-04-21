@@ -13,13 +13,28 @@ test('defaults EDITOR and VISUAL to code --wait when neither is configured', () 
   });
 });
 
-test('preserves an existing editor configuration for Pi terminals', () => {
-  assert.deepEqual(buildPiTerminalEnv({ EDITOR: 'nvim' }), {
+test('uses configured editor command for Pi terminals when provided', () => {
+  assert.deepEqual(buildPiTerminalEnv({}, 'cursor --wait'), {
+    EDITOR: 'cursor --wait',
+    VISUAL: 'cursor --wait',
+  });
+
+  assert.deepEqual(
+    buildPiTerminalEnv({ EDITOR: 'nvim', VISUAL: 'vim -f' }, 'code-insiders --wait'),
+    {
+      EDITOR: 'code-insiders --wait',
+      VISUAL: 'code-insiders --wait',
+    }
+  );
+});
+
+test('falls back to existing editor configuration when the setting is empty', () => {
+  assert.deepEqual(buildPiTerminalEnv({ EDITOR: 'nvim' }, ''), {
     EDITOR: 'nvim',
     VISUAL: 'nvim',
   });
 
-  assert.deepEqual(buildPiTerminalEnv({ VISUAL: 'vim -f' }), {
+  assert.deepEqual(buildPiTerminalEnv({ VISUAL: 'vim -f' }, '   '), {
     EDITOR: 'vim -f',
     VISUAL: 'vim -f',
   });

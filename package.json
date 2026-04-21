@@ -71,6 +71,11 @@
           "default": "",
           "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
         },
+        "piCodingAgent.editorCommand": {
+          "type": "string",
+          "default": "code --wait",
+          "description": "Command exported as EDITOR and VISUAL in Pi terminals. If empty, Pi falls back to the existing VISUAL/EDITOR environment variables, then to 'code --wait'."
+        },
         "piCodingAgent.showStatusBar": {
           "type": "boolean",
           "default": true,

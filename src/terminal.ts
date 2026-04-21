@@ -3,12 +3,12 @@ import { PI_TERMINAL_NAME } from './piTerminal';
 import { getPiTerminalEnv } from './terminalEnv';
 
 export class PiTerminalManager implements vscode.Disposable {
-  private createTerminal(): vscode.Terminal {
+  private createTerminal(editorCommand: string): vscode.Terminal {
     return vscode.window.createTerminal({
       name: PI_TERMINAL_NAME,
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
-      env: getPiTerminalEnv(),
+      env: getPiTerminalEnv(editorCommand),
     });
   }
 
@@ -37,14 +37,19 @@ export class PiTerminalManager implements vscode.Disposable {
     return parts.join(' ');
   }
 
-  public runInteractive(defaultArgs: string, filePath?: string): void {
-    const terminal = this.createTerminal();
+  public runInteractive(
+    defaultArgs: string,
+    editorCommand: string,
+    filePath?: string
+  ): void {
+    const terminal = this.createTerminal(editorCommand);
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '', filePath), true);
   }
 
   public async runPrintMode(
     defaultArgs: string,
+    editorCommand: string,
     filePath?: string
   ): Promise<void> {
     const message = await vscode.window.showInputBox({
@@ -55,19 +60,19 @@ export class PiTerminalManager implements vscode.Disposable {
     if (message === undefined) {
       return;
     }
-    const terminal = this.createTerminal();
+    const terminal = this.createTerminal(editorCommand);
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-p', filePath, message), true);
   }
 
-  public runContinue(defaultArgs: string): void {
-    const terminal = this.createTerminal();
+  public runContinue(defaultArgs: string, editorCommand: string): void {
+    const terminal = this.createTerminal(editorCommand);
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-c'), true);
   }
 
-  public runBrowseSessions(defaultArgs: string): void {
-    const terminal = this.createTerminal();
+  public runBrowseSessions(defaultArgs: string, editorCommand: string): void {
+    const terminal = this.createTerminal(editorCommand);
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-r'), true);
   }

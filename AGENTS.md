@@ -96,6 +96,7 @@ Run through these after every non-trivial change:
 | 13 | Right-click a file in Explorer | "Run Pi Coding Agent with Current File" in context menu |
 | 14 | Right-click inside an editor | "Run Pi Coding Agent with Current File" in context menu |
 | 15 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow in VS Code without an editor warning |
+| 16 | Set `piCodingAgent.editorCommand` to `code-insiders --wait`; run Pi and press `Ctrl+G` | Pi uses the configured editor command instead of the default one |
 
 ## Versioning
 
