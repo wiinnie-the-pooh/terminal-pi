@@ -30,7 +30,11 @@ export class PiTerminalManager implements vscode.Disposable {
       }
     }
 
-    const terminal = vscode.window.createTerminal({ name: TERMINAL_NAME });
+    const terminal = vscode.window.createTerminal({
+      name: TERMINAL_NAME,
+      location: { viewColumn: vscode.ViewColumn.Beside },
+      isTransient: true,
+    });
     this._terminal = terminal;
     return terminal;
   }
