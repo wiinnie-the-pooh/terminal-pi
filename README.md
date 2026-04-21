@@ -1,11 +1,7 @@
 # Pi Coding Agent CLI for VS Code
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="resources/icons/pi-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="resources/icons/pi-light.svg">
-    <img src="resources/icons/pi-dark.svg" alt="Pi Coding Agent icon" width="72">
-  </picture>
+  <img src="resources/icons/pi-coding-agent.png" alt="Pi Coding Agent icon" width="72">
 </p>
 
 <p align="center">
@@ -19,11 +15,7 @@ Pi itself is a minimal, extensible coding agent CLI. This extension keeps that t
 
 If you only use one feature, make it this one.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="resources/icons/pi-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="resources/icons/pi-light.svg">
-  <img src="resources/icons/pi-dark.svg" alt="Pi status bar icon" width="18">
-</picture>
+<img src="resources/icons/pi-coding-agent.png" alt="Pi status bar icon" width="18">
 **Pi** appears in the VS Code status bar and opens a fresh Pi terminal with one click.
 
 Why it matters:
