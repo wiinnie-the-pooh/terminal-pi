@@ -3,40 +3,12 @@ import * as vscode from 'vscode';
 const TERMINAL_NAME = 'Pi Coding Agent';
 
 export class PiTerminalManager implements vscode.Disposable {
-  private _terminal: vscode.Terminal | undefined;
-  private readonly _disposables: vscode.Disposable[] = [];
-
-  constructor() {
-    this._disposables.push(
-      vscode.window.onDidCloseTerminal((t) => {
-        if (t === this._terminal) {
-          this._terminal = undefined;
-        }
-      })
-    );
-  }
-
-  private getOrCreateTerminal(reuse: boolean): vscode.Terminal {
-    if (reuse) {
-      if (this._terminal && this._terminal.exitStatus === undefined) {
-        return this._terminal;
-      }
-      const existing = vscode.window.terminals.find(
-        (t) => t.name === TERMINAL_NAME && t.exitStatus === undefined
-      );
-      if (existing) {
-        this._terminal = existing;
-        return existing;
-      }
-    }
-
-    const terminal = vscode.window.createTerminal({
+  private createTerminal(): vscode.Terminal {
+    return vscode.window.createTerminal({
       name: TERMINAL_NAME,
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
     });
-    this._terminal = terminal;
-    return terminal;
   }
 
   private buildCommand(
@@ -64,18 +36,13 @@ export class PiTerminalManager implements vscode.Disposable {
     return parts.join(' ');
   }
 
-  public runInteractive(
-    reuse: boolean,
-    defaultArgs: string,
-    filePath?: string
-  ): void {
-    const terminal = this.getOrCreateTerminal(reuse);
+  public runInteractive(defaultArgs: string, filePath?: string): void {
+    const terminal = this.createTerminal();
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '', filePath), true);
   }
 
   public async runPrintMode(
-    reuse: boolean,
     defaultArgs: string,
     filePath?: string
   ): Promise<void> {
@@ -87,27 +54,25 @@ export class PiTerminalManager implements vscode.Disposable {
     if (message === undefined) {
       return;
     }
-    const terminal = this.getOrCreateTerminal(reuse);
+    const terminal = this.createTerminal();
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-p', filePath, message), true);
   }
 
-  public runContinue(reuse: boolean, defaultArgs: string): void {
-    const terminal = this.getOrCreateTerminal(reuse);
+  public runContinue(defaultArgs: string): void {
+    const terminal = this.createTerminal();
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-c'), true);
   }
 
-  public runBrowseSessions(reuse: boolean, defaultArgs: string): void {
-    const terminal = this.getOrCreateTerminal(reuse);
+  public runBrowseSessions(defaultArgs: string): void {
+    const terminal = this.createTerminal();
     terminal.show(false);
     terminal.sendText(this.buildCommand(defaultArgs, '-r'), true);
   }
 
   public dispose(): void {
-    for (const d of this._disposables) {
-      d.dispose();
-    }
+    // No-op: terminal instances are managed by VS Code.
   }
 }
 
