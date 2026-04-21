@@ -95,7 +95,7 @@ Run through these after every non-trivial change:
 | 12 | Set `piCodingAgent.showStatusBar` to `false` | Status bar button disappears immediately (no reload) |
 | 13 | Right-click a file in Explorer | "Run Pi Coding Agent with Current File" in context menu |
 | 14 | Right-click inside an editor | "Run Pi Coding Agent with Current File" in context menu |
-| 15 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow |
+| 15 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow in VS Code without an editor warning |
 
 ## Versioning
 

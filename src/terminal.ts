@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { PI_TERMINAL_NAME } from './piTerminal';
+import { getPiTerminalEnv } from './terminalEnv';
 
 export class PiTerminalManager implements vscode.Disposable {
   private createTerminal(): vscode.Terminal {
@@ -7,6 +8,7 @@ export class PiTerminalManager implements vscode.Disposable {
       name: PI_TERMINAL_NAME,
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
+      env: getPiTerminalEnv(),
     });
   }
 
