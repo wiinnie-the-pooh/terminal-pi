@@ -1,6 +1,10 @@
 import * as vscode from 'vscode';
-import { PiTerminalManager, resolveFilePath } from './terminal';
 import { getConfig, onConfigChange } from './config';
+import {
+  isPiTerminalName,
+  PI_TERMINAL_ACTIVE_CONTEXT,
+} from './piTerminal';
+import { PiTerminalManager, resolveFilePath } from './terminal';
 
 let statusBarItem: vscode.StatusBarItem | undefined;
 let terminalManager: PiTerminalManager;
@@ -54,8 +58,16 @@ export function activate(context: vscode.ExtensionContext): void {
   setupStatusBar(context);
 
   context.subscriptions.push(
+    vscode.window.onDidChangeActiveTerminal(() => {
+      void updateActiveTerminalContext();
+    })
+  );
+
+  context.subscriptions.push(
     onConfigChange((cfg) => updateStatusBarVisibility(cfg.showStatusBar))
   );
+
+  void updateActiveTerminalContext();
 }
 
 function setupStatusBar(context: vscode.ExtensionContext): void {
@@ -79,6 +91,14 @@ function updateStatusBarVisibility(show: boolean): void {
     return;
   }
   show ? statusBarItem.show() : statusBarItem.hide();
+}
+
+async function updateActiveTerminalContext(): Promise<void> {
+  await vscode.commands.executeCommand(
+    'setContext',
+    PI_TERMINAL_ACTIVE_CONTEXT,
+    isPiTerminalName(vscode.window.activeTerminal?.name)
+  );
 }
 
 export function deactivate(): void {

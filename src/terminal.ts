@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-
-const TERMINAL_NAME = 'Pi Coding Agent';
+import { PI_TERMINAL_NAME } from './piTerminal';
 
 export class PiTerminalManager implements vscode.Disposable {
   private createTerminal(): vscode.Terminal {
     return vscode.window.createTerminal({
-      name: TERMINAL_NAME,
+      name: PI_TERMINAL_NAME,
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
     });

@@ -24,6 +24,8 @@ A **status bar button** (`$(terminal) Pi`) in the bottom-left launches the agent
 
 Each Pi command opens a fresh terminal.
 
+When a Pi terminal has focus, `Ctrl+G` sends the control character Pi uses for **Edit message in external editor**.
+
 ## Settings
 
 Configure via `File > Preferences > Settings` (search "Pi Coding Agent"):
@@ -46,6 +48,7 @@ Configure via `File > Preferences > Settings` (search "Pi Coding Agent"):
 
 ```sh
 npm install
+npm test
 npm run compile
 ```
 
@@ -53,11 +56,11 @@ npm run compile
 
 ```sh
 npm run package
-# Produces: pi-coding-agent-0.1.0.vsix
+# Produces: pi-coding-agent-<version>.vsix
 ```
 
 Install locally:
 
 ```sh
-code --install-extension pi-coding-agent-0.1.0.vsix
+code --install-extension pi-coding-agent-<version>.vsix
 ```

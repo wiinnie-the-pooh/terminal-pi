@@ -2,7 +2,7 @@
   "name": "pi-coding-agent",
   "displayName": "Pi Coding Agent CLI",
   "description": "Integrate the pi coding agent CLI into VS Code via the integrated terminal",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
@@ -86,11 +86,22 @@
           "group": "navigation"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "workbench.action.terminal.sendSequence",
+        "key": "ctrl+g",
+        "when": "terminalFocus && piCodingAgent.activeTerminal",
+        "args": {
+          "text": "\u0007"
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "test": "node --test tests/*.test.js",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "lint": "eslint src --ext ts"
