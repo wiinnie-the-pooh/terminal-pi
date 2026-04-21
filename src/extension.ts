@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('piCodingAgent.run', () => {
       const cfg = getConfig();
-      terminalManager.runInteractive(cfg.reuseTerminal, cfg.defaultArgs);
+      terminalManager.runInteractive(cfg.defaultArgs);
     })
   );
 
@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext): void {
           'Pi Coding Agent: No file or workspace folder is open. Opening pi without file context.'
         );
       }
-      terminalManager.runInteractive(cfg.reuseTerminal, cfg.defaultArgs, filePath);
+      terminalManager.runInteractive(cfg.defaultArgs, filePath);
     })
   );
 
@@ -33,21 +33,21 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('piCodingAgent.runPrintMode', async () => {
       const cfg = getConfig();
       const filePath = resolveFilePath();
-      await terminalManager.runPrintMode(cfg.reuseTerminal, cfg.defaultArgs, filePath);
+      await terminalManager.runPrintMode(cfg.defaultArgs, filePath);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('piCodingAgent.continueSession', () => {
       const cfg = getConfig();
-      terminalManager.runContinue(cfg.reuseTerminal, cfg.defaultArgs);
+      terminalManager.runContinue(cfg.defaultArgs);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('piCodingAgent.browseSessions', () => {
       const cfg = getConfig();
-      terminalManager.runBrowseSessions(cfg.reuseTerminal, cfg.defaultArgs);
+      terminalManager.runBrowseSessions(cfg.defaultArgs);
     })
   );
 

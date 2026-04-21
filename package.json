@@ -60,11 +60,6 @@
           "default": "",
           "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
         },
-        "piCodingAgent.reuseTerminal": {
-          "type": "boolean",
-          "default": true,
-          "description": "Reuse the existing 'Pi Coding Agent' terminal instead of creating a new one each time."
-        },
         "piCodingAgent.showStatusBar": {
           "type": "boolean",
           "default": true,
