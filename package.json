@@ -2,7 +2,7 @@
   "name": "pi-coding-agent",
   "displayName": "Pi Coding Agent CLI",
   "description": "Integrate the pi coding agent CLI into VS Code via the integrated terminal",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
