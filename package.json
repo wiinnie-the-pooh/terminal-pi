@@ -1,0 +1,90 @@
+{
+  "name": "pi-coding-agent",
+  "displayName": "Pi Coding Agent",
+  "description": "Integrate the pi coding agent CLI into VS Code via the integrated terminal",
+  "version": "0.1.0",
+  "publisher": "wiinnie-the-pooh",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": ["AI", "Other"],
+  "keywords": ["pi", "ai", "agent", "coding", "terminal"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "piCodingAgent.run",
+        "title": "Run Pi Coding Agent",
+        "category": "Pi"
+      },
+      {
+        "command": "piCodingAgent.runWithFile",
+        "title": "Run Pi Coding Agent with Current File",
+        "category": "Pi"
+      },
+      {
+        "command": "piCodingAgent.runPrintMode",
+        "title": "Run Pi Coding Agent (Print Mode)",
+        "category": "Pi"
+      },
+      {
+        "command": "piCodingAgent.continueSession",
+        "title": "Continue Most Recent Pi Session",
+        "category": "Pi"
+      },
+      {
+        "command": "piCodingAgent.browseSessions",
+        "title": "Browse Pi Sessions",
+        "category": "Pi"
+      }
+    ],
+    "configuration": {
+      "title": "Pi Coding Agent",
+      "properties": {
+        "piCodingAgent.defaultArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
+        },
+        "piCodingAgent.reuseTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reuse the existing 'Pi Coding Agent' terminal instead of creating a new one each time."
+        },
+        "piCodingAgent.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Pi Coding Agent button in the status bar."
+        }
+      }
+    },
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "piCodingAgent.runWithFile",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "piCodingAgent.runWithFile",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.94.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.6.0"
+  }
+}
