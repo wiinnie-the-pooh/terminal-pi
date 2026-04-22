@@ -93,18 +93,24 @@ Run through the relevant scenarios after every non-trivial change.
 
 Before publishing:
 
-1. Run automated tests:
+1. Run the linter:
+
+   ```sh
+   npm run lint
+   ```
+
+2. Run automated tests:
 
    ```sh
    npm test
    ```
 
-2. Package the extension:
+3. Package the extension:
 
    ```sh
    npm run package
    ```
 
-3. Run the relevant manual smoke tests from Section 3.
-4. Confirm the produced `.vsix` installs successfully in VS Code.
-5. Only then proceed with version bumping and publish workflow from `AGENTS.md`.
+4. Run the relevant manual smoke tests from Section 3.
+5. Confirm the produced `.vsix` installs successfully in VS Code.
+6. Only then proceed with version bumping and publish workflow from `AGENTS.md`.

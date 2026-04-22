@@ -70,6 +70,16 @@ npm run watch
 
 `out/` is gitignored. The `vscode:prepublish` hook runs `compile` automatically before packaging/publishing, so manual compilation is only needed during development.
 
+## Lint
+
+Run ESLint against the TypeScript source:
+
+```sh
+npm run lint
+```
+
+The project uses an ESLint flat config (`eslint.config.mjs`) with `@typescript-eslint` rules. All source files must lint cleanly before merge.
+
 ## Test
 
 Run the automated smoke tests:
@@ -86,8 +96,8 @@ The automated test suite covers non-VS-Code helpers only; integrated terminal be
 
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`:
 
-- **Matrix:** Node.js 18 / 20 / 22 on `ubuntu-latest` and `windows-latest`
-- **Steps:** `npm ci` → `npm run compile` → `npm test` → `npm run package`
+- **Matrix:** Node.js 20 / 22 on `ubuntu-latest` and `windows-latest`
+- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm test` → `npm run package`
 
 Ensure the workflow passes before merging. Branch protection can be configured in the GitHub repository settings to require the CI check.
 
