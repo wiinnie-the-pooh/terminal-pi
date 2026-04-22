@@ -1,7 +1,13 @@
 .vscode/**
+.claude/**
 src/**
 .gitignore
 tsconfig.json
 node_modules/**
 out/**/*.js.map
 *.vsix
+.remember/**
+AGENTS.md
+SPEC.md
+docs/**
+CHANGELOG.md
