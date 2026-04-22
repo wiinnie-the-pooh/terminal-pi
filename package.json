@@ -2,7 +2,7 @@
   "name": "pi-coding-agent",
   "displayName": "Pi Coding Agent CLI",
   "description": "Integrate the pi coding agent CLI into VS Code via the integrated terminal",
-  "version": "0.2.7",
+  "version": "0.2.11",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
@@ -73,18 +73,35 @@
       "properties": {
         "piCodingAgent.defaultArgs": {
           "type": "string",
+          "order": 1,
           "default": "",
           "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
         },
         "piCodingAgent.editorCommand": {
           "type": "string",
+          "order": 2,
           "default": "code --wait",
           "description": "Command exported as EDITOR and VISUAL in Pi terminals. If empty, Pi falls back to the existing VISUAL/EDITOR environment variables, then to 'code --wait'."
         },
         "piCodingAgent.showStatusBar": {
           "type": "boolean",
+          "order": 3,
           "default": true,
           "description": "Show the Pi Coding Agent button in the status bar."
+        },
+        "piCodingAgent.virtualEnvironmentOverride": {
+          "type": "boolean",
+          "order": 4,
+          "default": true,
+          "description": "When true, the extension briefly disables Python terminal environment activation while creating a Pi terminal, preventing virtual-environment activation text from being injected into pi. Set to false to disable this workaround."
+        },
+        "piCodingAgent.virtualEnvironmentDrainMs": {
+          "type": "number",
+          "order": 5,
+          "default": 150,
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piCodingAgent.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
         }
       }
     },

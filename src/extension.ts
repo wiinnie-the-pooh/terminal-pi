@@ -14,14 +14,14 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(terminalManager);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.run', () => {
+    vscode.commands.registerCommand('piCodingAgent.run', async () => {
       const cfg = getConfig();
-      terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
+      await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.runWithFile', () => {
+    vscode.commands.registerCommand('piCodingAgent.runWithFile', async () => {
       const cfg = getConfig();
       const filePath = resolveFilePath();
       if (!filePath) {
@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext): void {
           'Pi Coding Agent: No file or workspace folder is open. Opening pi without file context.'
         );
       }
-      terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand, filePath);
+      await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand, filePath);
     })
   );
 
@@ -42,16 +42,16 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.continueSession', () => {
+    vscode.commands.registerCommand('piCodingAgent.continueSession', async () => {
       const cfg = getConfig();
-      terminalManager.runContinue(cfg.defaultArgs, cfg.editorCommand);
+      await terminalManager.runContinue(cfg.defaultArgs, cfg.editorCommand);
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.browseSessions', () => {
+    vscode.commands.registerCommand('piCodingAgent.browseSessions', async () => {
       const cfg = getConfig();
-      terminalManager.runBrowseSessions(cfg.defaultArgs, cfg.editorCommand);
+      await terminalManager.runBrowseSessions(cfg.defaultArgs, cfg.editorCommand);
     })
   );
 

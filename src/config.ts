@@ -4,9 +4,14 @@ export interface PiConfig {
   defaultArgs: string;
   editorCommand: string;
   showStatusBar: boolean;
+  virtualEnvironmentOverride: boolean;
+  virtualEnvironmentDrainMs: number;
 }
 
 const SECTION = 'piCodingAgent';
+
+const DRAIN_DEFAULT_MS = 150;
+const DRAIN_MAX_MS = 10_000;
 
 export function getConfig(): PiConfig {
   const cfg = vscode.workspace.getConfiguration(SECTION);
@@ -14,6 +19,10 @@ export function getConfig(): PiConfig {
     defaultArgs: cfg.get<string>('defaultArgs', ''),
     editorCommand: cfg.get<string>('editorCommand', 'code --wait'),
     showStatusBar: cfg.get<boolean>('showStatusBar', true),
+    virtualEnvironmentOverride: cfg.get<boolean>('virtualEnvironmentOverride', true),
+    virtualEnvironmentDrainMs: sanitizeDrainMs(
+      cfg.get<number>('virtualEnvironmentDrainMs', DRAIN_DEFAULT_MS),
+    ),
   };
 }
 
@@ -25,4 +34,12 @@ export function onConfigChange(
       callback(getConfig());
     }
   });
+}
+
+/** Clamp user-supplied drain values to a sane range. */
+function sanitizeDrainMs(raw: number): number {
+  if (!Number.isFinite(raw) || raw < 0) {
+    return DRAIN_DEFAULT_MS;
+  }
+  return Math.min(raw, DRAIN_MAX_MS);
 }

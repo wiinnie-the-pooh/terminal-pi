@@ -1,30 +1,53 @@
 import * as vscode from 'vscode';
+import { getConfig } from './config';
 import { PI_TERMINAL_NAME } from './piTerminal';
 import { resolvePiShell } from './piResolver';
+import { withActivationDisabled } from './pythonActivationGuard';
 import { getPiTerminalEnv } from './terminalEnv';
 
 export class PiTerminalManager implements vscode.Disposable {
-
   /**
-   * Create a terminal that runs pi directly as the shell process.
+   * Create a Pi terminal and bring it to the foreground.
    *
-   * The shellPath is resolved so that extensions (e.g. ms-python) do not
-   * classify the terminal as a known shell and inject activation commands
-   * via sendText.  See `resolvePiShell` for the per-platform strategy.
+   * Two layers of defence against external `sendText` injection (notably
+   * ms-python's venv activation):
    *
-   * The pi arguments are passed as shellArgs, so pi starts with the correct
-   * arguments immediately and no sendText call is needed after creation.
+   *   1. `resolvePiShell` picks a `shellPath` that isn't a recognised
+   *      shell, avoiding shell-type-based activation hooks.
+   *   2. `withActivationDisabled` temporarily flips
+   *      `python.terminal.activateEnvironment` to `false` around the
+   *      `createTerminal` call, draining long enough for ms-python's
+   *      `onDidOpenTerminal` handler to observe the override, then
+   *      restores the previous value.
+   *
+   * Both `createTerminal` and `show` run inside the override closure so
+   * the terminal appears in the UI immediately; the drain+restore runs
+   * in the background from the user's perspective.
    */
-  private createTerminal(editorCommand: string, piArgs: string[]): vscode.Terminal {
+  private async createAndShowTerminal(
+    editorCommand: string,
+    piArgs: string[],
+  ): Promise<void> {
     const { shellPath, prefixArgs } = resolvePiShell();
-    return vscode.window.createTerminal({
+    const { virtualEnvironmentOverride, virtualEnvironmentDrainMs } = getConfig();
+    const options: vscode.TerminalOptions = {
       name: PI_TERMINAL_NAME,
       shellPath,
       shellArgs: [...prefixArgs, ...piArgs],
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
       env: getPiTerminalEnv(editorCommand),
-    });
+    };
+    if (virtualEnvironmentOverride) {
+      await withActivationDisabled(() => {
+        const terminal = vscode.window.createTerminal(options);
+        terminal.show(false);
+      }, virtualEnvironmentDrainMs);
+      return;
+    }
+
+    const terminal = vscode.window.createTerminal(options);
+    terminal.show(false);
   }
 
   /**
@@ -63,16 +86,15 @@ export class PiTerminalManager implements vscode.Disposable {
     return args;
   }
 
-  public runInteractive(
+  public async runInteractive(
     defaultArgs: string,
     editorCommand: string,
     filePath?: string,
-  ): void {
-    const terminal = this.createTerminal(
+  ): Promise<void> {
+    await this.createAndShowTerminal(
       editorCommand,
       this.buildArgs(defaultArgs, [], filePath),
     );
-    terminal.show(false);
   }
 
   public async runPrintMode(
@@ -88,27 +110,30 @@ export class PiTerminalManager implements vscode.Disposable {
     if (message === undefined) {
       return;
     }
-    const terminal = this.createTerminal(
+    await this.createAndShowTerminal(
       editorCommand,
       this.buildArgs(defaultArgs, ['-p'], filePath, message),
     );
-    terminal.show(false);
   }
 
-  public runContinue(defaultArgs: string, editorCommand: string): void {
-    const terminal = this.createTerminal(
+  public async runContinue(
+    defaultArgs: string,
+    editorCommand: string,
+  ): Promise<void> {
+    await this.createAndShowTerminal(
       editorCommand,
       this.buildArgs(defaultArgs, ['-c']),
     );
-    terminal.show(false);
   }
 
-  public runBrowseSessions(defaultArgs: string, editorCommand: string): void {
-    const terminal = this.createTerminal(
+  public async runBrowseSessions(
+    defaultArgs: string,
+    editorCommand: string,
+  ): Promise<void> {
+    await this.createAndShowTerminal(
       editorCommand,
       this.buildArgs(defaultArgs, ['-r']),
     );
-    terminal.show(false);
   }
 
   public dispose(): void {
