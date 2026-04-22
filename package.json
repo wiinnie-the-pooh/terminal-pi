@@ -2,7 +2,7 @@
   "name": "pi-dock",
   "displayName": "Pi Dock",
   "description": "Pi Agent Docked in the VS Code Editor Area",
-  "version": "0.2.26",
+  "version": "0.2.27",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
