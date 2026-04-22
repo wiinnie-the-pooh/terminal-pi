@@ -4,7 +4,8 @@ This document describes the intended behavior of the `pi-dock` VS Code extension
 
 It is intentionally focused on the extension's real scope. Obsolete requirements from earlier iterations have been removed.
 
-For build, test, packaging, and release workflow see `AGENTS.md`.
+For build, packaging, publishing, and contributor workflow see `AGENTS.md`.
+For human verification and manual smoke testing see `TESTING.md`.
 For user-facing usage examples see `README.md`.
 
 ## 1. Purpose

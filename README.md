@@ -118,6 +118,8 @@ npm run compile
 npm test
 ```
 
+For manual verification in a live VS Code instance, see `TESTING.md`.
+
 ### Packaging
 
 ```sh
