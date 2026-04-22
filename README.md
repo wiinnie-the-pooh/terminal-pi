@@ -1,4 +1,4 @@
-# Pi Dock - Pi Dock for VS Code
+# Pi Dock — Pi agent docked in VS Code
 
 <p align="center">
   <img src="resources/icons/pi-dock.png" alt="Pi Dock" width="96">
