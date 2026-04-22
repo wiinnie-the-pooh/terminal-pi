@@ -38,12 +38,34 @@ npm install -g @mariozechner/pi-coding-agent
 ## Features
 
 - **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
+- **Skill / Template / Extension actions** - run Pi on Explorer selections or the current file with popup pickers for Pi resources
 - **Ctrl+G external editor** - opens the current `Pi` prompt in an external editor; on save and close, it returns to `Pi`.
 - **Configurable** - set default CLI args and choose your editor command
 
 ### Status bar launcher
 
 - Every click opens a fresh `Pi Dock` session into VS Code `Editor Area`.
+
+### Run Pi with workspace resources
+
+- Right-click selected file(s) in the Explorer or the current editor file to run:
+  - `Run Pi with Skill...`
+  - `Run Pi with Template...`
+  - `Run Pi with Extension...`
+
+- The same flows are also available from the Command Palette:
+  - `Pi Dock: Run Pi with Skill...`
+  - `Pi Dock: Run Pi with Template...`
+  - `Pi Dock: Run Pi with Extension...`
+
+- Resource pickers are popup-only and support multi-select within the chosen type:
+  - **Skill** picker shows `SKILL.md` files, but Pi receives the parent directory via repeated `--skill <dir>` flags
+  - **Template** picker shows `.md` files and passes them via repeated `--prompt-template <file>` flags
+  - **Extension** picker shows `.ts` files and passes them via repeated `--extension <file>` flags
+
+- Explorer actions ignore selected folders and only pass files to Pi.
+
+- If a command is launched from the Command Palette with no active editor file, Pi Dock shows a workspace-file Quick Pick first so you can choose the target file.
 
 ### Edit prompts outside the `Pi` session
 
@@ -60,9 +82,12 @@ npm install -g @mariozechner/pi-coding-agent
 
 ## Commands
 
-| Command                  | Description                      |
-|--------------------------|----------------------------------|
-| Pi Dock: Run Pi Dock     | Open an interactive `pi` session |
+| Command                               | Description |
+|---------------------------------------|-------------|
+| Pi Dock: Run Pi Dock                  | Open an interactive `pi` session |
+| Pi Dock: Run Pi with Skill...         | Run Pi on selected files with one or more `--skill` resources |
+| Pi Dock: Run Pi with Template...      | Run Pi on selected files with one or more `--prompt-template` resources |
+| Pi Dock: Run Pi with Extension...     | Run Pi on selected files with one or more `--extension` resources |
 
 ---
 
