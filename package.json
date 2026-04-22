@@ -46,26 +46,6 @@
           "light": "resources/icons/pi-light.svg",
           "dark": "resources/icons/pi-dark.svg"
         }
-      },
-      {
-        "command": "piCodingAgent.runWithFile",
-        "title": "Run Pi Coding Agent with Current File",
-        "category": "Pi"
-      },
-      {
-        "command": "piCodingAgent.runPrintMode",
-        "title": "Run Pi Coding Agent (Print Mode)",
-        "category": "Pi"
-      },
-      {
-        "command": "piCodingAgent.continueSession",
-        "title": "Continue Most Recent Pi Session",
-        "category": "Pi"
-      },
-      {
-        "command": "piCodingAgent.browseSessions",
-        "title": "Browse Pi Sessions",
-        "category": "Pi"
       }
     ],
     "configuration": {
@@ -110,18 +90,6 @@
         {
           "command": "piCodingAgent.run",
           "group": "navigation@-1"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "piCodingAgent.runWithFile",
-          "group": "navigation"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "piCodingAgent.runWithFile",
-          "group": "navigation"
         }
       ]
     },

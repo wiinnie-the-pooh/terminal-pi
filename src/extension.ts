@@ -4,7 +4,7 @@ import {
   isPiTerminalName,
   PI_TERMINAL_ACTIVE_CONTEXT,
 } from './piTerminal';
-import { PiTerminalManager, resolveFilePath } from './terminal';
+import { PiTerminalManager } from './terminal';
 
 let statusBarItem: vscode.StatusBarItem | undefined;
 let terminalManager: PiTerminalManager;
@@ -17,41 +17,6 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('piCodingAgent.run', async () => {
       const cfg = getConfig();
       await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.runWithFile', async () => {
-      const cfg = getConfig();
-      const filePath = resolveFilePath();
-      if (!filePath) {
-        vscode.window.showWarningMessage(
-          'Pi Coding Agent: No file or workspace folder is open. Opening pi without file context.'
-        );
-      }
-      await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand, filePath);
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.runPrintMode', async () => {
-      const cfg = getConfig();
-      const filePath = resolveFilePath();
-      await terminalManager.runPrintMode(cfg.defaultArgs, cfg.editorCommand, filePath);
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.continueSession', async () => {
-      const cfg = getConfig();
-      await terminalManager.runContinue(cfg.defaultArgs, cfg.editorCommand);
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.browseSessions', async () => {
-      const cfg = getConfig();
-      await terminalManager.runBrowseSessions(cfg.defaultArgs, cfg.editorCommand);
     })
   );
 
