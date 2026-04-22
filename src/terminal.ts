@@ -3,6 +3,7 @@ import { getConfig } from './config';
 import { PI_TERMINAL_NAME } from './piTerminal';
 import { resolvePiShell } from './piResolver';
 import { withActivationDisabled } from './pythonActivationGuard';
+import { resolveEditorCommand } from './editorCommandResolver';
 import { getPiTerminalEnv } from './terminalEnv';
 
 export class PiTerminalManager implements vscode.Disposable {
@@ -30,13 +31,19 @@ export class PiTerminalManager implements vscode.Disposable {
   ): Promise<void> {
     const { shellPath, prefixArgs } = resolvePiShell();
     const { virtualEnvironmentOverride, virtualEnvironmentDrainMs } = getConfig();
+    const resolvedEditorCommand = resolveEditorCommand({
+      configuredEditorCommand: editorCommand,
+      appHost: vscode.env.appHost,
+      uriScheme: vscode.env.uriScheme,
+      appName: vscode.env.appName,
+    });
     const options: vscode.TerminalOptions = {
       name: PI_TERMINAL_NAME,
       shellPath,
       shellArgs: [...prefixArgs, ...piArgs],
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
-      env: getPiTerminalEnv(editorCommand),
+      env: getPiTerminalEnv(editorCommand, resolvedEditorCommand),
     };
     if (virtualEnvironmentOverride) {
       await withActivationDisabled(() => {

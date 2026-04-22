@@ -16,7 +16,7 @@ export function getConfig(): PiConfig {
   const cfg = vscode.workspace.getConfiguration(SECTION);
   return {
     defaultArgs: cfg.get<string>('defaultArgs', ''),
-    editorCommand: cfg.get<string>('editorCommand', 'code --wait'),
+    editorCommand: cfg.get<string>('editorCommand', ''),
     virtualEnvironmentOverride: cfg.get<boolean>('virtualEnvironmentOverride', true),
     virtualEnvironmentDrainMs: sanitizeDrainMs(
       cfg.get<number>('virtualEnvironmentDrainMs', DRAIN_DEFAULT_MS),

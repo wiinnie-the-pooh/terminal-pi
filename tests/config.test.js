@@ -13,6 +13,22 @@ Module._resolveFilename = function (request, ...rest) {
 const vscodeStub = require('./__fixtures__/vscode-config-stub.js');
 const { getConfig } = require('../out/config.js');
 
+test('editorCommand defaults to an empty string so the extension can auto-detect it', () => {
+  vscodeStub.__setConfigValues({});
+
+  const cfg = getConfig();
+
+  assert.equal(cfg.editorCommand, '');
+});
+
+test('editorCommand preserves an explicit configured value', () => {
+  vscodeStub.__setConfigValues({ editorCommand: 'cursor --wait' });
+
+  const cfg = getConfig();
+
+  assert.equal(cfg.editorCommand, 'cursor --wait');
+});
+
 test('virtualEnvironmentOverride defaults to true', () => {
   vscodeStub.__setConfigValues({});
 
