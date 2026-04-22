@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Pi Coding Agent CLI are documented here.
+All notable changes to Pi Dock are documented here.
 
 ## [0.2.4]
 
@@ -16,7 +16,7 @@ All notable changes to Pi Coding Agent CLI are documented here.
 
 ### Added
 - Pi terminals now export `EDITOR` and `VISUAL` so Pi's external-editor flow opens in VS Code
-- New `piCodingAgent.editorCommand` setting to configure the editor command
+- New `piDock.editorCommand` setting to configure the editor command
 
 ## [0.2.1]
 

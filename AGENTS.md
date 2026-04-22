@@ -1,4 +1,4 @@
-# Pi Coding Agent VS Code Extension — Developer Reference
+# Pi Dock VS Code Extension — Developer Reference
 
 This file documents how to build, test, publish, and version the extension.
 It is the authoritative reference for both human developers and AI coding agents.
@@ -77,7 +77,7 @@ Integrated terminal behavior still requires manual testing inside a live VS Code
 2. Install it:
 
    ```sh
-   code --install-extension pi-coding-agent-*.vsix
+   code --install-extension pi-dock-*.vsix
    ```
 
 3. Reload VS Code (`Developer: Reload Window` from Command Palette).
@@ -89,28 +89,28 @@ Run through these after every non-trivial change:
 | # | Action | Expected result |
 |---|--------|----------------|
 | 1 | Open any workspace folder | `$(terminal) Pi` button visible in status bar bottom-left |
-| 2 | Click status bar button | Terminal named "Pi Coding Agent" opens; `pi` starts directly (no shell prompt before it) |
+| 2 | Click status bar button | Terminal named "Pi Dock" opens; `pi` starts directly (no shell prompt before it) |
 | 3 | Run same command again (terminal still open) | A new terminal opens; the original terminal remains unchanged |
 | 4 | Close one Pi terminal; run command again | A new terminal opens |
-| 5 | Open a file; run "Pi: Run Pi Coding Agent with Current File" | Pi starts with `@<absolute-path-to-file>` as its first argument |
+| 5 | Open a file; run "Pi Dock: Run Pi Dock with Current File" | Pi starts with `@<absolute-path-to-file>` as its first argument |
 | 6 | Close all editors (keep folder open); run "with Current File" | Pi starts with `@<workspace-root>` as its first argument |
 | 7 | Open VS Code with no folder; run "with Current File" | Warning notification shown; `pi` launched without `@filepath` |
-| 8 | Run "Pi: Run Pi Coding Agent (Print Mode)"; enter text | Input box appears; pi starts with `-p` and the entered text as arguments |
-| 9 | Run "Pi: Continue Most Recent Pi Session" | Pi starts with `-c` |
-| 10 | Run "Pi: Browse Pi Sessions" | Pi starts with `-r` |
-| 11 | Set `piCodingAgent.defaultArgs` to `"--thinking low"`; run command | Pi starts with `--thinking low` passed as arguments |
-| 12 | Right-click a file in Explorer | "Run Pi Coding Agent with Current File" in context menu |
-| 13 | Right-click inside an editor | "Run Pi Coding Agent with Current File" in context menu |
+| 8 | Run "Pi Dock: Run Pi Dock (Print Mode)"; enter text | Input box appears; pi starts with `-p` and the entered text as arguments |
+| 9 | Run "Pi Dock: Continue Most Recent Pi Session" | Pi starts with `-c` |
+| 10 | Run "Pi Dock: Browse Pi Sessions" | Pi starts with `-r` |
+| 11 | Set `piDock.defaultArgs` to `"--thinking low"`; run command | Pi starts with `--thinking low` passed as arguments |
+| 12 | Right-click a file in Explorer | "Run Pi Dock with Current File" in context menu |
+| 13 | Right-click inside an editor | "Run Pi Dock with Current File" in context menu |
 | 14 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow in VS Code without an editor warning |
-| 15 | Set `piCodingAgent.editorCommand` to `code-insiders --wait`; run Pi and press `Ctrl+G` | Pi uses the configured editor command instead of the default one |
+| 15 | Set `piDock.editorCommand` to `code-insiders --wait`; run Pi and press `Ctrl+G` | Pi uses the configured editor command instead of the default one |
 | 16 | Open a Python project with a venv configured; open a Pi terminal | No venv activation command appears in the Pi terminal; pi starts cleanly |
 | 17 | On Windows, open a Pi terminal and inspect the terminal process tree (e.g. Process Explorer) | The terminal runs `node.exe <...>\@mariozechner\pi-coding-agent\dist\cli.js`, not `cmd.exe` or `pi.cmd` |
 | 18 | With ms-python installed and a workspace that has a `.venv`, open a Pi terminal | No venv activation text appears in the Pi terminal; pi starts cleanly |
 | 19 | During test 18, open `settings.json` within ~150 ms of the Pi terminal appearing | `python.terminal.activateEnvironment` is briefly present as `false` at workspace scope, then disappears (or returns to its prior value) once the drain completes |
 | 20 | Pre-set `python.terminal.activateEnvironment` to `false` in settings, then open a Pi terminal | Setting is untouched throughout (the guard detects activation is already disabled and skips the flip) |
-| 21 | Set `piCodingAgent.virtualEnvironmentDrainMs` to `0`, open a Pi terminal | Venv activation text may reappear (expected: 0 disables the drain and races with ms-python) |
-| 22 | Set `piCodingAgent.virtualEnvironmentDrainMs` to `500`, open a Pi terminal | No venv activation; the restore of `python.terminal.activateEnvironment` happens ~500 ms after the terminal appears |
-| 23 | Set `piCodingAgent.virtualEnvironmentOverride` to `false`, open a Pi terminal in a Python workspace | The extension does not touch `python.terminal.activateEnvironment`; the workaround is disabled explicitly by the user |
+| 21 | Set `piDock.virtualEnvironmentDrainMs` to `0`, open a Pi terminal | Venv activation text may reappear (expected: 0 disables the drain and races with ms-python) |
+| 22 | Set `piDock.virtualEnvironmentDrainMs` to `500`, open a Pi terminal | No venv activation; the restore of `python.terminal.activateEnvironment` happens ~500 ms after the terminal appears |
+| 23 | Set `piDock.virtualEnvironmentOverride` to `false`, open a Pi terminal in a Python workspace | The extension does not touch `python.terminal.activateEnvironment`; the workaround is disabled explicitly by the user |
 
 ## Versioning
 
@@ -155,7 +155,7 @@ Build a local `.vsix` installable file:
 
 ```sh
 npm run package
-# emits: pi-coding-agent-<version>.vsix
+# emits: pi-dock-<version>.vsix
 ```
 
 `vsce package` reads `package.json`, compiles via `vscode:prepublish`, applies `.vscodeignore`, and writes the `.vsix`.

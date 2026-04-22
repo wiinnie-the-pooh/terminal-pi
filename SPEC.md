@@ -1,7 +1,7 @@
-# Pi Coding Agent VS Code Extension -- Functional Specification
+# Pi Dock VS Code Extension -- Functional Specification
 
 This document describes the purpose, requirements, and design rationale of the
-`pi-coding-agent` VS Code extension. A coding agent reading this file should be
+`pi-dock` VS Code extension. A coding agent reading this file should be
 able to understand the goals well enough to produce a correct implementation plan
 and reproduce (or improve upon) the current functionality from scratch.
 
@@ -67,34 +67,34 @@ context without requiring the user to type the path manually.
 - `--no-session` -- ephemeral mode (no session saved)
 - `--mode rpc` -- machine-readable JSON protocol over stdin/stdout
 
-These are exposed indirectly via the `piCodingAgent.defaultArgs` setting, which
+These are exposed indirectly via the `piDock.defaultArgs` setting, which
 is appended verbatim to every command the extension sends.
 
 ## 3. Functional Requirements
 
 ### 3.1 Commands
 
-The extension contributes five commands, all in the "Pi" category and all
+The extension contributes five commands, all in the "Pi Dock" category and all
 accessible via the Command Palette.
 
-#### FR-CMD-1  Run Pi Coding Agent
+#### FR-CMD-1  Run Pi Dock
 
-- Command ID: `piCodingAgent.run`
+- Command ID: `piDock.run`
 - Sends `pi [defaultArgs]` to the managed terminal.
 - No file context is passed. This is the "clean session" entry point.
 
-#### FR-CMD-2  Run Pi Coding Agent with Current File
+#### FR-CMD-2  Run Pi Dock with Current File
 
-- Command ID: `piCodingAgent.runWithFile`
+- Command ID: `piDock.runWithFile`
 - Resolves a file path (see FR-CTX-1) and sends `pi [defaultArgs] @"<path>"`.
 - If no path can be resolved, shows a VS Code warning notification and falls
     back to launching `pi` without a file argument (does not silently do nothing).
 - Available in the Explorer right-click context menu and the editor
     right-click context menu.
 
-#### FR-CMD-3  Run Pi Coding Agent (Print Mode)
+#### FR-CMD-3  Run Pi Dock (Print Mode)
 
-- Command ID: `piCodingAgent.runPrintMode`
+- Command ID: `piDock.runPrintMode`
 - Shows a VS Code input box prompting for a message.
 - If the user dismisses the input box (Escape), does nothing.
 - Sends `pi -p [defaultArgs] [@"<path>"] "<message>"` where `<path>` is
@@ -102,12 +102,12 @@ accessible via the Command Palette.
 
 #### FR-CMD-4  Continue Most Recent Pi Session
 
-- Command ID: `piCodingAgent.continueSession`
+- Command ID: `piDock.continueSession`
 - Sends `pi -c [defaultArgs]` to the managed terminal.
 
 #### FR-CMD-5  Browse Pi Sessions
 
-- Command ID: `piCodingAgent.browseSessions`
+- Command ID: `piDock.browseSessions`
 - Sends `pi -r [defaultArgs]` to the managed terminal.
 
 ### 3.2 File path resolution (FR-CTX-1)
@@ -123,7 +123,7 @@ When a command needs context, the extension resolves a path in priority order:
 
 #### FR-TERM-1  Named terminal
 
-The extension creates terminals with the fixed name "Pi Coding Agent".
+The extension creates terminals with the fixed name "Pi Dock".
 
 #### FR-TERM-2  Fresh terminal per invocation
 
@@ -149,16 +149,16 @@ A status bar item is created during activation:
 - Alignment: left
 - Priority: 100 (places it left of the language mode indicator)
 - Text: `$(terminal) Pi` (uses the built-in `terminal` codicon)
-- Tooltip: "Run Pi Coding Agent"
-- Click action: triggers `piCodingAgent.run`
+- Tooltip: "Run Pi Dock"
+- Click action: triggers `piDock.run`
 
 ### 3.5 Settings
 
-All settings live under the `piCodingAgent` namespace.
+All settings live under the `piDock` namespace.
 
 | Key                         | Type    | Default | Description                                              |
 |-----------------------------|---------|---------|----------------------------------------------------------|
-| `piCodingAgent.defaultArgs` | string  | ""      | Raw CLI flags appended to every `pi` invocation          |
+| `piDock.defaultArgs`        | string  | ""      | Raw CLI flags appended to every `pi` invocation          |
 
 `defaultArgs` is inserted between the mode flag (e.g. `-p`, `-c`) and the
 `@filepath` argument so the final command shape is always:
@@ -212,7 +212,7 @@ handle paths containing spaces on all platforms.
 ### 5.1 Module responsibilities
 
 ```
-src/config.ts     -- reads and watches piCodingAgent.* workspace settings
+src/config.ts     -- reads and watches piDock.* workspace settings
 src/terminal.ts   -- owns terminal lifecycle; builds command strings
 src/extension.ts  -- wires everything together; registers commands and status bar
 ```

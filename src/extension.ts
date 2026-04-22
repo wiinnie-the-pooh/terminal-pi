@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(terminalManager);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piCodingAgent.run', async () => {
+    vscode.commands.registerCommand('piDock.run', async () => {
       const cfg = getConfig();
       await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
     })
@@ -36,11 +36,11 @@ function setupStatusBar(context: vscode.ExtensionContext): void {
     vscode.StatusBarAlignment.Left,
     100
   );
-  statusBarItem.command = 'piCodingAgent.run';
+  statusBarItem.command = 'piDock.run';
   statusBarItem.text = '$(terminal) Pi';
-  statusBarItem.tooltip = 'Run Pi Coding Agent';
+  statusBarItem.tooltip = 'Run Pi Dock';
   statusBarItem.accessibilityInformation = {
-    label: 'Pi Coding Agent',
+    label: 'Pi Dock',
     role: 'button',
   };
   context.subscriptions.push(statusBarItem);

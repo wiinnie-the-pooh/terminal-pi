@@ -1,7 +1,7 @@
 {
-  "name": "pi-coding-agent",
-  "displayName": "Pi Coding Agent CLI",
-  "description": "Integrate the pi coding agent CLI into VS Code via the integrated terminal",
+  "name": "pi-dock",
+  "displayName": "Pi Dock",
+  "description": "Integrate the Pi Coding Agent CLI into VS Code via the integrated terminal",
   "version": "0.2.15",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "url": "https://github.com/wiinnie-the-pooh/terminal-pi/issues"
   },
   "homepage": "https://github.com/wiinnie-the-pooh/terminal-pi#readme",
-  "icon": "resources/icons/pi-coding-agent.png",
+  "icon": "resources/icons/pi-dock.png",
   "galleryBanner": {
     "color": "#1e1e1e",
     "theme": "dark"
@@ -39,9 +39,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "piCodingAgent.run",
-        "title": "Run Pi Coding Agent",
-        "category": "Pi",
+        "command": "piDock.run",
+        "title": "Run Pi Dock",
+        "category": "Pi Dock",
         "icon": {
           "light": "resources/icons/pi-light.svg",
           "dark": "resources/icons/pi-dark.svg"
@@ -49,40 +49,40 @@
       }
     ],
     "configuration": {
-      "title": "Pi Coding Agent",
+      "title": "Pi Dock",
       "properties": {
-        "piCodingAgent.defaultArgs": {
+        "piDock.defaultArgs": {
           "type": "string",
           "order": 1,
           "default": "",
           "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
         },
-        "piCodingAgent.editorCommand": {
+        "piDock.editorCommand": {
           "type": "string",
           "order": 2,
           "default": "code --wait",
           "description": "Command exported as EDITOR and VISUAL in Pi terminals. If empty, Pi falls back to the existing VISUAL/EDITOR environment variables, then to 'code --wait'."
         },
-        "piCodingAgent.virtualEnvironmentOverride": {
+        "piDock.virtualEnvironmentOverride": {
           "type": "boolean",
           "order": 4,
           "default": true,
           "description": "When true, the extension briefly disables Python terminal environment activation while creating a Pi terminal, preventing virtual-environment activation text from being injected into pi. Set to false to disable this workaround."
         },
-        "piCodingAgent.virtualEnvironmentDrainMs": {
+        "piDock.virtualEnvironmentDrainMs": {
           "type": "number",
           "order": 5,
           "default": 150,
           "minimum": 0,
           "maximum": 10000,
-          "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piCodingAgent.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
+          "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piDock.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
         }
       }
     },
     "menus": {
       "editor/title": [
         {
-          "command": "piCodingAgent.run",
+          "command": "piDock.run",
           "group": "navigation@-1"
         }
       ]
@@ -91,7 +91,7 @@
       {
         "command": "workbench.action.terminal.sendSequence",
         "key": "ctrl+g",
-        "when": "terminalFocus && piCodingAgent.activeTerminal",
+        "when": "terminalFocus && piDock.activeTerminal",
         "args": {
           "text": "\u0007"
         }
