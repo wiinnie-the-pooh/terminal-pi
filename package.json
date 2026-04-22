@@ -63,12 +63,6 @@
           "default": "code --wait",
           "description": "Command exported as EDITOR and VISUAL in Pi terminals. If empty, Pi falls back to the existing VISUAL/EDITOR environment variables, then to 'code --wait'."
         },
-        "piCodingAgent.showStatusBar": {
-          "type": "boolean",
-          "order": 3,
-          "default": true,
-          "description": "Show the Pi Coding Agent button in the status bar."
-        },
         "piCodingAgent.virtualEnvironmentOverride": {
           "type": "boolean",
           "order": 4,

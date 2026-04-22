@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Make <code>pi</code> feel native in VS Code.</strong><br>
-  One click to launch. <code>Ctrl+G</code> to write prompts like a human.
+  One click to launch. <code>Ctrl+G</code> to write prompts in your favorite editor.
 </p>
 
 <p align="center">
@@ -21,10 +21,6 @@
   </a>
 </p>
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/hero.png" alt="Pi Coding Agent in action" width="800">
-</p>
-
 ---
 
 ## Quick Start
@@ -35,27 +31,21 @@
 npm install -g @mariozechner/pi-coding-agent
 ```
 
-1. Install this extension from the VS Code Marketplace.
-2. Open any workspace folder.
-3. Click **Pi** in the status bar -- a Pi terminal opens beside your editor.
-
 ---
 
 ## Features
 
-- **Status bar launcher** -- open a fresh Pi session in one click, without leaving your editor
-- **Ctrl+G external editor** -- write long, structured prompts in a full VS Code editor tab, then send on save
-- **Configurable** -- set default CLI args, choose your editor command, toggle the status bar button
+- **Status bar launcher** -- open a fresh Pi session in one click in VS Code `Editor Area`
+- **Ctrl+G external editor** �- write prompt in VS Code; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
+- **Configurable** -- set default CLI args and choose your editor command
 
 ### Status bar launcher
 
-<img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/statusbar-click.png" alt="Pi status bar button" width="400">
+<img src="resources/images/statusbar-click.png" alt="Pi status bar button">
 
 Every click opens a fresh terminal beside your editor. Existing terminals stay untouched.
 
 ### Ctrl+G
-
-<img src="https://raw.githubusercontent.com/wiinnie-the-pooh/terminal-pi/main/resources/images/ctrl-g-editor.png" alt="Ctrl+G external editor flow" width="600">
 
 Focus a Pi terminal and press `Ctrl+G` to open Pi's external-editor flow. Write your prompt in a real VS Code editor tab, then save -- it lands back in Pi.
 
@@ -77,7 +67,6 @@ Pi terminals created by this extension export `EDITOR` and `VISUAL` as `code --w
 |---|---|---|---|
 | `piCodingAgent.defaultArgs` | string | `""` | Extra CLI flags added to every `pi` invocation, e.g. `--model openai/gpt-4o` |
 | `piCodingAgent.editorCommand` | string | `"code --wait"` | Command exported as `EDITOR` and `VISUAL` for Pi terminals |
-| `piCodingAgent.showStatusBar` | boolean | `true` | Show or hide the **Pi** status bar button |
 
 ---
 

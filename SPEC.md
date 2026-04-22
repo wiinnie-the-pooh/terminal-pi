@@ -8,7 +8,6 @@ and reproduce (or improve upon) the current functionality from scratch.
 For the build/test/publish workflow see AGENTS.md.
 For usage instructions see README.md.
 
-
 ## 1. Purpose
 
 The `pi` command-line tool (pi-coding-agent) is an AI coding agent that runs in
@@ -27,7 +26,6 @@ It only:
 
 Everything after the command is sent -- the interactive session, model selection,
 tool calls, output -- happens inside the terminal and is owned by `pi` itself.
-
 
 ## 2. The `pi` CLI
 
@@ -63,15 +61,14 @@ context without requiring the user to type the path manually.
 
 ### 2.4 Other notable flags (not currently used by the extension)
 
-  - `--model <provider/id>` -- select AI model
-  - `--thinking <level>` -- reasoning depth (off, low, medium, high, xhigh)
-  - `--tools <list>` -- restrict built-in tools
-  - `--no-session` -- ephemeral mode (no session saved)
-  - `--mode rpc` -- machine-readable JSON protocol over stdin/stdout
+- `--model <provider/id>` -- select AI model
+- `--thinking <level>` -- reasoning depth (off, low, medium, high, xhigh)
+- `--tools <list>` -- restrict built-in tools
+- `--no-session` -- ephemeral mode (no session saved)
+- `--mode rpc` -- machine-readable JSON protocol over stdin/stdout
 
 These are exposed indirectly via the `piCodingAgent.defaultArgs` setting, which
 is appended verbatim to every command the extension sends.
-
 
 ## 3. Functional Requirements
 
@@ -82,36 +79,36 @@ accessible via the Command Palette.
 
 #### FR-CMD-1  Run Pi Coding Agent
 
-  - Command ID: `piCodingAgent.run`
-  - Sends `pi [defaultArgs]` to the managed terminal.
-  - No file context is passed. This is the "clean session" entry point.
+- Command ID: `piCodingAgent.run`
+- Sends `pi [defaultArgs]` to the managed terminal.
+- No file context is passed. This is the "clean session" entry point.
 
 #### FR-CMD-2  Run Pi Coding Agent with Current File
 
-  - Command ID: `piCodingAgent.runWithFile`
-  - Resolves a file path (see FR-CTX-1) and sends `pi [defaultArgs] @"<path>"`.
-  - If no path can be resolved, shows a VS Code warning notification and falls
+- Command ID: `piCodingAgent.runWithFile`
+- Resolves a file path (see FR-CTX-1) and sends `pi [defaultArgs] @"<path>"`.
+- If no path can be resolved, shows a VS Code warning notification and falls
     back to launching `pi` without a file argument (does not silently do nothing).
-  - Available in the Explorer right-click context menu and the editor
+- Available in the Explorer right-click context menu and the editor
     right-click context menu.
 
 #### FR-CMD-3  Run Pi Coding Agent (Print Mode)
 
-  - Command ID: `piCodingAgent.runPrintMode`
-  - Shows a VS Code input box prompting for a message.
-  - If the user dismisses the input box (Escape), does nothing.
-  - Sends `pi -p [defaultArgs] [@"<path>"] "<message>"` where `<path>` is
+- Command ID: `piCodingAgent.runPrintMode`
+- Shows a VS Code input box prompting for a message.
+- If the user dismisses the input box (Escape), does nothing.
+- Sends `pi -p [defaultArgs] [@"<path>"] "<message>"` where `<path>` is
     resolved the same way as FR-CMD-2.
 
 #### FR-CMD-4  Continue Most Recent Pi Session
 
-  - Command ID: `piCodingAgent.continueSession`
-  - Sends `pi -c [defaultArgs]` to the managed terminal.
+- Command ID: `piCodingAgent.continueSession`
+- Sends `pi -c [defaultArgs]` to the managed terminal.
 
 #### FR-CMD-5  Browse Pi Sessions
 
-  - Command ID: `piCodingAgent.browseSessions`
-  - Sends `pi -r [defaultArgs]` to the managed terminal.
+- Command ID: `piCodingAgent.browseSessions`
+- Sends `pi -r [defaultArgs]` to the managed terminal.
 
 ### 3.2 File path resolution (FR-CTX-1)
 
@@ -149,17 +146,11 @@ a newline, causing the shell to execute the command immediately.
 
 A status bar item is created during activation:
 
-  - Alignment: left
-  - Priority: 100 (places it left of the language mode indicator)
-  - Text: `$(terminal) Pi` (uses the built-in `terminal` codicon)
-  - Tooltip: "Run Pi Coding Agent"
-  - Click action: triggers `piCodingAgent.run`
-
-#### FR-STATUS-2  Visibility toggle
-
-When `piCodingAgent.showStatusBar` is changed in settings, the button shows or
-hides immediately without requiring a window reload. The change listener is
-registered during activation and disposed when the extension deactivates.
+- Alignment: left
+- Priority: 100 (places it left of the language mode indicator)
+- Text: `$(terminal) Pi` (uses the built-in `terminal` codicon)
+- Tooltip: "Run Pi Coding Agent"
+- Click action: triggers `piCodingAgent.run`
 
 ### 3.5 Settings
 
@@ -168,7 +159,6 @@ All settings live under the `piCodingAgent` namespace.
 | Key                         | Type    | Default | Description                                              |
 |-----------------------------|---------|---------|----------------------------------------------------------|
 | `piCodingAgent.defaultArgs` | string  | ""      | Raw CLI flags appended to every `pi` invocation          |
-| `piCodingAgent.showStatusBar` | boolean | true  | Show or hide the status bar button                       |
 
 `defaultArgs` is inserted between the mode flag (e.g. `-p`, `-c`) and the
 `@filepath` argument so the final command shape is always:
@@ -188,7 +178,6 @@ button appears immediately rather than waiting for the user to invoke a command.
 All disposables (commands, event listeners, terminal manager, status bar item)
 are added to `context.subscriptions`. VS Code calls `dispose()` on each when
 the extension deactivates. The exported `deactivate()` function is a no-op.
-
 
 ## 4. Non-functional Requirements
 
@@ -217,7 +206,6 @@ Target `"vscode": "^1.94.0"`. All APIs used (Terminal, StatusBarItem, codicons,
 
 File paths are always wrapped in double quotes in the generated command string to
 handle paths containing spaces on all platforms.
-
 
 ## 5. Architecture
 
@@ -249,42 +237,40 @@ string (produces just `pi`).
 `PiTerminalManager` creates a fresh VS Code terminal for each command invocation.
 It does not cache terminal instances or listen for terminal close events.
 
-
 ## 6. Out of scope
 
 The following are explicitly not part of this extension's responsibilities:
 
-  - Installing or updating the `pi` binary.
-  - Verifying that `pi` is on the PATH before running (failure surfaces naturally
+- Installing or updating the `pi` binary.
+- Verifying that `pi` is on the PATH before running (failure surfaces naturally
     in the terminal as a "command not found" error).
-  - Parsing or displaying `pi` output inside the VS Code UI (e.g. webview panels,
+- Parsing or displaying `pi` output inside the VS Code UI (e.g. webview panels,
     tree views, inline decorations).
-  - Communicating with `pi` over the RPC protocol (`--mode rpc`).
-  - Managing `pi` sessions, history, or configuration files.
-  - Keybinding assignments (users set these in their own `keybindings.json`).
-  - Automated tests (the VS Code extension test framework requires a live host
+- Communicating with `pi` over the RPC protocol (`--mode rpc`).
+- Managing `pi` sessions, history, or configuration files.
+- Keybinding assignments (users set these in their own `keybindings.json`).
+- Automated tests (the VS Code extension test framework requires a live host
     process; the logic is thin enough that manual testing is the primary strategy).
-
 
 ## 7. Potential improvements for a reimplementation
 
 These are areas where a reimplementation with a more modern approach could do better:
 
-  - **RPC / webview integration** -- `pi --mode rpc` exposes a JSON-line protocol
+- **RPC / webview integration** -- `pi --mode rpc` exposes a JSON-line protocol
     over stdin/stdout. A future version could spawn `pi` as a child process, speak
     RPC, and render output in a VS Code webview or sidebar panel, enabling richer
     UI (streaming output, clickable file links, diff views).
 
-  - **Bundling** -- If runtime dependencies are ever added, switching the compile
+- **Bundling** -- If runtime dependencies are ever added, switching the compile
     step to esbuild or webpack reduces the packaged `.vsix` size and startup time.
     The current setup (plain `tsc`) is intentionally minimal.
 
-  - **Model / session picker** -- A QuickPick UI could let users choose a model
+- **Model / session picker** -- A QuickPick UI could let users choose a model
     or resume a past session without memorising CLI flags.
 
-  - **Configuration validation** -- `defaultArgs` is currently passed verbatim.
+- **Configuration validation** -- `defaultArgs` is currently passed verbatim.
     Parsing it and offering completion/validation in settings would improve UX.
 
-  - **Automated integration tests** -- `@vscode/test-electron` runs a real VS Code
+- **Automated integration tests** -- `@vscode/test-electron` runs a real VS Code
     host; extracting `buildCommand` as a pure function would make unit testing
     straightforward without a live host.

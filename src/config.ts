@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 export interface PiConfig {
   defaultArgs: string;
   editorCommand: string;
-  showStatusBar: boolean;
   virtualEnvironmentOverride: boolean;
   virtualEnvironmentDrainMs: number;
 }
@@ -18,7 +17,6 @@ export function getConfig(): PiConfig {
   return {
     defaultArgs: cfg.get<string>('defaultArgs', ''),
     editorCommand: cfg.get<string>('editorCommand', 'code --wait'),
-    showStatusBar: cfg.get<boolean>('showStatusBar', true),
     virtualEnvironmentOverride: cfg.get<boolean>('virtualEnvironmentOverride', true),
     virtualEnvironmentDrainMs: sanitizeDrainMs(
       cfg.get<number>('virtualEnvironmentDrainMs', DRAIN_DEFAULT_MS),

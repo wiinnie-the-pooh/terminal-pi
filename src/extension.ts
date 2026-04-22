@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getConfig, onConfigChange } from './config';
+import { getConfig } from './config';
 import {
   isPiTerminalName,
   PI_TERMINAL_ACTIVE_CONTEXT,
@@ -28,10 +28,6 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  context.subscriptions.push(
-    onConfigChange((cfg) => updateStatusBarVisibility(cfg.showStatusBar))
-  );
-
   void updateActiveTerminalContext();
 }
 
@@ -48,14 +44,7 @@ function setupStatusBar(context: vscode.ExtensionContext): void {
     role: 'button',
   };
   context.subscriptions.push(statusBarItem);
-  updateStatusBarVisibility(getConfig().showStatusBar);
-}
-
-function updateStatusBarVisibility(show: boolean): void {
-  if (!statusBarItem) {
-    return;
-  }
-  show ? statusBarItem.show() : statusBarItem.hide();
+  statusBarItem.show();
 }
 
 async function updateActiveTerminalContext(): Promise<void> {
