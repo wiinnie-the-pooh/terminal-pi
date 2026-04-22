@@ -13,3 +13,4 @@ AGENTS.md
 SPEC.md
 docs/**
 CHANGELOG.md
+eslint.config.mjs
