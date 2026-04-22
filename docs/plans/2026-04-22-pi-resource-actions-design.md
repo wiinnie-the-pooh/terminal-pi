@@ -9,7 +9,7 @@ Topic: Add Pi resource launchers for skills, prompt templates, and extensions
 Let users launch Pi against selected workspace file targets with one of three resource-specific flows:
 
 - `Pi Dock: Run Pi with Skill...`
-- `Pi Dock: Run Pi with Prompt Template...`
+- `Pi Dock: Run Pi with Template...`
 - `Pi Dock: Run Pi with Extension...`
 
 The same behavior must be available from:
@@ -27,7 +27,7 @@ The UI surface should expose three distinct entry points instead of a combined "
 Each action handles exactly one Pi flag family:
 
 - Skill action -> `--skill`
-- Prompt Template action -> `--prompt-template`
+- Template action -> `--prompt-template`
 - Extension action -> `--extension`
 
 Although the Pi CLI supports combining these flag families, this extension feature intentionally does not compose mixed resource types in one launch.
@@ -121,7 +121,7 @@ The extension should continue launching Pi in a fresh `Pi Dock` terminal beside 
 Add these actions to Explorer context menus:
 
 - `Run Pi with Skill...`
-- `Run Pi with Prompt Template...`
+- `Run Pi with Template...`
 - `Run Pi with Extension...`
 
 Behavior:
@@ -150,7 +150,7 @@ Behavior:
 Expose three real commands with the same labels and behavior:
 
 - `Pi Dock: Run Pi with Skill...`
-- `Pi Dock: Run Pi with Prompt Template...`
+- `Pi Dock: Run Pi with Template...`
 - `Pi Dock: Run Pi with Extension...`
 
 Direct command invocation should behave like this:
@@ -243,10 +243,10 @@ Add tests for:
 Extend the manual checklist to cover:
 
 - Explorer: Run Pi with Skill...
-- Explorer: Run Pi with Prompt Template...
+- Explorer: Run Pi with Template...
 - Explorer: Run Pi with Extension...
 - Editor: Run Pi with Skill...
-- Editor: Run Pi with Prompt Template...
+- Editor: Run Pi with Template...
 - Editor: Run Pi with Extension...
 - Explorer mixed file/folder selection ignoring folders correctly
 - direct command invocation with active editor file
