@@ -82,6 +82,15 @@ For human verification in a live VS Code instance, see `TESTING.md`.
 
 The automated test suite covers non-VS-Code helpers only; integrated terminal behavior and UX flows require manual validation.
 
+## Continuous Integration
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`:
+
+- **Matrix:** Node.js 18 / 20 / 22 on `ubuntu-latest` and `windows-latest`
+- **Steps:** `npm ci` → `npm run compile` → `npm test` → `npm run package`
+
+Ensure the workflow passes before merging. Branch protection can be configured in the GitHub repository settings to require the CI check.
+
 ## Versioning
 
 This project uses [Semantic Versioning](https://semver.org/):
