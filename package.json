@@ -46,6 +46,21 @@
           "light": "resources/icons/pi-light.svg",
           "dark": "resources/icons/pi-dark.svg"
         }
+      },
+      {
+        "command": "piDock.runWithSkill",
+        "title": "Run Pi with Skill...",
+        "category": "Pi Dock"
+      },
+      {
+        "command": "piDock.runWithTemplate",
+        "title": "Run Pi with Template...",
+        "category": "Pi Dock"
+      },
+      {
+        "command": "piDock.runWithExtension",
+        "title": "Run Pi with Extension...",
+        "category": "Pi Dock"
       }
     ],
     "configuration": {
@@ -84,6 +99,40 @@
         {
           "command": "piDock.run",
           "group": "navigation@-1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "piDock.runWithSkill",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithTemplate",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithExtension",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "piDock.runWithSkill",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithTemplate",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithExtension",
+          "when": "resourceScheme == file",
+          "group": "navigation"
         }
       ]
     },
