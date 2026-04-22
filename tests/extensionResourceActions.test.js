@@ -177,7 +177,7 @@ test('command palette warns when no matching workspace resources are found', asy
   assert.match(warnings[0], /extensions/i);
 });
 
-test('createResourceActionHandler swallows terminalManager errors and does not throw', async () => {
+test('createResourceActionHandler swallows terminalManager errors and does not throw', async (t) => {
   const vscodeStub = require('./__fixtures__/vscode-stub.js');
   const errorMessages = [];
   const originalShowError = vscodeStub.window.showErrorMessage;
@@ -185,27 +185,27 @@ test('createResourceActionHandler swallows terminalManager errors and does not t
     errorMessages.push(message);
   };
 
-  try {
-    const { deps, calls } = createDeps({
-      terminalManager: {
-        runWithResources: async () => {
-          throw new Error('terminal creation failed');
-        },
-      },
-    });
-    const run = createResourceActionHandler(deps);
-
-    // Should resolve (not reject) even though runWithResources throws.
-    await assert.doesNotReject(async () => {
-      await run('skill', undefined, [
-        { scheme: 'file', fsPath: 'C:\\repo\\.pi\\skills\\review\\SKILL.md', isDirectory: false },
-      ]);
-    });
-
-    assert.equal(calls.length, 0);
-    assert.equal(errorMessages.length, 1);
-    assert.match(errorMessages[0], /terminal creation failed/);
-  } finally {
+  t.after(() => {
     vscodeStub.window.showErrorMessage = originalShowError;
-  }
+  });
+
+  const { deps, calls } = createDeps({
+    terminalManager: {
+      runWithResources: async () => {
+        throw new Error('terminal creation failed');
+      },
+    },
+  });
+  const run = createResourceActionHandler(deps);
+
+  // Should resolve (not reject) even though runWithResources throws.
+  await assert.doesNotReject(async () => {
+    await run('skill', undefined, [
+      { scheme: 'file', fsPath: 'C:\\repo\\.pi\\skills\\review\\SKILL.md', isDirectory: false },
+    ]);
+  });
+
+  assert.equal(calls.length, 0);
+  assert.equal(errorMessages.length, 1);
+  assert.match(errorMessages[0], /terminal creation failed/);
 });

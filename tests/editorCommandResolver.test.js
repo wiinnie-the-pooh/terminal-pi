@@ -110,7 +110,7 @@ test('returns undefined for unknown products', () => {
   assert.equal(result, undefined);
 });
 
-test('commandExistsOnPath uses where on Windows and which elsewhere', () => {
+test('commandExistsOnPath uses where on Windows and which elsewhere', (t) => {
   const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
   const calls = [];
 
@@ -124,24 +124,24 @@ test('commandExistsOnPath uses where on Windows and which elsewhere', () => {
   const childProcess = require('node:child_process');
   childProcess.spawnSync = mockSpawnSync;
 
-  try {
-    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-    commandExistsOnPath('code');
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0][0], 'where');
-    assert.deepEqual(calls[0][1], ['code']);
-
-    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
-    commandExistsOnPath('code');
-    assert.equal(calls.length, 2);
-    assert.equal(calls[1][0], 'which');
-    assert.deepEqual(calls[1][1], ['code']);
-  } finally {
+  t.after(() => {
     childProcess.spawnSync = originalSpawnSync;
     if (originalPlatform) {
       Object.defineProperty(process, 'platform', originalPlatform);
     } else {
       delete process.platform;
     }
-  }
+  });
+
+  Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+  commandExistsOnPath('code');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], 'where');
+  assert.deepEqual(calls[0][1], ['code']);
+
+  Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+  commandExistsOnPath('code');
+  assert.equal(calls.length, 2);
+  assert.equal(calls[1][0], 'which');
+  assert.deepEqual(calls[1][1], ['code']);
 });
