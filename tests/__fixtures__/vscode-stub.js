@@ -9,5 +9,6 @@ module.exports = {
   },
   window: {
     onDidCloseTerminal: () => ({ dispose: () => {} }),
+    showErrorMessage: async () => undefined,
   },
 };
