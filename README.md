@@ -36,20 +36,20 @@ npm install -g @mariozechner/pi-coding-agent
 ## Features
 
 - **Status bar launcher** -- open a fresh Pi session in one click in VS Code `Editor Area`
-- **Ctrl+G external editor** ï¿½- write prompt in VS Code; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
+- **Ctrl+G external editor** -- write prompt in VS Code; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
 - **Configurable** -- set default CLI args and choose your editor command
 
 ### Status bar launcher
 
 <img src="resources/images/statusbar-click.png" alt="Pi status bar button">
 
-Every click opens a fresh terminal beside your editor. Existing terminals stay untouched.
+Every click opens a fresh `Pi Coding Agent` session into VS Code `Editor Area`.
 
-### Ctrl+G
+### Edit prompts outside the `Pi` session
 
-Focus a Pi terminal and press `Ctrl+G` to open Pi's external-editor flow. Write your prompt in a real VS Code editor tab, then save -- it lands back in Pi.
+Focus the `Pi Coding Agent` session and press `Ctrl+G` to open the external editor. Write your prompt in a VS Code tab, then save and close — it is sent back to `Pi`.
 
-Pi terminals created by this extension export `EDITOR` and `VISUAL` as `code --wait`, so the flow opens right in your current window.
+`Pi` terminals created by this extension export `EDITOR` and `VISUAL` as `code --wait`, so the flow opens right in your current window.
 
 ---
 
