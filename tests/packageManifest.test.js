@@ -23,12 +23,19 @@ test('package.json contributes Pi resource action commands with Template labels'
   assert.equal(titles.has('piDock.runWithPromptTemplate'), false);
 });
 
+test('package.json contributes piDock.runWithPrompt command with correct title', () => {
+  const titles = getCommandTitles(pkg.contributes.commands);
+
+  assert.equal(titles.get('piDock.runWithPrompt'), 'Run Pi with Prompt...');
+});
+
 test('package.json contributes explorer context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['explorer/context']);
 
   assert.equal(commands.has('piDock.runWithSkill'), true);
   assert.equal(commands.has('piDock.runWithTemplate'), true);
   assert.equal(commands.has('piDock.runWithExtension'), true);
+  assert.equal(commands.has('piDock.runWithPrompt'), true);
 });
 
 test('explorer context menu scopes actions to the matching resource file types', () => {
@@ -54,6 +61,7 @@ test('package.json contributes editor context menu entries for all Pi resource a
   assert.equal(commands.has('piDock.runWithSkill'), true);
   assert.equal(commands.has('piDock.runWithTemplate'), true);
   assert.equal(commands.has('piDock.runWithExtension'), true);
+  assert.equal(commands.has('piDock.runWithPrompt'), true);
 });
 
 test('editor context menu scopes actions to the matching resource file types', () => {
@@ -70,5 +78,23 @@ test('editor context menu scopes actions to the matching resource file types', (
   assert.equal(
     getMenuItem(editorItems, 'piDock.runWithExtension')?.when,
     'resourceScheme == file && resourceExtname == .ts'
+  );
+});
+
+test('explorer context menu shows piDock.runWithPrompt for all file-scheme resources', () => {
+  const explorerItems = pkg.contributes.menus['explorer/context'];
+
+  assert.equal(
+    getMenuItem(explorerItems, 'piDock.runWithPrompt')?.when,
+    'resourceScheme == file'
+  );
+});
+
+test('editor context menu shows piDock.runWithPrompt for all file-scheme resources', () => {
+  const editorItems = pkg.contributes.menus['editor/context'];
+
+  assert.equal(
+    getMenuItem(editorItems, 'piDock.runWithPrompt')?.when,
+    'resourceScheme == file'
   );
 });

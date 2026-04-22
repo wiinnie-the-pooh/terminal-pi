@@ -48,15 +48,17 @@ npm install -g @mariozechner/pi-coding-agent
 
 ### Run Pi with workspace resources
 
-- Pi Dock exposes three resource actions:
+- Pi Dock exposes four resource actions:
   - `Run Pi with Skill...`
   - `Run Pi with Template...`
   - `Run Pi with Extension...`
+  - `Run Pi with Prompt...`
 
 - Resource file rules are strict:
   - **Skill** accepts only `SKILL.md` files and passes their parent directories via repeated `--skill <dir>` flags
   - **Template** accepts only `.md` files excluding `SKILL.md` and passes them via repeated `--prompt-template <file>` flags
   - **Extension** accepts only `.ts` files and passes them via repeated `--extension <file>` flags
+  - **Prompt** accepts any non-binary text file and passes it as `@<file>`; set `piDock.promptExtraContext` to append extra context
 
 - **Explorer View** uses the selected files directly:
   - the command is valid only when **all selected files** satisfy that command's criteria
@@ -71,8 +73,9 @@ npm install -g @mariozechner/pi-coding-agent
   - `Pi Dock: Run Pi with Skill...` shows a Quick Pick of workspace `SKILL.md` files
   - `Pi Dock: Run Pi with Template...` shows a Quick Pick of workspace `.md` files excluding `SKILL.md`
   - `Pi Dock: Run Pi with Extension...` shows a Quick Pick of workspace `.ts` files
+  - `Pi Dock: Run Pi with Prompt...` shows a File Open dialog (single file, any non-binary text file)
 
-- Command Palette Quick Picks support multi-select within the chosen resource type.
+- Command Palette Quick Picks (Skill / Template / Extension) support multi-select within the chosen resource type.
 
 ### Edit prompts outside the `Pi` session
 
@@ -95,6 +98,7 @@ npm install -g @mariozechner/pi-coding-agent
 | Pi Dock: Run Pi with Skill...         | Run Pi with one or more Skill resources sourced from `SKILL.md` files |
 | Pi Dock: Run Pi with Template...      | Run Pi with one or more Template resources sourced from non-skill `.md` files |
 | Pi Dock: Run Pi with Extension...     | Run Pi with one or more Extension resources sourced from `.ts` files |
+| Pi Dock: Run Pi with Prompt...        | Run Pi with a text file as a prompt reference |
 
 ---
 
@@ -104,6 +108,7 @@ npm install -g @mariozechner/pi-coding-agent
 |--------------------------------------|---------------|--------------------------------------------------------------------------------------|
 | `piDock.defaultArgs`                 | `""`          | Extra CLI flags for every `pi` invocation, e.g. `--model openai/gpt-4o`              |
 | `piDock.editorCommand`               | `""` (auto)  | Optional explicit `EDITOR` / `VISUAL` override. Leave empty to auto-detect the current desktop editor CLI |
+| `piDock.promptExtraContext`          | `""`          | Extra context argument appended after the `@file` reference in Prompt invocations    |
 | `piDock.virtualEnvironmentOverride`  | `true`        | Temporarily disable Python venv activation when creating a Pi terminal               |
 | `piDock.virtualEnvironmentDrainMs`   | `150`         | Milliseconds to wait before restoring venv activation (ignored when override is off) |
 

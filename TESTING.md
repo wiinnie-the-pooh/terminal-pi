@@ -73,6 +73,15 @@ Run through the relevant scenarios after every non-trivial change.
 | 31 | Run `Pi Dock: Run Pi with Template...` from the Command Palette | Quick Pick lists only workspace `.md` files excluding `SKILL.md` |
 | 32 | Run `Pi Dock: Run Pi with Extension...` from the Command Palette | Quick Pick lists only workspace `.ts` files |
 | 33 | In any Command Palette resource Quick Pick, multi-select more than one item of the same type | Pi launches with repeated same-type flags in selection order, with duplicates removed after normalization |
+| 34 | In Explorer, right-click a `.md` file and select "Run Pi with Prompt..." | Pi launches with `@<filepath>` and no extra picker |
+| 35 | In Explorer, right-click a `.png` file and select "Run Pi with Prompt..." | Pi Dock shows a warning and does not launch |
+| 36 | In an editor with a `.ts` file open, run "Run Pi with Prompt..." from the editor right-click menu | Pi launches with `@<filepath>` |
+| 37 | In an editor with a binary file open (e.g. `.png`), run "Run Pi with Prompt..." | Pi Dock shows a warning and does not launch |
+| 38 | Run `Pi Dock: Run Pi with Prompt...` from the Command Palette | A native File Open dialog appears (not a Quick Pick) |
+| 39 | In the File Open dialog (test 38), select a text file and confirm | Pi launches with `@<selectedFile>` |
+| 40 | In the File Open dialog (test 38), cancel without selecting | Nothing happens; no terminal is created |
+| 41 | Set `piDock.promptExtraContext` to `focus on errors`; run "Run Pi with Prompt..." on any text file | Pi launches with `@<filepath> focus on errors` |
+| 42 | Leave `piDock.promptExtraContext` empty (default); run "Run Pi with Prompt..." | Pi launches with `@<filepath>` only -- no extra argument |
 
 ## 4. Release-oriented verification
 

@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const {
   getActiveEditorFilePath,
   getEligibleResourcePaths,
+  isEligibleFile,
   isExtensionResourcePath,
   isSkillResourcePath,
   isTemplateResourcePath,
@@ -55,6 +56,46 @@ test('getEligibleResourcePaths rejects selections containing folders', () => {
     getEligibleResourcePaths('extension', [
       { scheme: 'file', fsPath: 'C:\\repo\\.pi\\extensions', isDirectory: true },
       { scheme: 'file', fsPath: 'C:\\repo\\.pi\\extensions\\helper.ts', isDirectory: false },
+    ]),
+    undefined
+  );
+});
+
+test('isEligibleFile accepts common text file extensions', () => {
+  assert.equal(isEligibleFile('C:\\repo\\prompt.md'), true);
+  assert.equal(isEligibleFile('C:\\repo\\helper.ts'), true);
+  assert.equal(isEligibleFile('C:\\repo\\notes.txt'), true);
+  assert.equal(isEligibleFile('C:\\repo\\script.py'), true);
+  assert.equal(isEligibleFile('C:\\repo\\Makefile'), true);
+  assert.equal(isEligibleFile('C:\\repo\\Dockerfile'), true);
+});
+
+test('isEligibleFile rejects known binary extensions', () => {
+  assert.equal(isEligibleFile('C:\\repo\\image.png'), false);
+  assert.equal(isEligibleFile('C:\\repo\\image.PNG'), false);
+  assert.equal(isEligibleFile('C:\\repo\\app.exe'), false);
+  assert.equal(isEligibleFile('C:\\repo\\archive.zip'), false);
+  assert.equal(isEligibleFile('C:\\repo\\document.pdf'), false);
+});
+
+test('getEligibleResourcePaths prompt mode accepts eligible text files', () => {
+  assert.deepEqual(
+    getEligibleResourcePaths('prompt', [
+      { scheme: 'file', fsPath: 'C:\\repo\\prompt.md', isDirectory: false },
+      { scheme: 'file', fsPath: 'C:\\repo\\notes.txt', isDirectory: false },
+    ]),
+    [
+      'C:\\repo\\prompt.md',
+      'C:\\repo\\notes.txt',
+    ]
+  );
+});
+
+test('getEligibleResourcePaths prompt mode rejects binary files', () => {
+  assert.equal(
+    getEligibleResourcePaths('prompt', [
+      { scheme: 'file', fsPath: 'C:\\repo\\prompt.md', isDirectory: false },
+      { scheme: 'file', fsPath: 'C:\\repo\\image.png', isDirectory: false },
     ]),
     undefined
   );

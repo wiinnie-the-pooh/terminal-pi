@@ -9,7 +9,23 @@ export interface ExplorerSelectionEntry extends FileLikeUri {
   isDirectory?: boolean;
 }
 
-export type ResourceSelectionMode = 'skill' | 'template' | 'extension';
+export type ResourceSelectionMode = 'skill' | 'template' | 'extension' | 'prompt';
+
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.webp', '.avif',
+  '.woff', '.woff2', '.ttf', '.eot', '.otf',
+  '.mp3', '.mp4', '.avi', '.mov', '.wmv', '.wav', '.ogg', '.flac',
+  '.zip', '.tar', '.gz', '.bz2', '.7z', '.rar', '.zst',
+  '.exe', '.dll', '.so', '.dylib', '.bin',
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+  '.pyc', '.class', '.o', '.obj', '.wasm',
+  '.vsix', '.node',
+]);
+
+export function isEligibleFile(filePath: string): boolean {
+  const ext = path.win32.extname(filePath).toLowerCase();
+  return !BINARY_EXTENSIONS.has(ext);
+}
 
 export function isSkillResourcePath(filePath: string): boolean {
   return path.win32.basename(filePath) === 'SKILL.md';
@@ -65,6 +81,8 @@ function matchesMode(mode: ResourceSelectionMode, filePath: string): boolean {
       return isTemplateResourcePath(filePath);
     case 'extension':
       return isExtensionResourcePath(filePath);
+    case 'prompt':
+      return isEligibleFile(filePath);
   }
 }
 

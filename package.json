@@ -61,6 +61,11 @@
         "command": "piDock.runWithExtension",
         "title": "Run Pi with Extension...",
         "category": "Pi Dock"
+      },
+      {
+        "command": "piDock.runWithPrompt",
+        "title": "Run Pi with Prompt...",
+        "category": "Pi Dock"
       }
     ],
     "configuration": {
@@ -77,6 +82,12 @@
           "order": 2,
           "default": "",
           "description": "Command exported as EDITOR and VISUAL in Pi terminals. Leave empty to auto-detect the current desktop editor CLI (VS Code, VS Code Insiders, or Cursor). If detection fails, Pi Dock preserves existing VISUAL/EDITOR values and otherwise lets pi use its own fallback behavior."
+        },
+        "piDock.promptExtraContext": {
+          "type": "string",
+          "order": 3,
+          "default": "",
+          "description": "Extra context appended to 'Run Pi with Prompt...' invocations. When non-empty, the value is passed as an additional argument after the @-file reference (e.g. 'focus on errors')."
         },
         "piDock.virtualEnvironmentOverride": {
           "type": "boolean",
@@ -116,6 +127,11 @@
           "command": "piDock.runWithExtension",
           "when": "resourceScheme == file && resourceExtname == .ts",
           "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithPrompt",
+          "when": "resourceScheme == file",
+          "group": "navigation"
         }
       ],
       "editor/context": [
@@ -132,6 +148,11 @@
         {
           "command": "piDock.runWithExtension",
           "when": "resourceScheme == file && resourceExtname == .ts",
+          "group": "navigation"
+        },
+        {
+          "command": "piDock.runWithPrompt",
+          "when": "resourceScheme == file",
           "group": "navigation"
         }
       ]

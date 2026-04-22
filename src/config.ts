@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 export interface PiConfig {
   defaultArgs: string;
   editorCommand: string;
+  promptExtraContext: string;
   virtualEnvironmentOverride: boolean;
   virtualEnvironmentDrainMs: number;
 }
@@ -17,6 +18,7 @@ export function getConfig(): PiConfig {
   return {
     defaultArgs: cfg.get<string>('defaultArgs', ''),
     editorCommand: cfg.get<string>('editorCommand', ''),
+    promptExtraContext: cfg.get<string>('promptExtraContext', ''),
     virtualEnvironmentOverride: cfg.get<boolean>('virtualEnvironmentOverride', true),
     virtualEnvironmentDrainMs: sanitizeDrainMs(
       cfg.get<number>('virtualEnvironmentDrainMs', DRAIN_DEFAULT_MS),

@@ -75,6 +75,20 @@ export class PiTerminalManager implements vscode.Disposable {
     );
   }
 
+  public async runWithPrompt(
+    editorCommand: string,
+    defaultArgs: string,
+    filePath: string,
+    extraContext: string,
+  ): Promise<void> {
+    const args = this.buildArgs(defaultArgs);
+    args.push(`@${filePath}`);
+    if (extraContext.trim()) {
+      args.push(extraContext.trim());
+    }
+    await this.createAndShowTerminal(editorCommand, args);
+  }
+
   public async runWithResources(
     editorCommand: string,
     defaultArgs: string,

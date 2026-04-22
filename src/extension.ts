@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getConfig, type PiConfig } from './config';
 import {
   getEligibleResourcePaths,
+  isEligibleFile,
   type ExplorerSelectionEntry,
   type FileLikeUri,
 } from './fileSelection';
@@ -77,6 +78,22 @@ export function activate(context: vscode.ExtensionContext): void {
       'piDock.runWithExtension',
       async (resource?: vscode.Uri, resources?: vscode.Uri[]) => {
         await runResourceAction('extension', resource, resources);
+      },
+    ),
+    vscode.commands.registerCommand(
+      'piDock.runWithPrompt',
+      async (resource?: vscode.Uri) => {
+        const cfg = getConfig();
+        const filePath = await resolvePromptFilePath(resource);
+        if (!filePath) {
+          return;
+        }
+        await terminalManager.runWithPrompt(
+          cfg.editorCommand,
+          cfg.defaultArgs,
+          filePath,
+          cfg.promptExtraContext,
+        );
       },
     ),
   );
@@ -292,6 +309,39 @@ async function updateActiveTerminalContext(): Promise<void> {
     PI_TERMINAL_ACTIVE_CONTEXT,
     isPiTerminalName(vscode.window.activeTerminal?.name)
   );
+}
+
+async function resolvePromptFilePath(
+  resource: vscode.Uri | undefined,
+): Promise<string | undefined> {
+  if (resource) {
+    const filePath = resource.scheme === 'file' ? resource.fsPath : undefined;
+    if (!filePath || !isEligibleFile(filePath)) {
+      void vscode.window.showWarningMessage(
+        'Run Pi with Prompt... requires a non-binary text file.',
+      );
+      return undefined;
+    }
+    return filePath;
+  }
+
+  const uris = await vscode.window.showOpenDialog({
+    canSelectMany: false,
+    canSelectFiles: true,
+    canSelectFolders: false,
+    openLabel: 'Select Prompt File',
+  });
+  if (!uris || uris.length === 0) {
+    return undefined;
+  }
+  const filePath = uris[0].fsPath;
+  if (!isEligibleFile(filePath)) {
+    void vscode.window.showWarningMessage(
+      'Run Pi with Prompt... requires a non-binary text file.',
+    );
+    return undefined;
+  }
+  return filePath;
 }
 
 export function deactivate(): void {
