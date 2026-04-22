@@ -1,276 +1,451 @@
 # Pi Dock VS Code Extension -- Functional Specification
 
-This document describes the purpose, requirements, and design rationale of the
-`pi-dock` VS Code extension. A coding agent reading this file should be
-able to understand the goals well enough to produce a correct implementation plan
-and reproduce (or improve upon) the current functionality from scratch.
+This document describes the intended behavior of the `pi-dock` VS Code extension as it exists today and as the current resource-action fixes should behave.
 
-For the build/test/publish workflow see AGENTS.md.
-For usage instructions see README.md.
+It is intentionally focused on the extension's real scope. Obsolete requirements from earlier iterations have been removed.
+
+For build, test, packaging, and release workflow see `AGENTS.md`.
+For user-facing usage examples see `README.md`.
 
 ## 1. Purpose
 
-The `pi` command-line tool (pi-coding-agent) is an AI coding agent that runs in
-a terminal. Developers already working in VS Code should be able to launch and
-interact with `pi` without leaving the editor or opening a separate terminal
-application.
+`pi-dock` makes the `pi` CLI feel native inside VS Code.
 
-This extension is a thin launcher: it does not embed `pi` logic, does not
-communicate with the `pi` process over a protocol, and does not parse its output.
-It only:
+The extension is a thin launcher. It does not embed Pi, parse Pi output, or speak a protocol to Pi. It only:
 
-  1. Constructs the correct `pi` shell command for the user's current context.
-  2. Opens a VS Code integrated terminal and sends that command to it.
-  3. Provides status bar and Command Palette entry points so the launch requires
-     minimal user action.
+1. determines which Pi command should be launched for the current user action
+2. creates a fresh VS Code terminal configured for Pi
+3. starts Pi directly in that terminal
 
-Everything after the command is sent -- the interactive session, model selection,
-tool calls, output -- happens inside the terminal and is owned by `pi` itself.
+Everything after launch remains Pi's responsibility.
 
-## 2. The `pi` CLI
+## 2. Current Scope
 
-`pi` is assumed to be installed and available on the system PATH. The extension
-does not install it, update it, or verify its version.
+The extension currently provides:
 
-### 2.1 Invocation syntax
+- a status-bar launcher for a fresh interactive Pi session
+- three resource actions:
+  - `Run Pi with Skill...`
+  - `Run Pi with Template...`
+  - `Run Pi with Extension...`
+- Explorer context-menu entry points
+- Editor / Current File entry points
+- Command Palette entry points
+- editor environment configuration (`EDITOR` / `VISUAL`) for Pi's external-editor flow
+- a Python virtual-environment activation guard for clean Pi terminals
 
+The extension does **not** currently specify or require:
+
+- print mode commands
+- continue-session commands
+- browse-session commands
+- a generic `Run Pi with Current File` command
+- a target-file-plus-resource workflow for the resource actions
+- a pasted-path workflow for the resource actions
+
+## 3. Terms
+
+### 3.1 Invocation source
+
+The UI surface that started the action:
+
+- **Explorer View**
+- **Command Palette**
+- **Editor / Current File**
+
+### 3.2 Resource mode
+
+The command family being invoked:
+
+- **Skill**
+- **Template**
+- **Extension**
+
+### 3.3 Resource file
+
+The file that directly backs a resource action.
+
+Examples:
+
+- `C:\repo\.pi\skills\review\SKILL.md`
+- `C:\repo\.pi\prompts\review.md`
+- `C:\repo\.pi\extensions\helper.ts`
+
+### 3.4 Eligible selection
+
+A selection is **eligible** for a resource command only if **all selected files** satisfy that command's criteria.
+
+### 3.5 Ineligible selection
+
+A selection is **ineligible** if any of the following is true:
+
+- the selection is empty
+- any selected item is a folder
+- any selected item is not file-backed
+- any selected item fails the command's file-type criteria
+- the selection mixes files from different resource modes
+
+### 3.6 Resource normalization
+
+The conversion from the selected or picked resource file to the Pi CLI argument actually passed to Pi.
+
+Only **Skill** resources are normalized:
+
+- selected file: `...\some-skill\SKILL.md`
+- Pi flag value: `...\some-skill`
+
+Template and Extension resources are passed through unchanged.
+
+## 4. Relevant Pi CLI Surface
+
+Pi supports many flags, but the extension relies on only a small subset here.
+
+### 4.1 Interactive launch
+
+```text
+pi [defaultArgs...]
 ```
-pi [options] [@files...] [messages...]
+
+This is used by the status-bar launcher.
+
+### 4.2 Resource actions
+
+```text
+pi [defaultArgs...] --skill <dir> [--skill <dir> ...]
+pi [defaultArgs...] --prompt-template <file> [--prompt-template <file> ...]
+pi [defaultArgs...] --extension <file> [--extension <file> ...]
 ```
 
-### 2.2 Modes relevant to this extension
+For these resource actions:
 
-| Mode            | Flag(s)        | Behaviour                                              |
-|-----------------|---------------|--------------------------------------------------------|
-| Interactive     | (default)     | Opens a full terminal session; user types follow-ups   |
-| Print           | -p / --print  | Runs once with an inline message, then exits           |
-| Continue        | -c            | Resumes the most recent saved session                  |
-| Browse sessions | -r            | Shows an interactive session picker                    |
+- Skill resources come from `SKILL.md` files but are passed as parent directories
+- Template resources are `.md` files excluding `SKILL.md`
+- Extension resources are `.ts` files only
 
-### 2.3 File context
+### 4.3 Default arguments
 
-`pi` accepts file or directory paths prefixed with `@`:
+`piDock.defaultArgs` is split on whitespace and prepended before resource-specific flags.
 
-```
-pi @src/main.ts "Explain this file"
-pi @/path/to/workspace "Review the project"
+Example:
+
+```text
+pi --thinking low --prompt-template C:\repo\.pi\prompts\review.md
 ```
 
-The extension uses this to pass the active editor file or workspace root as
-context without requiring the user to type the path manually.
+## 5. Functional Requirements
 
-### 2.4 Other notable flags (not currently used by the extension)
+### 5.1 Commands
 
-- `--model <provider/id>` -- select AI model
-- `--thinking <level>` -- reasoning depth (off, low, medium, high, xhigh)
-- `--tools <list>` -- restrict built-in tools
-- `--no-session` -- ephemeral mode (no session saved)
-- `--mode rpc` -- machine-readable JSON protocol over stdin/stdout
-
-These are exposed indirectly via the `piDock.defaultArgs` setting, which
-is appended verbatim to every command the extension sends.
-
-## 3. Functional Requirements
-
-### 3.1 Commands
-
-The extension contributes five commands, all in the "Pi Dock" category and all
-accessible via the Command Palette.
+The extension contributes four user-facing commands in the `Pi Dock` category.
 
 #### FR-CMD-1  Run Pi Dock
 
 - Command ID: `piDock.run`
-- Sends `pi [defaultArgs]` to the managed terminal.
-- No file context is passed. This is the "clean session" entry point.
+- Behavior: launch an interactive Pi session with configured default arguments
+- Pi shape: `pi [defaultArgs...]`
+- Surface: Command Palette and status bar
 
-#### FR-CMD-2  Run Pi Dock with Current File
+#### FR-CMD-2  Run Pi with Skill
 
-- Command ID: `piDock.runWithFile`
-- Resolves a file path (see FR-CTX-1) and sends `pi [defaultArgs] @"<path>"`.
-- If no path can be resolved, shows a VS Code warning notification and falls
-    back to launching `pi` without a file argument (does not silently do nothing).
-- Available in the Explorer right-click context menu and the editor
-    right-click context menu.
+- Command ID: `piDock.runWithSkill`
+- Behavior: launch Pi with one or more Skill resources
+- Pi shape: `pi [defaultArgs...] --skill <dir> [...]`
 
-#### FR-CMD-3  Run Pi Dock (Print Mode)
+#### FR-CMD-3  Run Pi with Template
 
-- Command ID: `piDock.runPrintMode`
-- Shows a VS Code input box prompting for a message.
-- If the user dismisses the input box (Escape), does nothing.
-- Sends `pi -p [defaultArgs] [@"<path>"] "<message>"` where `<path>` is
-    resolved the same way as FR-CMD-2.
+- Command ID: `piDock.runWithTemplate`
+- Behavior: launch Pi with one or more Template resources
+- Pi shape: `pi [defaultArgs...] --prompt-template <file> [...]`
 
-#### FR-CMD-4  Continue Most Recent Pi Session
+#### FR-CMD-4  Run Pi with Extension
 
-- Command ID: `piDock.continueSession`
-- Sends `pi -c [defaultArgs]` to the managed terminal.
+- Command ID: `piDock.runWithExtension`
+- Behavior: launch Pi with one or more Extension resources
+- Pi shape: `pi [defaultArgs...] --extension <file> [...]`
 
-#### FR-CMD-5  Browse Pi Sessions
+### 5.2 Resource classification rules
 
-- Command ID: `piDock.browseSessions`
-- Sends `pi -r [defaultArgs]` to the managed terminal.
+#### FR-RES-1  Skill criteria
 
-### 3.2 File path resolution (FR-CTX-1)
+A file is a Skill resource iff:
 
-When a command needs context, the extension resolves a path in priority order:
+- it is file-backed
+- its basename is exactly `SKILL.md`
 
-  1. The `fsPath` of the active editor's document, if its URI scheme is `file`
-     (i.e. a real on-disk file, not an untitled buffer or virtual document).
-  2. The `fsPath` of the first workspace folder root.
-  3. `undefined` -- no path argument is added to the command.
+#### FR-RES-2  Template criteria
 
-### 3.3 Terminal management
+A file is a Template resource iff:
+
+- it is file-backed
+- its extension is `.md`
+- its basename is **not** `SKILL.md`
+
+#### FR-RES-3  Extension criteria
+
+A file is an Extension resource iff:
+
+- it is file-backed
+- its extension is `.ts`
+
+#### FR-RES-4  No partial filtering
+
+Resource actions must not silently ignore mismatched files.
+
+If the user's current Explorer selection contains a mix that does not fully satisfy the invoked mode, the command is ineligible and must not launch Pi using only a matching subset.
+
+### 5.3 Invocation source workflows
+
+#### FR-SRC-1  Explorer View
+
+Explorer uses the **explicitly selected files** as the resource input.
+
+Behavior:
+
+1. read the current Explorer selection
+2. validate that the entire selection is eligible for the invoked mode
+3. if eligible, use those selected files directly
+4. if ineligible, warn and stop
+5. normalize resources as needed
+6. launch Pi
+
+Explorer must **not** open an additional resource picker for these actions.
+
+#### FR-SRC-2  Editor / Current File
+
+Editor / Current File uses the **active file-backed editor document** as the resource input.
+
+Behavior:
+
+1. resolve the active editor document URI
+2. validate that the current file is eligible for the invoked mode
+3. if eligible, use that file directly
+4. if ineligible, warn and stop
+5. normalize resources as needed
+6. launch Pi
+
+Editor / Current File must **not** open an additional resource picker for these actions.
+
+#### FR-SRC-3  Command Palette
+
+Command Palette has no implicit current-file behavior for these resource actions.
+
+Behavior:
+
+1. discover workspace files matching the invoked mode
+2. show a mode-filtered Quick Pick of those matching files
+3. allow the user to choose one or more matching files
+4. if the picker is cancelled, do nothing
+5. if no matching files exist, warn and stop
+6. normalize resources as needed
+7. launch Pi
+
+Command Palette must **not**:
+
+- auto-use the active editor file
+- show a generic all-files workspace picker
+- ask the user to paste a file path for these resource actions
+
+### 5.4 Eligibility semantics
+
+#### FR-ELIG-1  Explorer selection rule
+
+For Explorer, a command is eligible only if the selection is non-empty and **every selected file** satisfies that command's criteria.
+
+Examples:
+
+- selected `SKILL.md` -> Skill eligible
+- selected `review.md` -> Template eligible
+- selected `helper.ts` -> Extension eligible
+- selected `SKILL.md` + `review.md` -> all resource commands ineligible
+- selected `review.md` + `helper.ts` -> all resource commands ineligible
+- selected folder + `review.md` -> all resource commands ineligible
+
+#### FR-ELIG-2  Editor rule
+
+For Editor / Current File, a command is eligible only if the current file satisfies that command's criteria.
+
+#### FR-ELIG-3  Command Palette rule
+
+For Command Palette, eligibility is enforced by discovery and filtering:
+
+- Skill picker shows only `SKILL.md`
+- Template picker shows only `.md` files excluding `SKILL.md`
+- Extension picker shows only `.ts` files
+
+#### FR-ELIG-4  Handler validation is authoritative
+
+VS Code menu `when` clauses may not be able to fully encode the all-selected-files rule for multi-selection.
+
+Therefore:
+
+- menu visibility should approximate eligibility where possible
+- command handlers must revalidate eligibility at runtime
+- handlers must never partially process an ineligible selection
+
+### 5.5 Resource normalization and argument assembly
+
+#### FR-ARGS-1  Skill normalization
+
+Selected Skill files are converted from `...\SKILL.md` to their parent directories before launch.
+
+Example:
+
+```text
+C:\repo\.pi\skills\review\SKILL.md
+->
+--skill C:\repo\.pi\skills\review
+```
+
+#### FR-ARGS-2  Template pass-through
+
+Selected Template files are passed directly as repeated `--prompt-template <file>` flags.
+
+#### FR-ARGS-3  Extension pass-through
+
+Selected Extension files are passed directly as repeated `--extension <file>` flags.
+
+#### FR-ARGS-4  Ordering and deduplication
+
+Argument order must be deterministic:
+
+1. `defaultArgs`
+2. repeated mode-specific resource flags in first-seen order
+
+Duplicate normalized resource values must be removed while preserving first-seen order.
+
+### 5.6 Terminal management
 
 #### FR-TERM-1  Named terminal
 
-The extension creates terminals with the fixed name "Pi Dock".
+Pi terminals use the fixed name `Pi Dock`.
 
 #### FR-TERM-2  Fresh terminal per invocation
 
-Each Pi command creates a new terminal. The extension does not attempt to reuse
-existing terminals or track terminal liveness across invocations.
+Each command invocation creates a new terminal.
 
-#### FR-TERM-3  Terminal visibility
+#### FR-TERM-3  Direct Pi launch
 
-Terminals are shown when a command runs (`terminal.show(false)`). The `false`
-argument means the terminal panel opens but editor focus is not stolen.
+Pi is launched as the terminal process via `shellPath` / `shellArgs`, not by opening a shell and calling `sendText`.
 
-#### FR-TERM-4  Command delivery
+#### FR-TERM-4  Terminal placement and visibility
 
-Commands are sent via `terminal.sendText(cmd, true)`. The `true` argument appends
-a newline, causing the shell to execute the command immediately.
+The terminal is shown beside the editor and shown without stealing focus.
 
-### 3.4 Status bar button
+#### FR-TERM-5  Python activation guard
 
-#### FR-STATUS-1  Button
+When enabled, Pi Dock temporarily disables Python terminal environment activation during Pi terminal creation so venv activation commands are not injected into Pi.
 
-A status bar item is created during activation:
+#### FR-TERM-6  Editor environment
 
-- Alignment: left
-- Priority: 100 (places it left of the language mode indicator)
-- Text: `$(terminal) Pi` (uses the built-in `terminal` codicon)
-- Tooltip: "Run Pi Dock"
-- Click action: triggers `piDock.run`
+Pi terminals export `EDITOR` / `VISUAL` so Pi's external-editor flow works in the host editor when possible.
 
-### 3.5 Settings
+### 5.7 Settings
 
 All settings live under the `piDock` namespace.
 
-| Key                         | Type    | Default | Description                                              |
-|-----------------------------|---------|---------|----------------------------------------------------------|
-| `piDock.defaultArgs`        | string  | ""      | Raw CLI flags appended to every `pi` invocation          |
+| Key | Type | Default | Meaning |
+|---|---|---:|---|
+| `piDock.defaultArgs` | string | `""` | Extra CLI args prepended to every Pi launch |
+| `piDock.editorCommand` | string | `""` | Explicit `EDITOR` / `VISUAL` override; empty means auto-detect |
+| `piDock.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
+| `piDock.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
 
-`defaultArgs` is inserted between the mode flag (e.g. `-p`, `-c`) and the
-`@filepath` argument so the final command shape is always:
+### 5.8 Activation and deactivation
 
+- activation event: `onStartupFinished`
+- status-bar launcher appears after activation
+- disposables are owned by `context.subscriptions`
+- `deactivate()` remains a no-op
+
+## 6. Eligible and Ineligible User Scenarios
+
+These examples are normative.
+
+### 6.1 Explorer View scenarios
+
+| Selection | Skill | Template | Extension |
+|---|---:|---:|---:|
+| `SKILL.md` | eligible | ineligible | ineligible |
+| `review.md` | ineligible | eligible | ineligible |
+| `helper.ts` | ineligible | ineligible | eligible |
+| `SKILL.md` + `another SKILL.md` | eligible | ineligible | ineligible |
+| `review.md` + `other.md` | ineligible | eligible | ineligible |
+| `helper.ts` + `other.ts` | ineligible | ineligible | eligible |
+| `SKILL.md` + `review.md` | ineligible | ineligible | ineligible |
+| `review.md` + `helper.ts` | ineligible | ineligible | ineligible |
+| `folder` | ineligible | ineligible | ineligible |
+| `review.md` + `folder` | ineligible | ineligible | ineligible |
+
+### 6.2 Editor / Current File scenarios
+
+| Current file | Skill | Template | Extension |
+|---|---:|---:|---:|
+| `SKILL.md` | eligible | ineligible | ineligible |
+| `review.md` | ineligible | eligible | ineligible |
+| `helper.ts` | ineligible | ineligible | eligible |
+| `notes.txt` | ineligible | ineligible | ineligible |
+| untitled / non-file-backed document | ineligible | ineligible | ineligible |
+
+### 6.3 Command Palette scenarios
+
+| Invoked command | Files shown in Quick Pick |
+|---|---|
+| `Run Pi with Skill...` | only `SKILL.md` |
+| `Run Pi with Template...` | only `.md` files excluding `SKILL.md` |
+| `Run Pi with Extension...` | only `.ts` files |
+
+If no matching workspace files exist for the invoked mode, the command must warn and stop.
+
+## 7. Architecture
+
+### 7.1 Module responsibilities
+
+```text
+src/config.ts          -- read and sanitize piDock settings
+src/extension.ts       -- register commands and route by invocation source
+src/fileSelection.ts   -- pure resource-file matching / eligibility helpers
+src/resourcePicker.ts  -- Command Palette resource discovery and Quick Pick logic
+src/piResourceArgs.ts  -- deterministic Pi arg assembly for resource actions
+src/terminal.ts        -- create Pi terminals and launch Pi
+src/piResolver.ts      -- resolve the best shellPath / prefixArgs for launching Pi
+src/terminalEnv.ts     -- assemble EDITOR / VISUAL environment variables
+src/pythonActivationGuard.ts -- suppress Python activation during terminal creation
 ```
-pi [mode-flag] [defaultArgs] [@"filepath"] ["message"]
-```
 
-### 3.6 Activation
+### 7.2 Responsibility boundaries
 
-The extension uses `"activationEvents": ["onStartupFinished"]`. This causes VS
-Code to activate the extension once it has fully loaded, ensuring the status bar
-button appears immediately rather than waiting for the user to invoke a command.
+- `extension.ts` owns source-specific UX flow
+- `fileSelection.ts` owns pure file classification and selection eligibility logic
+- `resourcePicker.ts` owns only Command Palette discovery/picking
+- `terminal.ts` owns terminal creation and Pi launch
+- resource actions should not reintroduce a separate target-file layer unless a future spec explicitly adds one
 
-### 3.7 Disposal / deactivation
+## 8. Non-functional Requirements
 
-All disposables (commands, event listeners, terminal manager, status bar item)
-are added to `context.subscriptions`. VS Code calls `dispose()` on each when
-the extension deactivates. The exported `deactivate()` function is a no-op.
+### NFR-1  No npm runtime dependencies
 
-## 4. Non-functional Requirements
+The extension should continue shipping with no runtime npm dependencies.
 
-### NFR-1  No runtime dependencies
+### NFR-2  Strict TypeScript
 
-The compiled extension must have zero npm runtime dependencies. Only the VS Code
-API (provided by the host at runtime) is used. All `devDependencies` (`@types/vscode`,
-`typescript`, `@vscode/vsce`) are build-only.
-
-### NFR-2  TypeScript strict mode
-
-The source must compile cleanly under `"strict": true`, `"noImplicitReturns": true`,
-and `"noFallthroughCasesInSwitch": true`.
+The source must compile cleanly under the repository's strict TypeScript configuration.
 
 ### NFR-3  CommonJS output
 
-The extension host uses Node.js CommonJS module loading. Output must target
-`"module": "commonjs"`. ESM is not supported in VS Code extensions as of VS Code 1.94.
+The compiled output targets VS Code's CommonJS extension host.
 
-### NFR-4  Minimum VS Code version
+### NFR-4  Deterministic behavior
 
-Target `"vscode": "^1.94.0"`. All APIs used (Terminal, StatusBarItem, codicons,
-`terminal.exitStatus`, `accessibilityInformation`) are stable in this version.
+For the same invocation source, mode, and selected resources, the extension must build the same Pi argument list every time.
 
-### NFR-5  Path quoting
+## 9. Out of Scope
 
-File paths are always wrapped in double quotes in the generated command string to
-handle paths containing spaces on all platforms.
+The following are intentionally out of scope:
 
-## 5. Architecture
-
-### 5.1 Module responsibilities
-
-```
-src/config.ts     -- reads and watches piDock.* workspace settings
-src/terminal.ts   -- owns terminal lifecycle; builds command strings
-src/extension.ts  -- wires everything together; registers commands and status bar
-```
-
-Each file has one clear responsibility. `extension.ts` calls into `config.ts`
-and `terminal.ts` but those two modules do not depend on each other.
-
-### 5.2 Command string format
-
-`buildCommand(defaultArgs, modeFlag, filePath?, message?)` in `terminal.ts`
-assembles the command:
-
-```
-pi [modeFlag] [defaultArgs] [@"filePath"] ["message"]
-```
-
-Parts with no value are omitted. The modeFlag for interactive mode is an empty
-string (produces just `pi`).
-
-### 5.3 Terminal creation pattern
-
-`PiTerminalManager` creates a fresh VS Code terminal for each command invocation.
-It does not cache terminal instances or listen for terminal close events.
-
-## 6. Out of scope
-
-The following are explicitly not part of this extension's responsibilities:
-
-- Installing or updating the `pi` binary.
-- Verifying that `pi` is on the PATH before running (failure surfaces naturally
-    in the terminal as a "command not found" error).
-- Parsing or displaying `pi` output inside the VS Code UI (e.g. webview panels,
-    tree views, inline decorations).
-- Communicating with `pi` over the RPC protocol (`--mode rpc`).
-- Managing `pi` sessions, history, or configuration files.
-- Keybinding assignments (users set these in their own `keybindings.json`).
-- Automated tests (the VS Code extension test framework requires a live host
-    process; the logic is thin enough that manual testing is the primary strategy).
-
-## 7. Potential improvements for a reimplementation
-
-These are areas where a reimplementation with a more modern approach could do better:
-
-- **RPC / webview integration** -- `pi --mode rpc` exposes a JSON-line protocol
-    over stdin/stdout. A future version could spawn `pi` as a child process, speak
-    RPC, and render output in a VS Code webview or sidebar panel, enabling richer
-    UI (streaming output, clickable file links, diff views).
-
-- **Bundling** -- If runtime dependencies are ever added, switching the compile
-    step to esbuild or webpack reduces the packaged `.vsix` size and startup time.
-    The current setup (plain `tsc`) is intentionally minimal.
-
-- **Model / session picker** -- A QuickPick UI could let users choose a model
-    or resume a past session without memorising CLI flags.
-
-- **Configuration validation** -- `defaultArgs` is currently passed verbatim.
-    Parsing it and offering completion/validation in settings would improve UX.
-
-- **Automated integration tests** -- `@vscode/test-electron` runs a real VS Code
-    host; extracting `buildCommand` as a pure function would make unit testing
-    straightforward without a live host.
+- installing or updating Pi
+- validating Pi's behavior after launch
+- parsing Pi output
+- embedding Pi output into custom VS Code UI
+- a target-file-plus-resource model for these resource actions
+- generic all-files picking for these resource actions
+- partially processing mixed Explorer selections

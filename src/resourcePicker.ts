@@ -1,4 +1,9 @@
 import path from 'node:path';
+import {
+  isExtensionResourcePath,
+  isSkillResourcePath,
+  isTemplateResourcePath,
+} from './fileSelection';
 
 export type ResourcePickerMode = 'skill' | 'template' | 'extension';
 
@@ -25,6 +30,15 @@ export function getResourceSearchGlobs(mode: ResourcePickerMode): string[] {
     case 'extension':
       return ['**/*.ts'];
   }
+}
+
+export function filterDiscoveredResources(
+  mode: ResourcePickerMode,
+  discoveredPaths: string[],
+): string[] {
+  return dedupePreserveOrder(
+    discoveredPaths.filter((filePath) => matchesMode(mode, filePath)),
+  );
 }
 
 export function normalizePickedResources(
@@ -54,13 +68,14 @@ export async function pickResources(
   mode: ResourcePickerMode,
   options: PickResourcesOptions,
 ): Promise<string[] | undefined> {
-  if (options.discoveredPaths.length === 0) {
+  const filteredPaths = filterDiscoveredResources(mode, options.discoveredPaths);
+  if (filteredPaths.length === 0) {
     return [];
   }
 
   const items = buildResourceQuickPickItems(
     mode,
-    options.discoveredPaths,
+    filteredPaths,
     options.toRelativePath,
   );
   const pickedItems = await options.showQuickPick(items);
@@ -72,6 +87,17 @@ export async function pickResources(
     mode,
     pickedItems.map((item) => item.path),
   );
+}
+
+function matchesMode(mode: ResourcePickerMode, filePath: string): boolean {
+  switch (mode) {
+    case 'skill':
+      return isSkillResourcePath(filePath);
+    case 'template':
+      return isTemplateResourcePath(filePath);
+    case 'extension':
+      return isExtensionResourcePath(filePath);
+  }
 }
 
 function getResourceLabel(mode: ResourcePickerMode, filePath: string): string {

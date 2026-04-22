@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 export interface FileLikeUri {
   scheme?: string;
   fsPath?: string;
@@ -7,19 +9,42 @@ export interface ExplorerSelectionEntry extends FileLikeUri {
   isDirectory?: boolean;
 }
 
-export interface ResolveCommandTargetFileOptions {
-  activeEditorUri?: FileLikeUri;
-  chooseWorkspaceFile: () => Promise<string | undefined>;
+export type ResourceSelectionMode = 'skill' | 'template' | 'extension';
+
+export function isSkillResourcePath(filePath: string): boolean {
+  return path.win32.basename(filePath) === 'SKILL.md';
 }
 
-export function filterExplorerFileTargets(
+export function isTemplateResourcePath(filePath: string): boolean {
+  return path.win32.extname(filePath).toLowerCase() === '.md'
+    && !isSkillResourcePath(filePath);
+}
+
+export function isExtensionResourcePath(filePath: string): boolean {
+  return path.win32.extname(filePath).toLowerCase() === '.ts';
+}
+
+export function getEligibleResourcePaths(
+  mode: ResourceSelectionMode,
   entries: ExplorerSelectionEntry[],
-): string[] {
-  return dedupePreserveOrder(
-    entries
-      .filter((entry) => entry.scheme === 'file' && !entry.isDirectory && !!entry.fsPath)
-      .map((entry) => entry.fsPath as string),
-  );
+): string[] | undefined {
+  if (entries.length === 0) {
+    return undefined;
+  }
+
+  const resourcePaths: string[] = [];
+
+  for (const entry of entries) {
+    if (entry.scheme !== 'file' || entry.isDirectory || !entry.fsPath) {
+      return undefined;
+    }
+    if (!matchesMode(mode, entry.fsPath)) {
+      return undefined;
+    }
+    resourcePaths.push(entry.fsPath);
+  }
+
+  return dedupePreserveOrder(resourcePaths);
 }
 
 export function getActiveEditorFilePath(
@@ -32,15 +57,15 @@ export function getActiveEditorFilePath(
   return documentUri.fsPath;
 }
 
-export async function resolveCommandTargetFile(
-  options: ResolveCommandTargetFileOptions,
-): Promise<string | undefined> {
-  const activeFile = getActiveEditorFilePath(options.activeEditorUri);
-  if (activeFile) {
-    return activeFile;
+function matchesMode(mode: ResourceSelectionMode, filePath: string): boolean {
+  switch (mode) {
+    case 'skill':
+      return isSkillResourcePath(filePath);
+    case 'template':
+      return isTemplateResourcePath(filePath);
+    case 'extension':
+      return isExtensionResourcePath(filePath);
   }
-
-  return options.chooseWorkspaceFile();
 }
 
 function dedupePreserveOrder(values: string[]): string[] {

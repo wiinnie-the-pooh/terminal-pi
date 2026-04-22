@@ -78,7 +78,6 @@ export class PiTerminalManager implements vscode.Disposable {
   public async runWithResources(
     editorCommand: string,
     defaultArgs: string,
-    targetFiles: string[],
     mode: PiResourceMode,
     resources: string[],
   ): Promise<void> {
@@ -86,7 +85,6 @@ export class PiTerminalManager implements vscode.Disposable {
       editorCommand,
       buildPiResourceArgs({
         defaultArgs,
-        targetFiles,
         mode,
         resources,
       }),

@@ -15,7 +15,7 @@ const { createResourceActionHandler } = require('../out/extension.js');
 function createDeps(overrides = {}) {
   const calls = [];
   const warnings = [];
-  let chooserCalls = 0;
+  let pickerCalls = 0;
   const deps = {
     getConfig: () => ({
       defaultArgs: '--thinking low',
@@ -28,14 +28,16 @@ function createDeps(overrides = {}) {
         calls.push(args);
       },
     },
-    resolveExplorerEntries: async (_resource, resources) =>
-      (resources ?? []).map((entry) => ({ ...entry })),
-    getActiveEditorUri: () => ({ scheme: 'file', fsPath: 'C:\\repo\\active.ts' }),
-    chooseWorkspaceFile: async () => {
-      chooserCalls += 1;
-      return 'C:\\repo\\picked.ts';
+    resolveExplorerEntries: async (resource, resources) => {
+      const uris = resources && resources.length > 0
+        ? resources
+        : resource
+          ? [resource]
+          : [];
+      return uris.map((entry) => ({ ...entry }));
     },
     pickResources: async (mode) => {
+      pickerCalls += 1;
       if (mode === 'skill') {
         return ['C:\\repo\\.pi\\skills\\review'];
       }
@@ -50,109 +52,127 @@ function createDeps(overrides = {}) {
     ...overrides,
   };
 
-  return { deps, calls, warnings, getChooserCalls: () => chooserCalls };
+  return { deps, calls, warnings, getPickerCalls: () => pickerCalls };
 }
 
-test('Run Pi with Skill resolves target files and launches the Skill picker flow', async () => {
-  const { deps, calls } = createDeps();
+test('explorer skill action uses selected SKILL.md files directly without opening a picker', async () => {
+  const { deps, calls, getPickerCalls } = createDeps();
   const run = createResourceActionHandler(deps);
 
   await run('skill', undefined, [
-    { scheme: 'file', fsPath: 'C:\\repo\\a.ts', isDirectory: false },
+    { scheme: 'file', fsPath: 'C:\\repo\\.pi\\skills\\review\\SKILL.md', isDirectory: false },
   ]);
 
+  assert.equal(getPickerCalls(), 0);
   assert.deepEqual(calls, [[
     'cursor --wait',
     '--thinking low',
-    ['C:\\repo\\a.ts'],
     'skill',
     ['C:\\repo\\.pi\\skills\\review'],
   ]]);
 });
 
-test('Run Pi with Template resolves target files and maps to prompt-template args', async () => {
-  const { deps, calls } = createDeps();
+test('explorer template action rejects mixed selections instead of partially filtering them', async () => {
+  const { deps, calls, warnings, getPickerCalls } = createDeps();
   const run = createResourceActionHandler(deps);
 
   await run('template', undefined, [
-    { scheme: 'file', fsPath: 'C:\\repo\\a.ts', isDirectory: false },
+    { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md', isDirectory: false },
+    { scheme: 'file', fsPath: 'C:\\repo\\.pi\\skills\\review\\SKILL.md', isDirectory: false },
   ]);
 
+  assert.equal(getPickerCalls(), 0);
+  assert.equal(calls.length, 0);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /selection/i);
+});
+
+test('explorer action rejects selections containing folders', async () => {
+  const { deps, calls, warnings } = createDeps();
+  const run = createResourceActionHandler(deps);
+
+  await run('extension', undefined, [
+    { scheme: 'file', fsPath: 'C:\\repo\\.pi\\extensions', isDirectory: true },
+    { scheme: 'file', fsPath: 'C:\\repo\\.pi\\extensions\\helper.ts', isDirectory: false },
+  ]);
+
+  assert.equal(calls.length, 0);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /selection/i);
+});
+
+test('editor action uses the current resource file directly without opening a picker', async () => {
+  const { deps, calls, getPickerCalls } = createDeps();
+  const run = createResourceActionHandler(deps);
+
+  await run('template', { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md' });
+
+  assert.equal(getPickerCalls(), 0);
   assert.deepEqual(calls, [[
     'cursor --wait',
     '--thinking low',
-    ['C:\\repo\\a.ts'],
     'prompt-template',
     ['C:\\repo\\.pi\\prompts\\review.md'],
   ]]);
 });
 
-test('Run Pi with Extension resolves target files and launches the Extension picker flow', async () => {
-  const { deps, calls } = createDeps();
-  const run = createResourceActionHandler(deps);
-
-  await run('extension', undefined, [
-    { scheme: 'file', fsPath: 'C:\\repo\\a.ts', isDirectory: false },
-  ]);
-
-  assert.deepEqual(calls, [[
-    'cursor --wait',
-    '--thinking low',
-    ['C:\\repo\\a.ts'],
-    'extension',
-    ['C:\\repo\\.pi\\extensions\\helper.ts'],
-  ]]);
-});
-
-test('Explorer invocations ignore folders before launching', async () => {
+test('editor action warns when the current file does not match the command mode', async () => {
   const { deps, calls, warnings } = createDeps();
   const run = createResourceActionHandler(deps);
 
-  await run('skill', undefined, [
-    { scheme: 'file', fsPath: 'C:\\repo\\folder', isDirectory: true },
-    { scheme: 'file', fsPath: 'C:\\repo\\a.ts', isDirectory: false },
-    { scheme: 'file', fsPath: 'C:\\repo\\b.ts', isDirectory: false },
-  ]);
+  await run('extension', { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md' });
 
-  assert.deepEqual(calls[0][2], ['C:\\repo\\a.ts', 'C:\\repo\\b.ts']);
+  assert.equal(calls.length, 0);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /current file|selection/i);
+});
+
+test('command palette uses the resource picker when there is no file context', async () => {
+  let pickerCalls = 0;
+  const { deps, calls } = createDeps({
+    pickResources: async (mode) => {
+      pickerCalls += 1;
+      assert.equal(mode, 'skill');
+      return ['C:\\repo\\.pi\\skills\\review', 'C:\\repo\\.pi\\skills\\refactor'];
+    },
+  });
+  const run = createResourceActionHandler(deps);
+
+  await run('skill');
+
+  assert.equal(pickerCalls, 1);
+  assert.deepEqual(calls, [[
+    'cursor --wait',
+    '--thinking low',
+    'skill',
+    [
+      'C:\\repo\\.pi\\skills\\review',
+      'C:\\repo\\.pi\\skills\\refactor',
+    ],
+  ]]);
+});
+
+test('command palette cancellation does not launch the terminal', async () => {
+  const { deps, calls, warnings } = createDeps({
+    pickResources: async () => undefined,
+  });
+  const run = createResourceActionHandler(deps);
+
+  await run('template');
+
+  assert.equal(calls.length, 0);
   assert.deepEqual(warnings, []);
 });
 
-test('direct command invocation uses the active editor file when available', async () => {
-  const { deps, calls, getChooserCalls } = createDeps();
-  const run = createResourceActionHandler(deps);
-
-  await run('skill');
-
-  assert.equal(getChooserCalls(), 0);
-  assert.deepEqual(calls[0][2], ['C:\\repo\\active.ts']);
-});
-
-test('direct command invocation falls back to workspace file Quick Pick when there is no active editor file', async () => {
-  const { deps, calls, getChooserCalls } = createDeps({
-    getActiveEditorUri: () => undefined,
+test('command palette warns when no matching workspace resources are found', async () => {
+  const { deps, calls, warnings } = createDeps({
+    pickResources: async () => [],
   });
   const run = createResourceActionHandler(deps);
 
-  await run('skill');
+  await run('extension');
 
-  assert.equal(getChooserCalls(), 1);
-  assert.deepEqual(calls[0][2], ['C:\\repo\\picked.ts']);
-});
-
-test('cancelling target-file or resource selection does not launch the terminal', async () => {
-  const first = createDeps({
-    getActiveEditorUri: () => undefined,
-    chooseWorkspaceFile: async () => undefined,
-  });
-  const runFirst = createResourceActionHandler(first.deps);
-  await runFirst('skill');
-  assert.equal(first.calls.length, 0);
-
-  const second = createDeps({
-    pickResources: async () => undefined,
-  });
-  const runSecond = createResourceActionHandler(second.deps);
-  await runSecond('skill');
-  assert.equal(second.calls.length, 0);
+  assert.equal(calls.length, 0);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /extensions/i);
 });

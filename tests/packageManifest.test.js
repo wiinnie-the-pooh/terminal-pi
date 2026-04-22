@@ -31,7 +31,7 @@ test('package.json contributes explorer context menu entries for all Pi resource
   assert.equal(commands.has('piDock.runWithExtension'), true);
 });
 
-test('explorer context menu filters actions by matching file name or extension', () => {
+test('explorer context menu scopes actions to the matching resource file types', () => {
   const explorerItems = pkg.contributes.menus['explorer/context'];
 
   assert.equal(
@@ -40,7 +40,7 @@ test('explorer context menu filters actions by matching file name or extension',
   );
   assert.equal(
     getMenuItem(explorerItems, 'piDock.runWithTemplate')?.when,
-    'resourceScheme == file && resourceExtname == .md'
+    'resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md'
   );
   assert.equal(
     getMenuItem(explorerItems, 'piDock.runWithExtension')?.when,
@@ -56,7 +56,7 @@ test('package.json contributes editor context menu entries for all Pi resource a
   assert.equal(commands.has('piDock.runWithExtension'), true);
 });
 
-test('editor context menu filters actions by matching file name or extension', () => {
+test('editor context menu scopes actions to the matching resource file types', () => {
   const editorItems = pkg.contributes.menus['editor/context'];
 
   assert.equal(
@@ -65,7 +65,7 @@ test('editor context menu filters actions by matching file name or extension', (
   );
   assert.equal(
     getMenuItem(editorItems, 'piDock.runWithTemplate')?.when,
-    'resourceScheme == file && resourceExtname == .md'
+    'resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md'
   );
   assert.equal(
     getMenuItem(editorItems, 'piDock.runWithExtension')?.when,

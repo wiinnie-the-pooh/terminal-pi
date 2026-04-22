@@ -109,7 +109,7 @@
         },
         {
           "command": "piDock.runWithTemplate",
-          "when": "resourceScheme == file && resourceExtname == .md",
+          "when": "resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md",
           "group": "navigation"
         },
         {
@@ -126,7 +126,7 @@
         },
         {
           "command": "piDock.runWithTemplate",
-          "when": "resourceScheme == file && resourceExtname == .md",
+          "when": "resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md",
           "group": "navigation"
         },
         {

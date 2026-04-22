@@ -1,9 +1,7 @@
-import path from 'node:path';
 import * as vscode from 'vscode';
 import { getConfig, type PiConfig } from './config';
 import {
-  filterExplorerFileTargets,
-  resolveCommandTargetFile,
+  getEligibleResourcePaths,
   type ExplorerSelectionEntry,
   type FileLikeUri,
 } from './fileSelection';
@@ -12,8 +10,8 @@ import {
   PI_TERMINAL_ACTIVE_CONTEXT,
 } from './piTerminal';
 import {
-  buildResourceQuickPickItems,
   getResourceSearchGlobs,
+  normalizePickedResources,
   pickResources,
   type ResourcePickerMode,
   type ResourceQuickPickItem,
@@ -28,7 +26,6 @@ interface ResourceTerminalManager {
   runWithResources(
     editorCommand: string,
     defaultArgs: string,
-    targetFiles: string[],
     mode: PiResourceMode,
     resources: string[],
   ): Promise<void>;
@@ -41,8 +38,6 @@ interface ResourceActionHandlerDeps {
     resource?: FileLikeUri,
     resources?: FileLikeUri[],
   ) => Promise<ExplorerSelectionEntry[]>;
-  getActiveEditorUri: () => FileLikeUri | undefined;
-  chooseWorkspaceFile: () => Promise<string | undefined>;
   pickResources: (mode: ResourcePickerMode) => Promise<string[] | undefined>;
   warn: (message: string) => void;
 }
@@ -55,8 +50,6 @@ export function activate(context: vscode.ExtensionContext): void {
     getConfig,
     terminalManager,
     resolveExplorerEntries: resolveExplorerEntriesFromArgs,
-    getActiveEditorUri: () => vscode.window.activeTextEditor?.document.uri,
-    chooseWorkspaceFile: pickWorkspaceTargetFile,
     pickResources: pickWorkspaceResources,
     warn: (message) => {
       void vscode.window.showWarningMessage(message);
@@ -111,17 +104,13 @@ export function createResourceActionHandler(
     resource?: FileLikeUri,
     resources?: FileLikeUri[],
   ): Promise<void> => {
-    const targetFiles = await resolveTargetFiles(deps, resource, resources);
-    if (!targetFiles) {
-      return;
-    }
-
-    const selectedResources = await deps.pickResources(mode);
+    const selectedResources = await resolveResourcesForInvocation(
+      deps,
+      mode,
+      resource,
+      resources,
+    );
     if (!selectedResources) {
-      return;
-    }
-    if (selectedResources.length === 0) {
-      deps.warn(`No Pi ${getModePlural(mode)} found in this workspace.`);
       return;
     }
 
@@ -129,38 +118,38 @@ export function createResourceActionHandler(
     await deps.terminalManager.runWithResources(
       cfg.editorCommand,
       cfg.defaultArgs,
-      targetFiles,
       toPiResourceMode(mode),
       selectedResources,
     );
   };
 }
 
-async function resolveTargetFiles(
+async function resolveResourcesForInvocation(
   deps: ResourceActionHandlerDeps,
+  mode: ResourcePickerMode,
   resource?: FileLikeUri,
   resources?: FileLikeUri[],
 ): Promise<string[] | undefined> {
   const hasInvocationSelection = Boolean(resource) || (resources?.length ?? 0) > 0;
   if (hasInvocationSelection) {
     const explorerEntries = await deps.resolveExplorerEntries(resource, resources);
-    const targetFiles = filterExplorerFileTargets(explorerEntries);
-    if (targetFiles.length === 0) {
-      deps.warn('No files selected to run Pi on.');
+    const selectedPaths = getEligibleResourcePaths(mode, explorerEntries);
+    if (!selectedPaths) {
+      deps.warn(`The current selection does not match the ${getModeLabel(mode)} command.`);
       return undefined;
     }
-    return targetFiles;
+    return normalizePickedResources(mode, selectedPaths);
   }
 
-  const targetFile = await resolveCommandTargetFile({
-    activeEditorUri: deps.getActiveEditorUri(),
-    chooseWorkspaceFile: deps.chooseWorkspaceFile,
-  });
-  if (!targetFile) {
+  const selectedResources = await deps.pickResources(mode);
+  if (!selectedResources) {
     return undefined;
   }
-
-  return [targetFile];
+  if (selectedResources.length === 0) {
+    deps.warn(`No Pi ${getModePlural(mode)} found in this workspace.`);
+    return undefined;
+  }
+  return selectedResources;
 }
 
 function setupStatusBar(context: vscode.ExtensionContext): void {
@@ -209,26 +198,6 @@ async function isDirectoryUri(uri: FileLikeUri): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-async function pickWorkspaceTargetFile(): Promise<string | undefined> {
-  const uris = await vscode.workspace.findFiles('**/*');
-  if (uris.length === 0) {
-    void vscode.window.showWarningMessage('No workspace files found.');
-    return undefined;
-  }
-
-  const items = uris.map((uri) => ({
-    label: path.basename(uri.fsPath),
-    description: vscode.workspace.asRelativePath(uri, false),
-    path: uri.fsPath,
-  }));
-  const picked = await vscode.window.showQuickPick(items, {
-    title: 'Choose file for Pi',
-    matchOnDescription: true,
-  });
-
-  return picked?.path;
 }
 
 async function pickWorkspaceResources(

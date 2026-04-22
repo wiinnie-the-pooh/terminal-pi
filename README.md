@@ -38,7 +38,7 @@ npm install -g @mariozechner/pi-coding-agent
 ## Features
 
 - **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
-- **Skill / Template / Extension actions** - run Pi on Explorer selections or the current file with popup pickers for Pi resources
+- **Skill / Template / Extension actions** - run Pi on selected or current resource files, with a filtered Command Palette Quick Pick when no file context exists
 - **Ctrl+G external editor** - opens the current `Pi` prompt in an external editor; on save and close, it returns to `Pi`.
 - **Configurable** - set default CLI args and choose your editor command
 
@@ -48,24 +48,31 @@ npm install -g @mariozechner/pi-coding-agent
 
 ### Run Pi with workspace resources
 
-- Right-click selected file(s) in the Explorer or the current editor file to run:
+- Pi Dock exposes three resource actions:
   - `Run Pi with Skill...`
   - `Run Pi with Template...`
   - `Run Pi with Extension...`
 
-- The same flows are also available from the Command Palette:
-  - `Pi Dock: Run Pi with Skill...`
-  - `Pi Dock: Run Pi with Template...`
-  - `Pi Dock: Run Pi with Extension...`
+- Resource file rules are strict:
+  - **Skill** accepts only `SKILL.md` files and passes their parent directories via repeated `--skill <dir>` flags
+  - **Template** accepts only `.md` files excluding `SKILL.md` and passes them via repeated `--prompt-template <file>` flags
+  - **Extension** accepts only `.ts` files and passes them via repeated `--extension <file>` flags
 
-- Resource pickers are popup-only and support multi-select within the chosen type:
-  - **Skill** picker shows `SKILL.md` files, but Pi receives the parent directory via repeated `--skill <dir>` flags
-  - **Template** picker shows `.md` files and passes them via repeated `--prompt-template <file>` flags
-  - **Extension** picker shows `.ts` files and passes them via repeated `--extension <file>` flags
+- **Explorer View** uses the selected files directly:
+  - the command is valid only when **all selected files** satisfy that command's criteria
+  - mixed selections are rejected; Pi Dock does not ignore mismatched files and continue with a subset
 
-- Explorer actions ignore selected folders and only pass files to Pi.
+- **Editor / Current File** uses the current file directly:
+  - `Run Pi with Skill...` works only when the current file is `SKILL.md`
+  - `Run Pi with Template...` works only when the current file is a non-skill `.md`
+  - `Run Pi with Extension...` works only when the current file is a `.ts` file
 
-- If a command is launched from the Command Palette with no active editor file, Pi Dock shows a workspace-file Quick Pick first so you can choose the target file.
+- **Command Palette** is the only picker-based flow:
+  - `Pi Dock: Run Pi with Skill...` shows a Quick Pick of workspace `SKILL.md` files
+  - `Pi Dock: Run Pi with Template...` shows a Quick Pick of workspace `.md` files excluding `SKILL.md`
+  - `Pi Dock: Run Pi with Extension...` shows a Quick Pick of workspace `.ts` files
+
+- Command Palette Quick Picks support multi-select within the chosen resource type.
 
 ### Edit prompts outside the `Pi` session
 
@@ -85,9 +92,9 @@ npm install -g @mariozechner/pi-coding-agent
 | Command                               | Description |
 |---------------------------------------|-------------|
 | Pi Dock: Run Pi Dock                  | Open an interactive `pi` session |
-| Pi Dock: Run Pi with Skill...         | Run Pi on selected files with one or more `--skill` resources |
-| Pi Dock: Run Pi with Template...      | Run Pi on selected files with one or more `--prompt-template` resources |
-| Pi Dock: Run Pi with Extension...     | Run Pi on selected files with one or more `--extension` resources |
+| Pi Dock: Run Pi with Skill...         | Run Pi with one or more Skill resources sourced from `SKILL.md` files |
+| Pi Dock: Run Pi with Template...      | Run Pi with one or more Template resources sourced from non-skill `.md` files |
+| Pi Dock: Run Pi with Extension...     | Run Pi with one or more Extension resources sourced from `.ts` files |
 
 ---
 

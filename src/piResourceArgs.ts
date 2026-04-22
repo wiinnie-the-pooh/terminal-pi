@@ -2,7 +2,6 @@ export type PiResourceMode = 'skill' | 'prompt-template' | 'extension';
 
 export interface BuildPiResourceArgsInput {
   defaultArgs: string;
-  targetFiles: string[];
   mode: PiResourceMode;
   resources: string[];
 }
@@ -17,12 +16,8 @@ export function buildPiResourceArgs(
   input: BuildPiResourceArgsInput,
 ): string[] {
   const args = splitArgs(input.defaultArgs);
-
-  for (const file of input.targetFiles) {
-    args.push(`@${file}`);
-  }
-
   const flag = MODE_FLAG[input.mode];
+
   for (const resource of dedupePreserveOrder(input.resources)) {
     args.push(flag, resource);
   }
