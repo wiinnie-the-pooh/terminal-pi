@@ -4,7 +4,9 @@ const path = require('path');
 const { parsePiScriptPath } = require('../out/piResolver.js');
 
 const SAMPLE_CMD_PATH = 'C:\\Users\\alice\\AppData\\Roaming\\npm\\pi.cmd';
-const SAMPLE_CMD_DIR = path.dirname(SAMPLE_CMD_PATH);
+// Use Windows path semantics for expected values — the code under test
+// parses Windows .cmd wrappers and uses path.win32 internally.
+const SAMPLE_CMD_DIR = path.win32.dirname(SAMPLE_CMD_PATH);
 
 const NPM_WRAPPER = `@ECHO off
 GOTO start
@@ -38,7 +40,7 @@ test('extracts the script path from a modern npm .cmd wrapper', () => {
   const result = parsePiScriptPath(NPM_WRAPPER, SAMPLE_CMD_PATH);
   assert.equal(
     result,
-    path.join(SAMPLE_CMD_DIR, 'node_modules', '@mariozechner', 'pi-coding-agent', 'dist', 'cli.js'),
+    path.win32.join(SAMPLE_CMD_DIR, 'node_modules', '@mariozechner', 'pi-coding-agent', 'dist', 'cli.js'),
   );
 });
 
@@ -46,7 +48,7 @@ test('extracts the script path from a legacy %~dp0 .cmd wrapper', () => {
   const result = parsePiScriptPath(LEGACY_WRAPPER, SAMPLE_CMD_PATH);
   assert.equal(
     result,
-    path.join(SAMPLE_CMD_DIR, 'node_modules', '@mariozechner', 'pi-coding-agent', 'bin', 'pi.js'),
+    path.win32.join(SAMPLE_CMD_DIR, 'node_modules', '@mariozechner', 'pi-coding-agent', 'bin', 'pi.js'),
   );
 });
 

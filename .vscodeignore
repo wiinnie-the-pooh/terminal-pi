@@ -3,6 +3,7 @@
 .claude/**
 src/**
 .gitignore
+run-tests.js
 tsconfig.json
 node_modules/**
 out/**/*.js.map
