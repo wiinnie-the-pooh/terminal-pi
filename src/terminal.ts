@@ -5,6 +5,7 @@ import { resolvePiShell } from './piResolver';
 import { withActivationDisabled } from './pythonActivationGuard';
 import { resolveEditorCommand } from './editorCommandResolver';
 import { getPiTerminalEnv } from './terminalEnv';
+import { buildPiResourceArgs, type PiResourceMode } from './piResourceArgs';
 
 export class PiTerminalManager implements vscode.Disposable {
   /**
@@ -71,6 +72,24 @@ export class PiTerminalManager implements vscode.Disposable {
     await this.createAndShowTerminal(
       editorCommand,
       this.buildArgs(defaultArgs),
+    );
+  }
+
+  public async runWithResources(
+    editorCommand: string,
+    defaultArgs: string,
+    targetFiles: string[],
+    mode: PiResourceMode,
+    resources: string[],
+  ): Promise<void> {
+    await this.createAndShowTerminal(
+      editorCommand,
+      buildPiResourceArgs({
+        defaultArgs,
+        targetFiles,
+        mode,
+        resources,
+      }),
     );
   }
 

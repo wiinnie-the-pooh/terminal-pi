@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const Module = require('module');
 const {
   buildPiResourceArgs,
 } = require('../out/piResourceArgs.js');
@@ -82,4 +83,46 @@ test('deduplicates repeated resource paths while preserving order', () => {
       'C:\\repo\\.pi\\skills\\refactor',
     ]
   );
+});
+
+test('runWithResources passes built args into terminal creation', async () => {
+  const originalResolve = Module._resolveFilename;
+  Module._resolveFilename = function (request, ...rest) {
+    if (request === 'vscode') {
+      return require.resolve('./__fixtures__/vscode-stub.js');
+    }
+    return originalResolve.call(this, request, ...rest);
+  };
+
+  try {
+    const { PiTerminalManager } = require('../out/terminal.js');
+    const manager = new PiTerminalManager();
+    let capturedEditorCommand;
+    let capturedArgs;
+
+    manager.createAndShowTerminal = async (editorCommand, piArgs) => {
+      capturedEditorCommand = editorCommand;
+      capturedArgs = piArgs;
+    };
+
+    await manager.runWithResources(
+      'cursor --wait',
+      '--thinking low',
+      ['C:\\repo\\a.ts', 'C:\\repo\\b.ts'],
+      'prompt-template',
+      ['C:\\repo\\.pi\\prompts\\review.md', 'C:\\repo\\.pi\\prompts\\review.md']
+    );
+
+    assert.equal(capturedEditorCommand, 'cursor --wait');
+    assert.deepEqual(capturedArgs, [
+      '--thinking',
+      'low',
+      '@C:\\repo\\a.ts',
+      '@C:\\repo\\b.ts',
+      '--prompt-template',
+      'C:\\repo\\.pi\\prompts\\review.md',
+    ]);
+  } finally {
+    Module._resolveFilename = originalResolve;
+  }
 });
