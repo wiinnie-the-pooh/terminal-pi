@@ -104,34 +104,34 @@
       "explorer/context": [
         {
           "command": "piDock.runWithSkill",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceFilename == SKILL.md",
           "group": "navigation"
         },
         {
           "command": "piDock.runWithTemplate",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceExtname == .md",
           "group": "navigation"
         },
         {
           "command": "piDock.runWithExtension",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceExtname == .ts",
           "group": "navigation"
         }
       ],
       "editor/context": [
         {
           "command": "piDock.runWithSkill",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceFilename == SKILL.md",
           "group": "navigation"
         },
         {
           "command": "piDock.runWithTemplate",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceExtname == .md",
           "group": "navigation"
         },
         {
           "command": "piDock.runWithExtension",
-          "when": "resourceScheme == file",
+          "when": "resourceScheme == file && resourceExtname == .ts",
           "group": "navigation"
         }
       ]

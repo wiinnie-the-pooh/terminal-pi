@@ -10,6 +10,10 @@ function getMenuCommands(items) {
   return new Set((items ?? []).map((item) => item.command));
 }
 
+function getMenuItem(items, command) {
+  return (items ?? []).find((item) => item.command === command);
+}
+
 test('package.json contributes Pi resource action commands with Template labels', () => {
   const titles = getCommandTitles(pkg.contributes.commands);
 
@@ -27,10 +31,44 @@ test('package.json contributes explorer context menu entries for all Pi resource
   assert.equal(commands.has('piDock.runWithExtension'), true);
 });
 
+test('explorer context menu filters actions by matching file name or extension', () => {
+  const explorerItems = pkg.contributes.menus['explorer/context'];
+
+  assert.equal(
+    getMenuItem(explorerItems, 'piDock.runWithSkill')?.when,
+    'resourceScheme == file && resourceFilename == SKILL.md'
+  );
+  assert.equal(
+    getMenuItem(explorerItems, 'piDock.runWithTemplate')?.when,
+    'resourceScheme == file && resourceExtname == .md'
+  );
+  assert.equal(
+    getMenuItem(explorerItems, 'piDock.runWithExtension')?.when,
+    'resourceScheme == file && resourceExtname == .ts'
+  );
+});
+
 test('package.json contributes editor context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['editor/context']);
 
   assert.equal(commands.has('piDock.runWithSkill'), true);
   assert.equal(commands.has('piDock.runWithTemplate'), true);
   assert.equal(commands.has('piDock.runWithExtension'), true);
+});
+
+test('editor context menu filters actions by matching file name or extension', () => {
+  const editorItems = pkg.contributes.menus['editor/context'];
+
+  assert.equal(
+    getMenuItem(editorItems, 'piDock.runWithSkill')?.when,
+    'resourceScheme == file && resourceFilename == SKILL.md'
+  );
+  assert.equal(
+    getMenuItem(editorItems, 'piDock.runWithTemplate')?.when,
+    'resourceScheme == file && resourceExtname == .md'
+  );
+  assert.equal(
+    getMenuItem(editorItems, 'piDock.runWithExtension')?.when,
+    'resourceScheme == file && resourceExtname == .ts'
+  );
 });
