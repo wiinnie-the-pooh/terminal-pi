@@ -38,7 +38,7 @@ npm install -g @mariozechner/pi-coding-agent
 ## Features
 
 - **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
-- **Ctrl+G external editor** - write prompt in your current editor variant; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
+- **Ctrl+G external editor** - opens the current `Pi` prompt in an external editor; on save and close, it returns to `Pi`.
 - **Configurable** - set default CLI args and choose your editor command
 
 ### Status bar launcher
