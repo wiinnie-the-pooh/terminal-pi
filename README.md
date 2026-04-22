@@ -1,4 +1,4 @@
-# Pi Dock — Pi agent docked in VS Code
+# Pi Dock -- Pi agent docked in VS Code
 
 <p align="center">
   <img src="resources/icons/pi-dock.png" alt="Pi Dock" width="96">
@@ -23,6 +23,8 @@
 
 ---
 
+<img src="resources/images/statusbar-click.png" alt="Pi Dock in work">
+
 ## Quick Start
 
 **Prerequisite:** `pi` must be installed and on your PATH.
@@ -41,15 +43,13 @@ npm install -g @mariozechner/pi-coding-agent
 
 ### Status bar launcher
 
-<img src="resources/images/statusbar-click.png" alt="Pi status bar button">
-
-Every click opens a fresh `Pi Dock` session into VS Code `Editor Area`.
+- Every click opens a fresh `Pi Dock` session into VS Code `Editor Area`.
 
 ### Edit prompts outside the `Pi` session
 
-Focus the `Pi Dock` session and press `Ctrl+G` to open the external editor. Write your prompt in a VS Code tab, then save and close -- it is sent back to `Pi`.
+- Focus the `Pi Dock` session and press `Ctrl+G` to open the external editor. Write your prompt in a VS Code tab, then save and close -- it is sent back to `Pi`.
 
-`Pi` terminals created by this extension set `EDITOR` and `VISUAL` to `code --wait`. This opens an anonymous file in the VS Code `Editor area`.
+- `Pi` terminals created by this extension set `EDITOR` and `VISUAL` to `code --wait`. This opens an anonymous file in the VS Code `Editor area`.
 
 ---
 
