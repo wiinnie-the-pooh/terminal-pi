@@ -1,120 +1,84 @@
-# Pi Dock - Pi Agent Docked in the VS Code Editor Area
+# Pi Dock
 
-<p align="center">
-  <img src="resources/icons/pi-dock.png" alt="Pi Dock" width="96">
-</p>
+[Pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) is an open-source AI coding agent that runs in your terminal. Pi Dock docks it right inside the VS Code editor area -- one click to launch, zero context switches. Feed Pi your skills and templates from the Explorer or Command Palette, use `Ctrl+G` to compose prompts in a full editor tab, and never lose a session: Pi Dock automatically restores your sessions when VS Code restarts, so you pick up right where you left off.
 
-<p align="center">
-  <strong>Make <code>pi</code> feel native in VS Code.</strong><br>
-  One click to launch. <code>Ctrl+G</code> to write prompts in your favorite editor.
-</p>
-
-<p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-dock">
-    <img src="https://img.shields.io/visual-studio-marketplace/v/wiinnie-the-pooh.pi-dock?label=VS%20Marketplace&color=0066b8" alt="VS Marketplace Version">
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-dock">
-    <img src="https://img.shields.io/visual-studio-marketplace/i/wiinnie-the-pooh.pi-dock?label=installs&color=0066b8" alt="Installs">
-  </a>
-  <a href="https://github.com/wiinnie-the-pooh/terminal-pi/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/wiinnie-the-pooh/terminal-pi?color=0066b8" alt="License">
-  </a>
-</p>
-
----
-
-<img src="resources/images/statusbar-click.png" alt="Pi Dock in work">
+![Pi Dock in the VS Code editor area](resources/images/statusbar-click.png)
 
 ## Quick Start
 
-**Prerequisite:** `pi` must be installed and on your PATH.
+1. Install the [Pi CLI](https://www.npmjs.com/package/@mariozechner/pi-coding-agent):
 
-```sh
-npm install -g @mariozechner/pi-coding-agent
-```
+   ```sh
+   npm install -g @mariozechner/pi-coding-agent
+   ```
 
----
+2. Install Pi Dock from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-dock).
+
+3. Click the Pi icon in the editor title bar -- a Pi session opens in your editor area.
 
 ## Features
 
-- **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
-- **Skill / Template / Extension actions** - run Pi on selected or current resource files, with a filtered Command Palette Quick Pick when no file context exists
-- **Ctrl+G external editor** - opens the current `Pi` prompt in an external editor; on save and close, it returns to `Pi`.
-- **Session restore** - Pi sessions reopen automatically when VS Code restarts; disable with `piDock.restoreSessionsOnStartup`
-- **Configurable** - set default CLI args and choose your editor command
+- **One-click launch** -- Click the status bar or the editor title bar icon to open a fresh Pi session docked in the editor area. No new windows. No browser tabs. No terminal juggling.
 
-### Status bar launcher
+- **Workspace resources** -- Right-click files in the Explorer or use the Command Palette to launch Pi with your [Skills](https://www.npmjs.com/package/@mariozechner/pi-coding-agent), Templates, Extensions, or Prompts. Multi-select is supported.
 
-- Every click opens a fresh `Pi Dock` session into VS Code `Editor Area`.
+- **Ctrl+G editor integration** -- Focus a Pi session and press `Ctrl+G` to compose your prompt in a full VS Code editor tab. Save and close the tab to send it back to Pi. Your flow state, protected.
 
-### Run Pi with workspace resources
+- **Session persistent** -- Pi sessions restore automatically when VS Code restarts. Close your laptop, reboot, update VS Code -- your Pi sessions are waiting when you come back.
 
-- Pi Dock exposes four resource actions:
-  - `Run Pi with Skill...`
-  - `Run Pi with Template...`
-  - `Run Pi with Extension...`
-  - `Run Pi with Prompt...`
+- **Configurable** -- Set default CLI flags (`--model openai/gpt-4o`), choose your external editor command, and fine-tune terminal behavior through VS Code settings.
 
-- Resource file rules are strict:
-  - **Skill** accepts only `SKILL.md` files and passes their parent directories via repeated `--skill <dir>` flags
-  - **Template** accepts only `.md` files excluding `SKILL.md` and passes them via repeated `--prompt-template <file>` flags
-  - **Extension** accepts only `.ts` files and passes them via repeated `--extension <file>` flags
-  - **Prompt** accepts any non-binary text file and passes it as `@<file>`; set `piDock.promptExtraContext` to append extra context
+<details>
+<summary>Resource type details</summary>
 
-- **Explorer View** uses the selected files directly:
-  - the command is valid only when **all selected files** satisfy that command's criteria
-  - mixed selections are rejected; Pi Dock does not ignore mismatched files and continue with a subset
+Each "Run Pi with..." command accepts specific file types:
 
-- **Editor / Current File** uses the current file directly:
-  - `Run Pi with Skill...` works only when the current file is `SKILL.md`
-  - `Run Pi with Template...` works only when the current file is a non-skill `.md`
-  - `Run Pi with Extension...` works only when the current file is a `.ts` file
+| Command | Accepted files | Pi CLI flag |
+| ------- | -------------- | ----------- |
+| Run Pi with Skill... | `SKILL.md` | `--skill <parent-dir>` |
+| Run Pi with Template... | `.md` files (excluding `SKILL.md`) | `--prompt-template <file>` |
+| Run Pi with Extension... | `.ts` files | `--extension <file>` |
+| Run Pi with Prompt... | Any text file | `@<file>` |
 
-- **Command Palette** is the only picker-based flow:
-  - `Pi Dock: Run Pi with Skill...` shows a Quick Pick of workspace `SKILL.md` files
-  - `Pi Dock: Run Pi with Template...` shows a Quick Pick of workspace `.md` files excluding `SKILL.md`
-  - `Pi Dock: Run Pi with Extension...` shows a Quick Pick of workspace `.ts` files
-  - `Pi Dock: Run Pi with Prompt...` shows a File Open dialog (single file, any non-binary text file)
+- **Explorer context menu**: Right-click selected files to run the matching command. All selected files must match the command's file type.
+- **Editor context menu**: Right-click in the editor to run a command with the current file.
+- **Command Palette**: Opens a Quick Pick to browse and multi-select matching files from your workspace.
 
-- Command Palette Quick Picks (Skill / Template / Extension) support multi-select within the chosen resource type.
+</details>
 
-### Edit prompts outside the `Pi` session
+<details>
+<summary>External editor auto-detection</summary>
 
-- Focus the `Pi Dock` session and press `Ctrl+G` to open the external editor. Write your prompt in an editor tab, then save and close - it is sent back to `Pi`.
+Pi Dock auto-detects your VS Code variant and exports a matching `EDITOR` / `VISUAL` command for Pi's external editor flow:
 
-- By default, Pi Dock auto-detects the current desktop editor and exports a matching `EDITOR` / `VISUAL` command:
-  - VS Code Stable -> `code --wait`
-  - VS Code Insiders -> `code-insiders --wait`
-  - Cursor -> `cursor --wait`
+- VS Code Stable -> `code --wait`
+- VS Code Insiders -> `code-insiders --wait`
+- Cursor -> `cursor --wait`
 
-- If auto-detection cannot find a usable CLI on PATH, Pi Dock preserves your existing `VISUAL` / `EDITOR` values. If none are set, `pi` falls back to its own default behavior.
+If auto-detection fails, Pi Dock preserves your existing `VISUAL` / `EDITOR` values. Override this with the `piDock.editorCommand` setting.
 
----
+</details>
 
 ## Commands
 
-| Command                               | Description |
-|---------------------------------------|-------------|
-| Pi Dock: Run Pi Dock                  | Open an interactive `pi` session |
-| Pi Dock: Run Pi with Skill...         | Run Pi with one or more Skill resources sourced from `SKILL.md` files |
-| Pi Dock: Run Pi with Template...      | Run Pi with one or more Template resources sourced from non-skill `.md` files |
-| Pi Dock: Run Pi with Extension...     | Run Pi with one or more Extension resources sourced from `.ts` files |
-| Pi Dock: Run Pi with Prompt...        | Run Pi with a text file as a prompt reference |
-
----
+| Command | Description |
+| ------- | ----------- |
+| Pi Dock: Run Pi Dock | Open an interactive Pi session in the editor area |
+| Pi Dock: Run Pi with Skill... | Launch Pi with one or more Skill resources (`SKILL.md` files) |
+| Pi Dock: Run Pi with Template... | Launch Pi with one or more prompt templates (`.md` files) |
+| Pi Dock: Run Pi with Extension... | Launch Pi with one or more extensions (`.ts` files) |
+| Pi Dock: Run Pi with Prompt... | Launch Pi with a text file as a prompt reference |
 
 ## Settings
 
-| Setting                              | Default       | Description                                                                          |
-|--------------------------------------|---------------|--------------------------------------------------------------------------------------|
-| `piDock.defaultArgs`                 | `""`          | Extra CLI flags for every `pi` invocation, e.g. `--model openai/gpt-4o`              |
-| `piDock.editorCommand`               | `""` (auto)  | Optional explicit `EDITOR` / `VISUAL` override. Leave empty to auto-detect the current desktop editor CLI |
-| `piDock.promptExtraContext`          | `""`          | Extra context argument appended after the `@file` reference in Prompt invocations    |
-| `piDock.virtualEnvironmentOverride`  | `true`        | Temporarily disable Python venv activation when creating a Pi terminal               |
-| `piDock.virtualEnvironmentDrainMs`   | `150`         | Milliseconds to wait before restoring venv activation (ignored when override is off) |
-| `piDock.restoreSessionsOnStartup`    | `true`        | Reopen previous Pi sessions on VS Code startup; set to `false` to always start fresh |
-
----
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `piDock.defaultArgs` | `""` | Extra CLI flags for every Pi invocation (e.g. `--model openai/gpt-4o`) |
+| `piDock.editorCommand` | `""` (auto) | Override the `EDITOR` / `VISUAL` command. Leave empty to auto-detect |
+| `piDock.promptExtraContext` | `""` | Extra context appended after the `@file` reference in Prompt invocations |
+| `piDock.virtualEnvironmentOverride` | `true` | Temporarily disable Python venv activation when creating a Pi terminal |
+| `piDock.virtualEnvironmentDrainMs` | `150` | Milliseconds to wait before restoring venv activation (ignored when override is off) |
+| `piDock.restoreSessionsOnStartup` | `true` | Reopen previous Pi sessions on VS Code startup |
 
 <details>
 <summary>Building from source</summary>
@@ -137,11 +101,9 @@ code --install-extension pi-dock-<version>.vsix
 
 </details>
 
----
-
 ## Links
 
-- [Pi Dock CLI on npm](https://www.npmjs.com/package/@mariozechner/pi-coding-agent)
+- [Pi CLI on npm](https://www.npmjs.com/package/@mariozechner/pi-coding-agent)
 - [GitHub Repository](https://github.com/wiinnie-the-pooh/terminal-pi)
 - [Report an Issue](https://github.com/wiinnie-the-pooh/terminal-pi/issues)
 - [Changelog](CHANGELOG.md)
