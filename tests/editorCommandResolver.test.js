@@ -110,38 +110,37 @@ test('returns undefined for unknown products', () => {
   assert.equal(result, undefined);
 });
 
-test('commandExistsOnPath uses where on Windows and which elsewhere', (t) => {
-  const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
-  const calls = [];
+for (const { platform, expectedLocator } of [
+  { platform: 'win32', expectedLocator: 'where' },
+  { platform: 'linux', expectedLocator: 'which' },
+]) {
+  test(`commandExistsOnPath uses ${expectedLocator} on ${platform}`, (t) => {
+    const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+    const calls = [];
 
-  const originalSpawnSync = spawnSync;
-  const mockSpawnSync = (...args) => {
-    calls.push(args);
-    return { status: 0 };
-  };
+    const originalSpawnSync = spawnSync;
+    const mockSpawnSync = (...args) => {
+      calls.push(args);
+      return { status: 0 };
+    };
 
-  // Patch spawnSync via the module cache so commandExistsOnPath sees it.
-  const childProcess = require('node:child_process');
-  childProcess.spawnSync = mockSpawnSync;
+    // Patch spawnSync via the module cache so commandExistsOnPath sees it.
+    const childProcess = require('node:child_process');
+    childProcess.spawnSync = mockSpawnSync;
 
-  t.after(() => {
-    childProcess.spawnSync = originalSpawnSync;
-    if (originalPlatform) {
-      Object.defineProperty(process, 'platform', originalPlatform);
-    } else {
-      delete process.platform;
-    }
+    t.after(() => {
+      childProcess.spawnSync = originalSpawnSync;
+      if (originalPlatform) {
+        Object.defineProperty(process, 'platform', originalPlatform);
+      } else {
+        delete process.platform;
+      }
+    });
+
+    Object.defineProperty(process, 'platform', { value: platform, configurable: true });
+    commandExistsOnPath('code');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0][0], expectedLocator);
+    assert.deepEqual(calls[0][1], ['code']);
   });
-
-  Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-  commandExistsOnPath('code');
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0][0], 'where');
-  assert.deepEqual(calls[0][1], ['code']);
-
-  Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
-  commandExistsOnPath('code');
-  assert.equal(calls.length, 2);
-  assert.equal(calls[1][0], 'which');
-  assert.deepEqual(calls[1][1], ['code']);
-});
+}
