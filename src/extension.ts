@@ -58,52 +58,37 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piDock.run', async () => {
-      try {
+    vscode.commands.registerCommand('piDock.run', () =>
+      runCommand('run', async () => {
         const cfg = getConfig();
         await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
-      } catch (err) {
-        console.error('Pi Dock: run command failed:', err);
-        void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
-      }
-    }),
+      })
+    ),
     vscode.commands.registerCommand(
       'piDock.runWithSkill',
-      async (resource?: vscode.Uri, resources?: vscode.Uri[]) => {
-        try {
+      (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
+        runCommand('runWithSkill', async () => {
           await runResourceAction('skill', resource, resources);
-        } catch (err) {
-          console.error('Pi Dock: runWithSkill command failed:', err);
-          void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
-        }
-      },
+        }),
     ),
     vscode.commands.registerCommand(
       'piDock.runWithTemplate',
-      async (resource?: vscode.Uri, resources?: vscode.Uri[]) => {
-        try {
+      (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
+        runCommand('runWithTemplate', async () => {
           await runResourceAction('template', resource, resources);
-        } catch (err) {
-          console.error('Pi Dock: runWithTemplate command failed:', err);
-          void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
-        }
-      },
+        }),
     ),
     vscode.commands.registerCommand(
       'piDock.runWithExtension',
-      async (resource?: vscode.Uri, resources?: vscode.Uri[]) => {
-        try {
+      (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
+        runCommand('runWithExtension', async () => {
           await runResourceAction('extension', resource, resources);
-        } catch (err) {
-          console.error('Pi Dock: runWithExtension command failed:', err);
-          void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
-        }
-      },
+        }),
     ),
     vscode.commands.registerCommand(
       'piDock.runWithPrompt',
-      async (resource?: vscode.Uri) => {
-        try {
+      (resource?: vscode.Uri) =>
+        runCommand('runWithPrompt', async () => {
           const cfg = getConfig();
           const filePath = await resolvePromptFilePath(resource);
           if (!filePath) {
@@ -115,11 +100,7 @@ export function activate(context: vscode.ExtensionContext): void {
             filePath,
             cfg.promptExtraContext,
           );
-        } catch (err) {
-          console.error('Pi Dock: runWithPrompt command failed:', err);
-          void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
-        }
-      },
+        }),
     ),
   );
 
@@ -377,6 +358,15 @@ async function resolvePromptFilePath(
     return undefined;
   }
   return filePath;
+}
+
+async function runCommand(label: string, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+  } catch (err) {
+    console.error(`Pi Dock: ${label} command failed:`, err);
+    void vscode.window.showErrorMessage(`Pi Dock failed to start: ${String(err)}`);
+  }
 }
 
 export function deactivate(): void {
