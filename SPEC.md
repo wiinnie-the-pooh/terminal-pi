@@ -39,7 +39,6 @@ The extension currently provides:
 The extension does **not** currently specify or require:
 
 - print mode commands
-- continue-session commands
 - browse-session commands
 - a target-file-plus-resource workflow for the resource actions
 - a pasted-path workflow for the resource actions
@@ -109,6 +108,15 @@ pi [defaultArgs...]
 ```
 
 This is used by the status-bar launcher.
+
+### 4.2 Session continuity
+
+```text
+pi --session-dir <dir>   scope all session I/O to a specific directory
+pi --continue            resume the most recent session in the current session-dir
+```
+
+The extension always passes `--session-dir <unique-dir>` so each Pi terminal writes its session to an isolated directory. On restart, `--continue --session-dir <stored-dir>` resumes the session in that directory.
 
 ### 4.2 Resource actions
 
@@ -387,6 +395,7 @@ All settings live under the `piDock` namespace.
 | `piDock.promptExtraContext` | string | `""` | Extra context argument appended after the `@<file>` reference in Prompt invocations; omitted when empty |
 | `piDock.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
 | `piDock.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
+| `piDock.restoreSessionsOnStartup` | boolean | `true` | Reopen previous Pi sessions when VS Code starts |
 
 ### 5.8 Activation and deactivation
 
@@ -394,6 +403,16 @@ All settings live under the `piDock` namespace.
 - status-bar launcher appears after activation
 - disposables are owned by `context.subscriptions`
 - `deactivate()` remains a no-op
+- on startup: if `restoreSessionsOnStartup` is true, reopen each persisted session via `pi --continue --session-dir <stored-dir>`
+
+### 5.9 Session persistence
+
+Each Pi terminal is launched with `--session-dir <unique-dir>` injected into its `shellArgs`. This scopes the session to an isolated directory the extension controls.
+
+- The session dir path and piArgs are stored in `workspaceState` under key `piDock.sessions` as a `PersistedSession[]`.
+- When a Pi terminal is closed, its record is removed from `workspaceState`.
+- When VS Code restarts and `restoreSessionsOnStartup` is true, each stored session dir is reopened with `pi --continue --session-dir <dir>`, resuming the previous conversation.
+- Session dirs live at `~/.pi/agent/sessions/vscode/<uuid>/`, separate from pi's own default session directories.
 
 ## 6. Eligible and Ineligible User Scenarios
 
@@ -449,7 +468,8 @@ src/extension.ts       -- register commands and route by invocation source
 src/fileSelection.ts   -- pure resource-file matching / eligibility helpers
 src/resourcePicker.ts  -- Command Palette resource discovery and Quick Pick logic
 src/piResourceArgs.ts  -- deterministic Pi arg assembly for resource actions
-src/terminal.ts        -- create Pi terminals and launch Pi
+src/sessionStore.ts    -- workspaceState CRUD for persisted session dirs
+src/terminal.ts        -- create Pi terminals, inject --session-dir, restore sessions
 src/piResolver.ts      -- resolve the best shellPath / prefixArgs for launching Pi
 src/terminalEnv.ts     -- assemble EDITOR / VISUAL environment variables
 src/pythonActivationGuard.ts -- suppress Python activation during terminal creation
@@ -488,7 +508,7 @@ The following are intentionally out of scope:
 - installing or updating Pi
 - validating Pi's behavior after launch
 - parsing Pi output
-- embedding Pi output into custom VS Code UI
+- embedding Pi output into custom VS Code UI (WebviewPanel / RPC mode)
 - a target-file-plus-resource model for these resource actions
 - generic all-files picking for these resource actions
 - partially processing mixed Explorer selections

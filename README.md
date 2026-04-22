@@ -40,6 +40,7 @@ npm install -g @mariozechner/pi-coding-agent
 - **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
 - **Skill / Template / Extension actions** - run Pi on selected or current resource files, with a filtered Command Palette Quick Pick when no file context exists
 - **Ctrl+G external editor** - opens the current `Pi` prompt in an external editor; on save and close, it returns to `Pi`.
+- **Session restore** - Pi sessions reopen automatically when VS Code restarts; disable with `piDock.restoreSessionsOnStartup`
 - **Configurable** - set default CLI args and choose your editor command
 
 ### Status bar launcher
@@ -111,6 +112,7 @@ npm install -g @mariozechner/pi-coding-agent
 | `piDock.promptExtraContext`          | `""`          | Extra context argument appended after the `@file` reference in Prompt invocations    |
 | `piDock.virtualEnvironmentOverride`  | `true`        | Temporarily disable Python venv activation when creating a Pi terminal               |
 | `piDock.virtualEnvironmentDrainMs`   | `150`         | Milliseconds to wait before restoring venv activation (ignored when override is off) |
+| `piDock.restoreSessionsOnStartup`    | `true`        | Reopen previous Pi sessions on VS Code startup; set to `false` to always start fresh |
 
 ---
 

@@ -82,6 +82,12 @@ Run through the relevant scenarios after every non-trivial change.
 | 40 | In the File Open dialog (test 38), cancel without selecting | Nothing happens; no terminal is created |
 | 41 | Set `piDock.promptExtraContext` to `focus on errors`; run "Run Pi with Prompt..." on any text file | Pi launches with `@<filepath> focus on errors` |
 | 42 | Leave `piDock.promptExtraContext` empty (default); run "Run Pi with Prompt..." | Pi launches with `@<filepath>` only -- no extra argument |
+| 43 | With `piDock.restoreSessionsOnStartup` enabled (default), open a workspace, run `piDock.run`, say something to pi, then fully close VS Code | (setup step) |
+| 44 | Reopen the same workspace | Pi terminal reopens automatically; pi resumes the previous session (`--continue --session-dir <dir>` is passed) |
+| 45 | In the restored terminal, verify pi remembers the previous conversation | pi responds with context from the session before restart |
+| 46 | Close the restored Pi terminal, then close and reopen VS Code | No Pi terminal auto-opens (record was pruned on close) |
+| 47 | Set `piDock.restoreSessionsOnStartup` to `false`; run Pi, close VS Code, reopen | No auto-restore; Pi does not open on startup |
+| 48 | Run `piDock.runWithSkill` with a skill file; close VS Code; reopen (restore enabled) | Pi terminal reopens with `--continue --skill <path>` -- skill is restored |
 
 ## 4. Release-oriented verification
 

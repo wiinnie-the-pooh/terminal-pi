@@ -7,4 +7,7 @@ module.exports = {
     Workspace: 2,
     WorkspaceFolder: 3,
   },
+  window: {
+    onDidCloseTerminal: () => ({ dispose: () => {} }),
+  },
 };

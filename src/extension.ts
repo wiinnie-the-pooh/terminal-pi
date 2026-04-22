@@ -44,7 +44,7 @@ interface ResourceActionHandlerDeps {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-  terminalManager = new PiTerminalManager();
+  terminalManager = new PiTerminalManager(context);
   context.subscriptions.push(terminalManager);
 
   const runResourceAction = createResourceActionHandler({
@@ -107,6 +107,11 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   void updateActiveTerminalContext();
+
+  const cfg = getConfig();
+  if (cfg.restoreSessionsOnStartup) {
+    void terminalManager.restoreSessions(cfg.defaultArgs, cfg.editorCommand);
+  }
 }
 
 export function createResourceActionHandler(

@@ -1,13 +1,25 @@
+import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { getConfig } from './config';
-import { PI_TERMINAL_NAME } from './piTerminal';
+import { PI_TERMINAL_NAME, isPiTerminalName } from './piTerminal';
 import { resolvePiShell } from './piResolver';
 import { withActivationDisabled } from './pythonActivationGuard';
 import { resolveEditorCommand } from './editorCommandResolver';
 import { getPiTerminalEnv } from './terminalEnv';
 import { buildPiResourceArgs, type PiResourceMode } from './piResourceArgs';
+import {
+  appendSession,
+  clearSessions,
+  loadSessions,
+  removeSession,
+} from './sessionStore';
 
 export class PiTerminalManager implements vscode.Disposable {
+  private terminalCreatedAt = new WeakMap<vscode.Terminal, string>();
+
   /**
    * Create a Pi terminal and bring it to the foreground.
    *
@@ -26,10 +38,29 @@ export class PiTerminalManager implements vscode.Disposable {
    * the terminal appears in the UI immediately; the drain+restore runs
    * in the background from the user's perspective.
    */
+  constructor(private readonly context: vscode.ExtensionContext) {
+    context.subscriptions.push(
+      vscode.window.onDidCloseTerminal((closed) => {
+        const createdAt = this.terminalCreatedAt.get(closed);
+        if (createdAt && isPiTerminalName(closed.name)) {
+          void removeSession(this.context, createdAt);
+        }
+      }),
+    );
+  }
+
+  private generateSessionDir(): string {
+    return path.join(os.homedir(), '.pi', 'agent', 'sessions', 'vscode', crypto.randomUUID());
+  }
+
   private async createAndShowTerminal(
     editorCommand: string,
     piArgs: string[],
+    sessionDir?: string,
   ): Promise<void> {
+    const dir = sessionDir ?? this.generateSessionDir();
+    fs.mkdirSync(dir, { recursive: true });
+
     const { shellPath, prefixArgs } = resolvePiShell();
     const { virtualEnvironmentOverride, virtualEnvironmentDrainMs } = getConfig();
     const resolvedEditorCommand = resolveEditorCommand({
@@ -41,21 +72,26 @@ export class PiTerminalManager implements vscode.Disposable {
     const options: vscode.TerminalOptions = {
       name: PI_TERMINAL_NAME,
       shellPath,
-      shellArgs: [...prefixArgs, ...piArgs],
+      shellArgs: [...prefixArgs, '--session-dir', dir, ...piArgs],
       location: { viewColumn: vscode.ViewColumn.Beside },
       isTransient: true,
       env: getPiTerminalEnv(editorCommand, resolvedEditorCommand),
     };
+
+    let terminal!: vscode.Terminal;
     if (virtualEnvironmentOverride) {
       await withActivationDisabled(() => {
-        const terminal = vscode.window.createTerminal(options);
+        terminal = vscode.window.createTerminal(options);
         terminal.show(false);
       }, virtualEnvironmentDrainMs);
-      return;
+    } else {
+      terminal = vscode.window.createTerminal(options);
+      terminal.show(false);
     }
 
-    const terminal = vscode.window.createTerminal(options);
-    terminal.show(false);
+    const now = new Date().toISOString();
+    this.terminalCreatedAt.set(terminal, now);
+    void appendSession(this.context, { sessionDir: dir, createdAt: now, piArgs });
   }
 
   private buildArgs(defaultArgs: string): string[] {
@@ -63,6 +99,18 @@ export class PiTerminalManager implements vscode.Disposable {
       return [];
     }
     return defaultArgs.trim().split(/\s+/);
+  }
+
+  public async restoreSessions(defaultArgs: string, editorCommand: string): Promise<void> {
+    const sessions = loadSessions(this.context);
+    await clearSessions(this.context);
+    for (const session of sessions) {
+      if (!fs.existsSync(session.sessionDir)) continue;
+      // Prepend --continue so pi resumes the session in this dir.
+      // Re-apply current defaultArgs in case config changed since last launch.
+      const piArgs = ['--continue', ...this.buildArgs(defaultArgs), ...(session.piArgs ?? [])];
+      await this.createAndShowTerminal(editorCommand, piArgs, session.sessionDir);
+    }
   }
 
   public async runInteractive(
@@ -109,4 +157,3 @@ export class PiTerminalManager implements vscode.Disposable {
     // No-op: terminal instances are managed by VS Code.
   }
 }
-

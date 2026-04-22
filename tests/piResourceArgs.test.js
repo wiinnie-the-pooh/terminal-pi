@@ -87,7 +87,11 @@ test('runWithResources passes built args into terminal creation without @ resour
 
   try {
     const { PiTerminalManager } = require('../out/terminal.js');
-    const manager = new PiTerminalManager();
+    const stubContext = {
+      subscriptions: [],
+      workspaceState: { get: () => undefined, update: async () => {} },
+    };
+    const manager = new PiTerminalManager(stubContext);
     let capturedEditorCommand;
     let capturedArgs;
 
