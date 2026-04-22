@@ -6,14 +6,8 @@
 
 ## Quick Start
 
-1. Install the [Pi CLI](https://www.npmjs.com/package/@mariozechner/pi-coding-agent):
-
-   ```sh
-   npm install -g @mariozechner/pi-coding-agent
-   ```
-
+1. Install the [Pi CLI](https://www.npmjs.com/package/@mariozechner/pi-coding-agent): `npm install -g @mariozechner/pi-coding-agent`
 2. Install Pi Dock from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-dock).
-
 3. Click the Pi icon in the editor title bar -- a Pi session opens in your editor area.
 
 ## Features
