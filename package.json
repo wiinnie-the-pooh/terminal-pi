@@ -1,7 +1,7 @@
 {
   "name": "pi-dock",
   "displayName": "Pi Dock",
-  "description": "Integrate the Pi Coding Agent CLI into VS Code via the integrated terminal",
+  "description": "Pi Coding Agent in the VS Code Editor Area",
   "version": "0.2.16",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
