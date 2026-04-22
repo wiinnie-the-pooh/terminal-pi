@@ -101,16 +101,20 @@ Run through these after every non-trivial change:
 | 11 | Set `piDock.defaultArgs` to `"--thinking low"`; run command | Pi starts with `--thinking low` passed as arguments |
 | 12 | Right-click a file in Explorer | "Run Pi Dock with Current File" in context menu |
 | 13 | Right-click inside an editor | "Run Pi Dock with Current File" in context menu |
-| 14 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow in VS Code without an editor warning |
-| 15 | Set `piDock.editorCommand` to `code-insiders --wait`; run Pi and press `Ctrl+G` | Pi uses the configured editor command instead of the default one |
-| 16 | Open a Python project with a venv configured; open a Pi terminal | No venv activation command appears in the Pi terminal; pi starts cleanly |
-| 17 | On Windows, open a Pi terminal and inspect the terminal process tree (e.g. Process Explorer) | The terminal runs `node.exe <...>\@mariozechner\pi-coding-agent\dist\cli.js`, not `cmd.exe` or `pi.cmd` |
-| 18 | With ms-python installed and a workspace that has a `.venv`, open a Pi terminal | No venv activation text appears in the Pi terminal; pi starts cleanly |
-| 19 | During test 18, open `settings.json` within ~150 ms of the Pi terminal appearing | `python.terminal.activateEnvironment` is briefly present as `false` at workspace scope, then disappears (or returns to its prior value) once the drain completes |
-| 20 | Pre-set `python.terminal.activateEnvironment` to `false` in settings, then open a Pi terminal | Setting is untouched throughout (the guard detects activation is already disabled and skips the flip) |
-| 21 | Set `piDock.virtualEnvironmentDrainMs` to `0`, open a Pi terminal | Venv activation text may reappear (expected: 0 disables the drain and races with ms-python) |
-| 22 | Set `piDock.virtualEnvironmentDrainMs` to `500`, open a Pi terminal | No venv activation; the restore of `python.terminal.activateEnvironment` happens ~500 ms after the terminal appears |
-| 23 | Set `piDock.virtualEnvironmentOverride` to `false`, open a Pi terminal in a Python workspace | The extension does not touch `python.terminal.activateEnvironment`; the workaround is disabled explicitly by the user |
+| 14 | Focus a Pi terminal and press `Ctrl+G` | VS Code sends the control sequence to the terminal; Pi opens its external-editor flow in the current editor without an editor warning |
+| 15 | In VS Code Stable, leave `piDock.editorCommand` empty; run Pi and press `Ctrl+G` | Pi uses the Stable CLI default (`code --wait`) |
+| 16 | In VS Code Insiders, leave `piDock.editorCommand` empty; run Pi and press `Ctrl+G` | Pi uses the Insiders CLI default (`code-insiders --wait`) |
+| 17 | In Cursor, leave `piDock.editorCommand` empty; run Pi and press `Ctrl+G` | Pi uses the Cursor CLI default (`cursor --wait`) |
+| 18 | In a known editor variant with its CLI missing from PATH, leave `piDock.editorCommand` empty and pre-set `VISUAL` or `EDITOR` before launching VS Code | Pi Dock preserves the inherited editor env instead of forcing a broken CLI command |
+| 19 | Set `piDock.editorCommand` to `code-insiders --wait`; run Pi and press `Ctrl+G` | Pi uses the configured editor command instead of the auto-detected default |
+| 20 | Open a Python project with a venv configured; open a Pi terminal | No venv activation command appears in the Pi terminal; pi starts cleanly |
+| 21 | On Windows, open a Pi terminal and inspect the terminal process tree (e.g. Process Explorer) | The terminal runs `node.exe <...>\@mariozechner\pi-coding-agent\dist\cli.js`, not `cmd.exe` or `pi.cmd` |
+| 22 | With ms-python installed and a workspace that has a `.venv`, open a Pi terminal | No venv activation text appears in the Pi terminal; pi starts cleanly |
+| 23 | During test 22, open `settings.json` within ~150 ms of the Pi terminal appearing | `python.terminal.activateEnvironment` is briefly present as `false` at workspace scope, then disappears (or returns to its prior value) once the drain completes |
+| 24 | Pre-set `python.terminal.activateEnvironment` to `false` in settings, then open a Pi terminal | Setting is untouched throughout (the guard detects activation is already disabled and skips the flip) |
+| 25 | Set `piDock.virtualEnvironmentDrainMs` to `0`, open a Pi terminal | Venv activation text may reappear (expected: 0 disables the drain and races with ms-python) |
+| 26 | Set `piDock.virtualEnvironmentDrainMs` to `500`, open a Pi terminal | No venv activation; the restore of `python.terminal.activateEnvironment` happens ~500 ms after the terminal appears |
+| 27 | Set `piDock.virtualEnvironmentOverride` to `false`, open a Pi terminal in a Python workspace | The extension does not touch `python.terminal.activateEnvironment`; the workaround is disabled explicitly by the user |
 
 ## Versioning
 

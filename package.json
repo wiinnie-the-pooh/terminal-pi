@@ -60,9 +60,9 @@
         "piDock.editorCommand": {
           "type": "string",
           "order": 2,
-          "default": "code --wait",
-          "description": "Command exported as EDITOR and VISUAL in Pi terminals. If empty, Pi falls back to the existing VISUAL/EDITOR environment variables, then to 'code --wait'."
-        },
+          "default": "",
+          "description": "Command exported as EDITOR and VISUAL in Pi terminals. Leave empty to auto-detect the current desktop editor CLI (VS Code, VS Code Insiders, or Cursor). If detection fails, Pi Dock preserves existing VISUAL/EDITOR values and otherwise lets pi use its own fallback behavior."
+        }
         "piDock.virtualEnvironmentOverride": {
           "type": "boolean",
           "order": 4,

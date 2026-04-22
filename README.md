@@ -38,7 +38,7 @@ npm install -g @mariozechner/pi-coding-agent
 ## Features
 
 - **Status bar launcher** - open a fresh Pi session in one click in VS Code `Editor Area`
-- **Ctrl+G external editor** - write prompt in VS Code; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
+- **Ctrl+G external editor** - write prompt in your current editor variant; it is sent to the `Pi` session when the file is saved and closed (`Ctrl+F4`)
 - **Configurable** - set default CLI args and choose your editor command
 
 ### Status bar launcher
@@ -47,9 +47,14 @@ npm install -g @mariozechner/pi-coding-agent
 
 ### Edit prompts outside the `Pi` session
 
-- Focus the `Pi Dock` session and press `Ctrl+G` to open the external editor. Write your prompt in a VS Code tab, then save and close - it is sent back to `Pi`.
+- Focus the `Pi Dock` session and press `Ctrl+G` to open the external editor. Write your prompt in an editor tab, then save and close - it is sent back to `Pi`.
 
-- `Pi` terminals created by this extension set `EDITOR` and `VISUAL` to `code --wait`. This opens an anonymous file in the VS Code `Editor area`.
+- By default, Pi Dock auto-detects the current desktop editor and exports a matching `EDITOR` / `VISUAL` command:
+  - VS Code Stable -> `code --wait`
+  - VS Code Insiders -> `code-insiders --wait`
+  - Cursor -> `cursor --wait`
+
+- If auto-detection cannot find a usable CLI on PATH, Pi Dock preserves your existing `VISUAL` / `EDITOR` values. If none are set, `pi` falls back to its own default behavior.
 
 ---
 
@@ -66,7 +71,7 @@ npm install -g @mariozechner/pi-coding-agent
 | Setting                              | Default       | Description                                                                          |
 |--------------------------------------|---------------|--------------------------------------------------------------------------------------|
 | `piDock.defaultArgs`                 | `""`          | Extra CLI flags for every `pi` invocation, e.g. `--model openai/gpt-4o`              |
-| `piDock.editorCommand`               | `code --wait` | Command exported as `EDITOR` / `VISUAL` in Pi terminals                              |
+| `piDock.editorCommand`               | `""` (auto)  | Optional explicit `EDITOR` / `VISUAL` override. Leave empty to auto-detect the current desktop editor CLI |
 | `piDock.virtualEnvironmentOverride`  | `true`        | Temporarily disable Python venv activation when creating a Pi terminal               |
 | `piDock.virtualEnvironmentDrainMs`   | `150`         | Milliseconds to wait before restoring venv activation (ignored when override is off) |
 
