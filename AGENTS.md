@@ -10,7 +10,7 @@ terminal-pi/
 +-- src/
 |   +-- extension.ts               # activate(), command registrations, status bar, context-action wiring
 |   +-- terminal.ts                # PiTerminalManager and Pi launch entry points
-|   +-- piLauncher.ts              # self-contained launcher: resolves Pi executable, detects restore via GUID file search
+|   +-- piLauncher.ts              # self-contained launcher: resolves Pi executable, sidecar map (.pidock/<guid>.map) for session restore
 |   +-- piResourceArgs.ts          # pure Pi resource argument assembly
 |   +-- fileSelection.ts           # Explorer/editor/direct-command target-file resolution helpers
 |   +-- resourcePicker.ts          # Skill / Template / Extension discovery + normalization helpers
@@ -26,7 +26,7 @@ terminal-pi/
 |   +-- extensionResourceActions.test.js # shared Skill / Template / Extension action flow tests
 |   +-- fileSelection.test.js           # target-file resolution tests
 |   +-- packageManifest.test.js         # manifest contribution tests
-|   +-- piLauncher.test.js              # piLauncher pure-function tests (hasSessionContent, buildLaunchArgs, parsePiScriptPath)
+|   +-- piLauncher.test.js              # piLauncher pure-function tests (hasSessionMap, buildLaunchArgs, parsePiScriptPath, sidecar map helpers)
 |   +-- piResolver.test.js              # .cmd wrapper parsing tests
 |   +-- piResourceArgs.test.js          # Pi resource argument assembly tests
 |   +-- piTerminal.test.js              # smoke tests for Pi terminal detection helpers

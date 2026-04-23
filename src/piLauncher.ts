@@ -2,19 +2,75 @@ import { execFileSync, spawn } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'path';
+import { clearInterval, setInterval, setTimeout } from 'timers';
 
-export function hasExistingSession(sessionsBaseDir: string, guid: string): boolean {
+export function mapFilePath(baseDir: string, guid: string): string {
+  return path.join(baseDir, '.pidock', guid + '.map');
+}
+
+export function readMapFile(filePath: string): string | undefined {
   try {
-    const entries = fs.readdirSync(sessionsBaseDir, { withFileTypes: true });
+    const content = fs.readFileSync(filePath, 'utf8').trim();
+    return content || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function writeMapFile(filePath: string, sessionId: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, sessionId, 'utf8');
+}
+
+export function collectSessionFiles(baseDir: string): Set<string> {
+  const result = new Set<string>();
+  try {
+    const entries = fs.readdirSync(baseDir, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      const files = fs.readdirSync(path.join(sessionsBaseDir, entry.name));
-      if (files.some((f: string) => f.endsWith(`_${guid}.jsonl`))) return true;
+      try {
+        const files = fs.readdirSync(path.join(baseDir, entry.name));
+        for (const f of files) {
+          if (f.endsWith('.jsonl')) result.add(path.join(baseDir, entry.name, f));
+        }
+      /* c8 ignore start */
+      } catch {
+        // skip unreadable subdir
+      }
+      /* c8 ignore stop */
     }
-    return false;
   } catch {
-    return false;
+    // baseDir missing or unreadable
   }
+  return result;
+}
+
+export function extractSessionId(filename: string): string | undefined {
+  const match = /^[^_]+_([0-9a-f-]+)\.jsonl$/i.exec(filename);
+  return match ? match[1] : undefined;
+}
+
+export function findNewSessionId(baseDir: string, before: Set<string>): string | undefined {
+  const current = collectSessionFiles(baseDir);
+  const newFiles = [...current].filter((f) => !before.has(f));
+  if (newFiles.length === 0) return undefined;
+  const chosen =
+    newFiles.length === 1
+      ? newFiles[0]
+      : newFiles.reduce((a, b) => {
+          try {
+            return fs.statSync(a).mtimeMs >= fs.statSync(b).mtimeMs ? a : b;
+          /* c8 ignore start */
+          } catch {
+            return a;
+          }
+          /* c8 ignore stop */
+        });
+  return extractSessionId(path.basename(chosen));
+}
+
+export function hasSessionMap(baseDir: string, guid: string): boolean {
+  return fs.existsSync(mapFilePath(baseDir, guid));
 }
 
 export function parsePiScriptPath(
@@ -33,12 +89,16 @@ export function parsePiScriptPath(
   return path.win32.resolve(expanded);
 }
 
-export function buildLaunchArgs(args: string[], isExistingSession: boolean): string[] {
+export function buildLaunchArgs(args: string[], isRestore: boolean, mappedSessionId?: string): string[] {
   const sIdx = args.indexOf('--session');
-  if (!isExistingSession || sIdx < 0 || sIdx + 1 >= args.length) {
-    return args;
+  if (isRestore && mappedSessionId) {
+    return ['--continue', '--session', mappedSessionId];
   }
-  return ['--continue', '--session', args[sIdx + 1]];
+  if (!isRestore) {
+    if (sIdx < 0 || sIdx + 1 >= args.length) return args;
+    return [...args.slice(0, sIdx), ...args.slice(sIdx + 2)];
+  }
+  return args;
 }
 
 /* c8 ignore start */
@@ -103,13 +163,38 @@ if (require.main === module) {
   const sIdx = piArgs.indexOf('--session');
   const guid = sIdx >= 0 && sIdx + 1 < piArgs.length ? piArgs[sIdx + 1] : undefined;
   const baseDir = path.join(os.homedir(), '.pi', 'agent', 'sessions');
-  const existing = guid ? hasExistingSession(baseDir, guid) : false;
-  const finalArgs = buildLaunchArgs(piArgs, existing);
+
+  const isRestore = guid ? hasSessionMap(baseDir, guid) : false;
+  const mappedId = isRestore && guid ? readMapFile(mapFilePath(baseDir, guid)) : undefined;
+  const finalArgs = buildLaunchArgs(piArgs, isRestore && !!mappedId, mappedId);
+
+  let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+  if (guid && !isRestore) {
+    const snapshot = collectSessionFiles(baseDir);
+    const mPath = mapFilePath(baseDir, guid);
+    const poll = () => {
+      const newId = findNewSessionId(baseDir, snapshot);
+      if (newId) {
+        try { writeMapFile(mPath, newId); } catch { /* ignore write errors */ }
+        clearInterval(pollTimer);
+        pollTimer = undefined;
+      }
+    };
+    pollTimer = setInterval(poll, 2000);
+    setTimeout(() => {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = undefined; }
+    }, 60000);
+  }
 
   const { executable, prefixArgs } = resolvePiCommand();
   const child = spawn(executable, [...prefixArgs, ...finalArgs], { stdio: 'inherit' });
-  child.on('exit', (code) => process.exit(code ?? 1));
+  child.on('exit', (code) => {
+    if (pollTimer) clearInterval(pollTimer);
+    process.exit(code ?? 1);
+  });
   child.on('error', (err) => {
+    if (pollTimer) clearInterval(pollTimer);
     console.error(err.message);
     process.exit(1);
   });
