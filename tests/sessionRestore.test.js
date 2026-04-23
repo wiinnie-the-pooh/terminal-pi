@@ -101,6 +101,29 @@ test('restoreSessions opens terminal with --continue for existing sessionDir', a
   }
 });
 
+test('restoreSessions handles missing piArgs gracefully', async () => {
+  const os = require('node:os');
+  const path = require('node:path');
+  const fs = require('node:fs');
+
+  const dir = path.join(os.tmpdir(), 'pi-restore-no-piargs-' + Date.now());
+  fs.mkdirSync(dir, { recursive: true });
+
+  try {
+    const ctx = makeContext([
+      { sessionDir: dir, createdAt: '2024-01-01T00:00:00.000Z' },
+    ]);
+    const manager = makeManager(ctx);
+
+    await manager.restoreSessions('', 'code --wait');
+
+    assert.equal(manager._calls.length, 1);
+    assert.deepEqual(manager._calls[0].piArgs, ['--continue']);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('restoreSessions restores multiple sessions in order', async () => {
   const os = require('node:os');
   const path = require('node:path');
