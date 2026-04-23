@@ -188,6 +188,7 @@
     "test": "npm run compile && node run-tests.js",
     "coverage": "npm run compile && c8 node run-tests.js",
     "diff-coverage": "node run-diff-coverage.js",
+    "update-coverage-thresholds": "node scripts/update-coverage-thresholds.js",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "lint": "eslint src --ext ts"

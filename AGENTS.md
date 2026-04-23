@@ -120,6 +120,14 @@ DIFF_COVER_FAIL_UNDER=70 npm run diff-coverage
 npm run diff-coverage -- --fail-under=70
 ```
 
+Update `.c8rc.json` thresholds to match the current measured baseline (rounded down to the nearest 5%):
+
+```sh
+npm run update-coverage-thresholds
+```
+
+This is useful after adding tests that raise coverage — it keeps the gate current without manual editing.
+
 Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
 
 For human verification in a live VS Code instance, see `TESTING.md`.
