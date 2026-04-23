@@ -32,11 +32,25 @@ test('getEligibleResourcePaths returns matching files when the whole selection s
     getEligibleResourcePaths('template', [
       { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md', isDirectory: false },
       { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\fix.md', isDirectory: false },
+    ]),
+    [
+      'C:\\repo\\.pi\\prompts\\review.md',
+      'C:\\repo\\.pi\\prompts\\fix.md',
+    ]
+  );
+});
+
+test('getEligibleResourcePaths preserves raw duplicates for downstream normalization', () => {
+  assert.deepEqual(
+    getEligibleResourcePaths('template', [
+      { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md', isDirectory: false },
+      { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\fix.md', isDirectory: false },
       { scheme: 'file', fsPath: 'C:\\repo\\.pi\\prompts\\review.md', isDirectory: false },
     ]),
     [
       'C:\\repo\\.pi\\prompts\\review.md',
       'C:\\repo\\.pi\\prompts\\fix.md',
+      'C:\\repo\\.pi\\prompts\\review.md',
     ]
   );
 });

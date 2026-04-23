@@ -105,7 +105,10 @@ export function parsePiScriptPath(
   // script path.  Using last-match is robust to template reordering.
   const raw = matches[matches.length - 1][1];
   const expanded = expandCmdVars(raw, piCmdPath);
-  return path.resolve(expanded);
+  // Use Windows path semantics regardless of host platform because we are
+  // parsing a Windows .cmd wrapper.  This keeps tests deterministic on
+  // Linux CI runners.
+  return path.win32.resolve(expanded);
 }
 
 /**
@@ -114,7 +117,7 @@ export function parsePiScriptPath(
  * `.cmd` file with a trailing separator.
  */
 function expandCmdVars(raw: string, piCmdPath: string): string {
-  const cmdDir = path.dirname(piCmdPath) + path.sep;
+  const cmdDir = path.win32.dirname(piCmdPath) + path.win32.sep;
   return raw
     .replace(/%~dp0\\?/gi, cmdDir)
     .replace(/%dp0%\\?/gi, cmdDir);

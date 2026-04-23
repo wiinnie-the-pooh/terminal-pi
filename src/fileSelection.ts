@@ -60,7 +60,10 @@ export function getEligibleResourcePaths(
     resourcePaths.push(entry.fsPath);
   }
 
-  return dedupePreserveOrder(resourcePaths);
+  // Deduplication is intentionally deferred to the normalization/arg-assembly
+  // layers (normalizePickedResources and buildPiResourceArgs) so that raw
+  // explorer paths are preserved until they are transformed.
+  return resourcePaths;
 }
 
 export function getActiveEditorFilePath(
@@ -86,17 +89,4 @@ function matchesMode(mode: ResourceSelectionMode, filePath: string): boolean {
   }
 }
 
-function dedupePreserveOrder(values: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
 
-  for (const value of values) {
-    if (seen.has(value)) {
-      continue;
-    }
-    seen.add(value);
-    result.push(value);
-  }
-
-  return result;
-}

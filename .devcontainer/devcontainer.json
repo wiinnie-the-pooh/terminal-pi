@@ -1,0 +1,26 @@
+{
+  "name": "Pi Dock Dev",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "installTools": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "postCreateCommand": "npm install && python3 -m venv /home/node/.venv && /home/node/.venv/bin/pip install diff-cover",
+  "remoteEnv": {
+    "PATH": "/home/node/.venv/bin:${containerEnv:PATH}"
+  },
+  "remoteUser": "node"
+}

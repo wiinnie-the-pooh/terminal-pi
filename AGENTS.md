@@ -54,6 +54,10 @@ Install dev dependencies once after cloning:
 npm install
 ```
 
+## Dev Container
+
+A Dev Container configuration (`.devcontainer/devcontainer.json`) is provided for development in GitHub Codespaces or VS Code Dev Containers. It includes Node.js 20, ESLint, and `diff-cover` pre-installed.
+
 ## Build
 
 Compile TypeScript to `out/`:
@@ -70,6 +74,16 @@ npm run watch
 
 `out/` is gitignored. The `vscode:prepublish` hook runs `compile` automatically before packaging/publishing, so manual compilation is only needed during development.
 
+## Lint
+
+Run ESLint against the TypeScript source:
+
+```sh
+npm run lint
+```
+
+The project uses an ESLint flat config (`eslint.config.mjs`) with `@typescript-eslint` rules. All source files must lint cleanly before merge.
+
 ## Test
 
 Run the automated smoke tests:
@@ -78,9 +92,41 @@ Run the automated smoke tests:
 npm test
 ```
 
+Generate a code-coverage report (uses `c8`):
+
+```sh
+npm run coverage
+```
+
+Show diff coverage for the current branch vs `origin/main` (requires Python and `diff-cover`):
+
+```sh
+npm run diff-coverage
+```
+
+`diff-cover` is pre-installed in the Dev Container inside a Python virtual environment (`/home/node/.venv`). Outside a container, install it with `pip install diff-cover`.
+
+Set a different base branch:
+
+```sh
+DIFF_COVER_BASE=origin/develop npm run diff-coverage
+```
+
+Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
+
 For human verification in a live VS Code instance, see `TESTING.md`.
 
 The automated test suite covers non-VS-Code helpers only; integrated terminal behavior and UX flows require manual validation.
+
+## Continuous Integration
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`:
+
+- **Matrix:** Node.js 20 / 22 on `ubuntu-latest` and `windows-latest`
+- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm run coverage` → upload coverage artifact → diff-cover report → `npm run package`
+- **Dev Container:** A separate job builds the Dev Container image and runs the full test suite inside it to verify the container configuration is valid.
+
+Ensure the workflow passes before merging. Branch protection can be configured in the GitHub repository settings to require the CI check.
 
 ## Versioning
 

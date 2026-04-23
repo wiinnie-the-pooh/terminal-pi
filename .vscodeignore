@@ -1,7 +1,10 @@
+.github/**
 .vscode/**
 .claude/**
 src/**
 .gitignore
+run-tests.js
+run-diff-coverage.js
 tsconfig.json
 node_modules/**
 out/**/*.js.map
@@ -11,3 +14,5 @@ AGENTS.md
 SPEC.md
 docs/**
 CHANGELOG.md
+eslint.config.mjs
+coverage/**

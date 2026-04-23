@@ -176,3 +176,40 @@ test('command palette warns when no matching workspace resources are found', asy
   assert.equal(warnings.length, 1);
   assert.match(warnings[0], /extensions/i);
 });
+
+test('createResourceActionHandler swallows terminalManager errors and does not throw', async (t) => {
+  const vscodeStub = require('./__fixtures__/vscode-stub.js');
+  const errorMessages = [];
+  const originalShowError = vscodeStub.window.showErrorMessage;
+  vscodeStub.window.showErrorMessage = async (message) => {
+    errorMessages.push(message);
+  };
+
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  t.after(() => {
+    vscodeStub.window.showErrorMessage = originalShowError;
+    console.error = originalConsoleError;
+  });
+
+  const { deps, calls } = createDeps({
+    terminalManager: {
+      runWithResources: async () => {
+        throw new Error('terminal creation failed');
+      },
+    },
+  });
+  const run = createResourceActionHandler(deps);
+
+  // Should resolve (not reject) even though runWithResources throws.
+  await assert.doesNotReject(async () => {
+    await run('skill', undefined, [
+      { scheme: 'file', fsPath: 'C:\\repo\\.pi\\skills\\review\\SKILL.md', isDirectory: false },
+    ]);
+  });
+
+  assert.equal(calls.length, 0);
+  assert.equal(errorMessages.length, 1);
+  assert.match(errorMessages[0], /terminal creation failed/);
+});

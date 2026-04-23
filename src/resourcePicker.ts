@@ -5,6 +5,13 @@ import {
   isTemplateResourcePath,
 } from './fileSelection';
 
+/**
+ * Modes supported by the workspace resource picker.
+ *
+ * By design this is `'skill' | 'template' | 'extension'`.  The `'prompt'`
+ * mode is intentionally excluded: per FR-SRC-4 it uses a File Open dialog
+ * directly in `extension.ts` and is never routed through `pickResources`.
+ */
 export type ResourcePickerMode = 'skill' | 'template' | 'extension';
 
 export interface ResourceQuickPickItem {

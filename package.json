@@ -177,15 +177,23 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "test": "npm run compile && node --test tests/*.test.js",
+    "test": "npm run compile && node run-tests.js",
+    "coverage": "npm run compile && c8 --reporter=text --reporter=lcov node run-tests.js",
+    "diff-coverage": "node run-diff-coverage.js",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.19.39",
     "@types/vscode": "^1.94.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
     "@vscode/vsce": "^3.0.0",
+    "c8": "^11.0.0",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0",
     "typescript": "^5.6.0"
   }
 }

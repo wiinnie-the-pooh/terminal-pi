@@ -2,4 +2,7 @@ out/
 node_modules/
 *.vsix
 /.*/
+!.github/
+!.devcontainer/
 *.txt
+coverage/
