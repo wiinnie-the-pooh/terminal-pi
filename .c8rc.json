@@ -4,6 +4,7 @@
   "functions": 55,
   "branches": 90,
   "statements": 60,
+  "reporter": ["text", "lcov"],
   "include": ["out/**/*.js"],
   "exclude": ["tests/**", "**/__fixtures__/**", "coverage/**"]
 }
