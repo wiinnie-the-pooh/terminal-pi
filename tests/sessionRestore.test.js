@@ -89,7 +89,7 @@ test('restoreSessions opens terminal with --continue for existing sessionDir', a
     assert.equal(manager._calls.length, 1);
     assert.equal(manager._calls[0].sessionDir, dir);
     assert.equal(manager._calls[0].editorCommand, 'code --wait');
-    assert.equal(manager._calls[0].location, vscode.TerminalLocation.Editor);
+    assert.deepEqual(manager._calls[0].location, { viewColumn: vscode.ViewColumn.Active });
     // --continue first, then current defaultArgs, then stored piArgs
     assert.deepEqual(manager._calls[0].piArgs, [
       '--continue',
@@ -121,7 +121,7 @@ test('restoreSessions handles missing piArgs gracefully', async () => {
 
     assert.equal(manager._calls.length, 1);
     assert.deepEqual(manager._calls[0].piArgs, ['--continue']);
-    assert.equal(manager._calls[0].location, vscode.TerminalLocation.Editor);
+    assert.deepEqual(manager._calls[0].location, { viewColumn: vscode.ViewColumn.Active });
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -149,8 +149,8 @@ test('restoreSessions restores multiple sessions in order', async () => {
     assert.equal(manager._calls.length, 2);
     assert.equal(manager._calls[0].sessionDir, dir1);
     assert.equal(manager._calls[1].sessionDir, dir2);
-    assert.equal(manager._calls[0].location, vscode.TerminalLocation.Editor);
-    assert.equal(manager._calls[1].location, vscode.TerminalLocation.Editor);
+    assert.deepEqual(manager._calls[0].location, { viewColumn: vscode.ViewColumn.Active });
+    assert.deepEqual(manager._calls[1].location, { viewColumn: vscode.ViewColumn.Active });
   } finally {
     fs.rmSync(dir1, { recursive: true, force: true });
     fs.rmSync(dir2, { recursive: true, force: true });
