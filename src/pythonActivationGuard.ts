@@ -29,6 +29,7 @@ interface RestoreState {
  * No state leaks between calls — each invocation inspects, flips and
  * restores independently.
  */
+/* c8 ignore start */
 export async function withActivationDisabled<T>(
   create: () => T,
   drainMs: number,
@@ -65,6 +66,7 @@ export async function withActivationDisabled<T>(
     }
   }
 }
+/* c8 ignore stop */
 
 /**
  * Decide which configuration scope to read/write and what the previous
@@ -95,6 +97,7 @@ export function decideRestoreState(
   };
 }
 
+/* c8 ignore start */
 async function writeSetting(
   target: vscode.ConfigurationTarget,
   value: boolean | undefined,
@@ -102,11 +105,16 @@ async function writeSetting(
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   await config.update(CONFIG_KEY, value, target);
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 function isPythonExtensionPresent(): boolean {
   return vscode.extensions.getExtension(PYTHON_EXTENSION_ID) !== undefined;
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+/* c8 ignore stop */

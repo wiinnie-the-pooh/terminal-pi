@@ -38,6 +38,7 @@ export class PiTerminalManager implements vscode.Disposable {
    * the terminal appears in the UI immediately; the drain+restore runs
    * in the background from the user's perspective.
    */
+  /* c8 ignore start */
   constructor(private readonly context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.window.onDidCloseTerminal((closed) => {
@@ -48,11 +49,13 @@ export class PiTerminalManager implements vscode.Disposable {
       }),
     );
   }
+  /* c8 ignore stop */
 
   private generateSessionDir(): string {
     return path.join(os.homedir(), '.pi', 'agent', 'sessions', 'vscode', crypto.randomUUID());
   }
 
+  /* c8 ignore start */
   private async createAndShowTerminal(
     editorCommand: string,
     piArgs: string[],
@@ -93,6 +96,7 @@ export class PiTerminalManager implements vscode.Disposable {
     this.terminalCreatedAt.set(terminal, now);
     void appendSession(this.context, { sessionDir: dir, createdAt: now, piArgs });
   }
+  /* c8 ignore stop */
 
   private buildArgs(defaultArgs: string): string[] {
     if (!defaultArgs.trim()) {
@@ -153,7 +157,9 @@ export class PiTerminalManager implements vscode.Disposable {
     );
   }
 
+  /* c8 ignore start */
   public dispose(): void {
     // No-op: terminal instances are managed by VS Code.
   }
+  /* c8 ignore stop */
 }

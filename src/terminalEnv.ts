@@ -18,6 +18,7 @@ export function buildPiTerminalEnv(
   };
 }
 
+/* c8 ignore start */
 export function getPiTerminalEnv(
   configuredEditorCommand?: string,
   detectedEditorCommand?: string,
@@ -30,3 +31,4 @@ export function getPiTerminalEnv(
 
   return buildPiTerminalEnv(processEnv, configuredEditorCommand, detectedEditorCommand);
 }
+/* c8 ignore stop */

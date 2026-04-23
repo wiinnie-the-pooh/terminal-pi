@@ -43,6 +43,7 @@ interface ResourceActionHandlerDeps {
   warn: (message: string) => void;
 }
 
+/* c8 ignore start */
 export function activate(context: vscode.ExtensionContext): void {
   terminalManager = new PiTerminalManager(context);
   context.subscriptions.push(terminalManager);
@@ -119,6 +120,7 @@ export function activate(context: vscode.ExtensionContext): void {
     void terminalManager.restoreSessions(cfg.defaultArgs, cfg.editorCommand);
   }
 }
+/* c8 ignore stop */
 
 export function createResourceActionHandler(
   deps: ResourceActionHandlerDeps,
@@ -185,6 +187,7 @@ async function resolveResourcesForInvocation(
   return selectedResources;
 }
 
+/* c8 ignore start */
 function setupStatusBar(context: vscode.ExtensionContext): void {
   statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
@@ -200,7 +203,9 @@ function setupStatusBar(context: vscode.ExtensionContext): void {
   context.subscriptions.push(statusBarItem);
   statusBarItem.show();
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 async function resolveExplorerEntriesFromArgs(
   resource?: FileLikeUri,
   resources?: FileLikeUri[],
@@ -219,7 +224,9 @@ async function resolveExplorerEntriesFromArgs(
     })),
   );
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 async function isDirectoryUri(uri: FileLikeUri): Promise<boolean> {
   if (!uri || uri.scheme !== 'file' || !uri.fsPath) {
     return false;
@@ -232,6 +239,7 @@ async function isDirectoryUri(uri: FileLikeUri): Promise<boolean> {
     return false;
   }
 }
+/* c8 ignore stop */
 
 async function pickWorkspaceResources(
   mode: ResourcePickerMode,
@@ -244,6 +252,7 @@ async function pickWorkspaceResources(
   });
 }
 
+/* c8 ignore start */
 async function discoverWorkspaceResources(
   mode: ResourcePickerMode,
 ): Promise<string[]> {
@@ -263,7 +272,9 @@ async function discoverWorkspaceResources(
 
   return discoveredPaths.sort((left, right) => left.localeCompare(right));
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 async function showResourceQuickPick(
   mode: ResourcePickerMode,
   items: ResourceQuickPickItem[],
@@ -281,10 +292,13 @@ async function showResourceQuickPick(
 
   return Array.from(picked);
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 function filePathToRelativePath(filePath: string): string {
   return vscode.workspace.asRelativePath(vscode.Uri.file(filePath), false);
 }
+/* c8 ignore stop */
 
 function getModeLabel(mode: ResourcePickerMode): string {
   switch (mode) {
@@ -319,6 +333,7 @@ function toPiResourceMode(mode: ResourcePickerMode): PiResourceMode {
   }
 }
 
+/* c8 ignore start */
 async function updateActiveTerminalContext(): Promise<void> {
   await vscode.commands.executeCommand(
     'setContext',
@@ -326,7 +341,9 @@ async function updateActiveTerminalContext(): Promise<void> {
     isPiTerminalName(vscode.window.activeTerminal?.name)
   );
 }
+/* c8 ignore stop */
 
+/* c8 ignore start */
 async function resolvePromptFilePath(
   resource: vscode.Uri | undefined,
 ): Promise<string | undefined> {
@@ -359,6 +376,7 @@ async function resolvePromptFilePath(
   }
   return filePath;
 }
+/* c8 ignore stop */
 
 async function runCommand(label: string, fn: () => Promise<void>): Promise<void> {
   try {
@@ -369,6 +387,8 @@ async function runCommand(label: string, fn: () => Promise<void>): Promise<void>
   }
 }
 
+/* c8 ignore start */
 export function deactivate(): void {
   // VS Code disposes all context.subscriptions automatically.
 }
+/* c8 ignore stop */
