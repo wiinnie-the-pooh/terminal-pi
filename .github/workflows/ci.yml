@@ -76,7 +76,8 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           runCmd: |
+            node --version
+            npm --version
             npm run lint
             npm run compile
             npm test
-            npm run diff-coverage
