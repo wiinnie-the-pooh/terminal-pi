@@ -98,3 +98,24 @@ test('editor context menu shows piDock.runWithPrompt for all file-scheme resourc
     'resourceScheme == file'
   );
 });
+
+function getKeybindings(keybindings) {
+  return new Map(keybindings.map((kb) => [kb.key, kb]));
+}
+
+function assertSendSequenceKeybinding(key, expectedText) {
+  const kbs = getKeybindings(pkg.contributes.keybindings);
+  const kb = kbs.get(key);
+  assert.ok(kb, `${key} keybinding should exist`);
+  assert.equal(kb.command, 'workbench.action.terminal.sendSequence');
+  assert.equal(kb.when, 'terminalFocus && piDock.activeTerminal');
+  assert.equal(kb.args?.text, expectedText);
+}
+
+test('package.json contributes ctrl+g sendSequence keybinding for Pi terminals', () => {
+  assertSendSequenceKeybinding('ctrl+g', '\u0007');
+});
+
+test('package.json contributes alt+up sendSequence keybinding for Pi terminals', () => {
+  assertSendSequenceKeybinding('alt+up', '\u001b[1;3A');
+});

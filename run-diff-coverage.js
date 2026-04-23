@@ -3,6 +3,16 @@ const { existsSync } = require('fs');
 
 const COMPARE_BRANCH = process.env.DIFF_COVER_BASE || 'origin/main';
 
+function getFailUnder() {
+  const cliArg = process.argv.find((arg) => arg.startsWith('--fail-under='));
+  if (cliArg) {
+    return cliArg.split('=')[1];
+  }
+  return process.env.DIFF_COVER_FAIL_UNDER || '80';
+}
+
+const FAIL_UNDER = getFailUnder();
+
 function hasCommand(cmd) {
   const result = spawnSync(
     process.platform === 'win32' ? 'where' : 'which',
@@ -39,9 +49,12 @@ if (!hasCommand('diff-cover')) {
   process.exit(1);
 }
 
-console.log(`Running diff-cover against ${COMPARE_BRANCH}...\n`);
-run('diff-cover', [
+const diffCoverArgs = [
   'coverage/lcov.info',
   `--compare-branch=${COMPARE_BRANCH}`,
   '--show-uncovered',
-]);
+  `--fail-under=${FAIL_UNDER}`,
+];
+
+console.log(`Running diff-cover against ${COMPARE_BRANCH} with fail-under=${FAIL_UNDER}...\n`);
+run('diff-cover', diffCoverArgs);

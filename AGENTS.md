@@ -92,24 +92,32 @@ Run the automated smoke tests:
 npm test
 ```
 
-Generate a code-coverage report (uses `c8`):
+Generate a code-coverage report and enforce the full coverage gate (configured in `.c8rc.json`):
 
 ```sh
 npm run coverage
 ```
 
-Show diff coverage for the current branch vs `origin/main` (requires Python and `diff-cover`):
+Show diff coverage for the current branch vs `origin/main` and enforce the diff coverage gate (default 80%):
 
 ```sh
 npm run diff-coverage
 ```
 
-`diff-cover` is pre-installed in the Dev Container inside a Python virtual environment (`/home/node/.venv`). Outside a container, install it with `pip install diff-cover`.
+`diff-cover` is a Python tool. It is pre-installed in the Dev Container. Outside a container, install it with `pip install diff-cover`.
 
 Set a different base branch:
 
 ```sh
 DIFF_COVER_BASE=origin/develop npm run diff-coverage
+```
+
+Override the diff threshold locally:
+
+```sh
+DIFF_COVER_FAIL_UNDER=70 npm run diff-coverage
+# or
+npm run diff-coverage -- --fail-under=70
 ```
 
 Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
