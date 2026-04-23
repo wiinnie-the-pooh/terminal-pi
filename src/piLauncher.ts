@@ -1,10 +1,17 @@
 import { execFileSync, spawn } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'path';
 
-export function hasSessionContent(dir: string): boolean {
+export function hasExistingSession(sessionsBaseDir: string, guid: string): boolean {
   try {
-    return fs.readdirSync(dir).length > 0;
+    const entries = fs.readdirSync(sessionsBaseDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const files = fs.readdirSync(path.join(sessionsBaseDir, entry.name));
+      if (files.some((f: string) => f.endsWith(`_${guid}.jsonl`))) return true;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -27,11 +34,11 @@ export function parsePiScriptPath(
 }
 
 export function buildLaunchArgs(args: string[], isExistingSession: boolean): string[] {
-  const sdIdx = args.indexOf('--session-dir');
-  if (!isExistingSession || sdIdx < 0 || sdIdx + 1 >= args.length) {
+  const sIdx = args.indexOf('--session');
+  if (!isExistingSession || sIdx < 0 || sIdx + 1 >= args.length) {
     return args;
   }
-  return ['--continue', '--session-dir', args[sdIdx + 1]];
+  return ['--continue', '--session', args[sIdx + 1]];
 }
 
 /* c8 ignore start */
@@ -93,9 +100,10 @@ function resolvePiCommand(): PiCommand {
 if (require.main === module) {
   process.title = 'Pi Dock';
   const piArgs = process.argv.slice(2);
-  const sdIdx = piArgs.indexOf('--session-dir');
-  const sessionDir = sdIdx >= 0 && sdIdx + 1 < piArgs.length ? piArgs[sdIdx + 1] : undefined;
-  const existing = sessionDir ? hasSessionContent(sessionDir) : false;
+  const sIdx = piArgs.indexOf('--session');
+  const guid = sIdx >= 0 && sIdx + 1 < piArgs.length ? piArgs[sIdx + 1] : undefined;
+  const baseDir = path.join(os.homedir(), '.pi', 'agent', 'sessions');
+  const existing = guid ? hasExistingSession(baseDir, guid) : false;
   const finalArgs = buildLaunchArgs(piArgs, existing);
 
   const { executable, prefixArgs } = resolvePiCommand();

@@ -4,54 +4,69 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const { hasSessionContent, buildLaunchArgs, parsePiScriptPath } = require('../out/piLauncher.js');
+const { hasExistingSession, buildLaunchArgs, parsePiScriptPath } = require('../out/piLauncher.js');
 
-test('hasSessionContent returns false for empty directory', () => {
-  const dir = path.join(os.tmpdir(), 'pi-launcher-empty-' + Date.now());
-  fs.mkdirSync(dir, { recursive: true });
+const TEST_GUID = '019db074-5cf3-7351-ae95-ad317c30d27d';
+
+test('hasExistingSession returns false when no matching GUID file exists', () => {
+  const base = path.join(os.tmpdir(), 'pi-sessions-empty-' + Date.now());
+  const sub = path.join(base, '--workspace--');
+  fs.mkdirSync(sub, { recursive: true });
   try {
-    assert.equal(hasSessionContent(dir), false);
+    assert.equal(hasExistingSession(base, TEST_GUID), false);
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(base, { recursive: true, force: true });
   }
 });
 
-test('hasSessionContent returns true when directory contains files', () => {
-  const dir = path.join(os.tmpdir(), 'pi-launcher-content-' + Date.now());
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'session.json'), '{}');
+test('hasExistingSession returns true when matching GUID file exists in a subdirectory', () => {
+  const base = path.join(os.tmpdir(), 'pi-sessions-match-' + Date.now());
+  const sub = path.join(base, '--workspace--');
+  fs.mkdirSync(sub, { recursive: true });
+  fs.writeFileSync(path.join(sub, `2026-01-01T00-00-00-000Z_${TEST_GUID}.jsonl`), '');
   try {
-    assert.equal(hasSessionContent(dir), true);
+    assert.equal(hasExistingSession(base, TEST_GUID), true);
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(base, { recursive: true, force: true });
   }
 });
 
-test('hasSessionContent returns false for nonexistent directory', () => {
-  assert.equal(hasSessionContent('/tmp/does-not-exist-xyz-' + Date.now()), false);
+test('hasExistingSession returns false for nonexistent base directory', () => {
+  assert.equal(hasExistingSession(path.join(os.tmpdir(), 'no-such-base-' + Date.now()), TEST_GUID), false);
+});
+
+test('hasExistingSession skips non-directory entries at the base level', () => {
+  const base = path.join(os.tmpdir(), 'pi-sessions-file-' + Date.now());
+  fs.mkdirSync(base, { recursive: true });
+  fs.writeFileSync(path.join(base, `stray-file.txt`), '');
+  try {
+    assert.equal(hasExistingSession(base, TEST_GUID), false);
+  } finally {
+    fs.rmSync(base, { recursive: true, force: true });
+  }
 });
 
 test('buildLaunchArgs passes all args through on fresh session', () => {
-  const args = ['--session-dir', '/tmp/sess', '--thinking', 'low'];
+  const args = ['--session', TEST_GUID, '--thinking', 'low'];
   assert.deepEqual(buildLaunchArgs(args, false), args);
 });
 
-test('buildLaunchArgs returns --continue with --session-dir on restore', () => {
-  const args = ['--session-dir', '/tmp/sess', '--thinking', 'low', '--skill', '/s'];
+test('buildLaunchArgs returns --continue with --session on restore', () => {
+  const args = ['--session', TEST_GUID, '--thinking', 'low', '--skill', '/s'];
   assert.deepEqual(
     buildLaunchArgs(args, true),
-    ['--continue', '--session-dir', '/tmp/sess'],
+    ['--continue', '--session', TEST_GUID],
   );
 });
 
-test('buildLaunchArgs passes all args through when no --session-dir present', () => {
+test('buildLaunchArgs passes all args through when no --session present', () => {
   const args = ['--thinking', 'low'];
   assert.deepEqual(buildLaunchArgs(args, true), args);
   assert.deepEqual(buildLaunchArgs(args, false), args);
 });
 
-test('buildLaunchArgs handles --session-dir at end without value', () => {
-  const args = ['--thinking', 'low', '--session-dir'];
+test('buildLaunchArgs handles --session at end without value', () => {
+  const args = ['--thinking', 'low', '--session'];
   assert.deepEqual(buildLaunchArgs(args, true), args);
 });
 

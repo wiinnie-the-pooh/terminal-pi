@@ -1,6 +1,4 @@
 import * as crypto from 'node:crypto';
-import * as fs from 'node:fs';
-import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { getConfig } from './config';
@@ -35,8 +33,8 @@ export class PiTerminalManager implements vscode.Disposable {
   /* c8 ignore stop */
 
   /* c8 ignore start */
-  private generateSessionDir(): string {
-    return path.join(os.homedir(), '.pi', 'agent', 'sessions', 'vscode', crypto.randomUUID());
+  private generateSessionId(): string {
+    return crypto.randomUUID();
   }
   /* c8 ignore stop */
 
@@ -44,10 +42,8 @@ export class PiTerminalManager implements vscode.Disposable {
   private async createAndShowTerminal(
     editorCommand: string,
     piArgs: string[],
-    sessionDir?: string,
   ): Promise<void> {
-    const dir = sessionDir ?? this.generateSessionDir();
-    fs.mkdirSync(dir, { recursive: true });
+    const sessionId = this.generateSessionId();
 
     const nodePath = resolveNodePath();
     const launcherPath = path.join(this.context.extensionPath, 'out', 'piLauncher.js');
@@ -61,7 +57,7 @@ export class PiTerminalManager implements vscode.Disposable {
     const options: vscode.TerminalOptions = {
       name: PI_TERMINAL_NAME,
       shellPath: nodePath,
-      shellArgs: [launcherPath, '--session-dir', dir, ...piArgs],
+      shellArgs: [launcherPath, '--session', sessionId, ...piArgs],
       location: { viewColumn: vscode.ViewColumn.Active },
       iconPath: {
         light: vscode.Uri.joinPath(this.context.extensionUri, 'resources', 'icons', 'pi-light.svg'),

@@ -10,7 +10,7 @@ terminal-pi/
 +-- src/
 |   +-- extension.ts               # activate(), command registrations, status bar, context-action wiring
 |   +-- terminal.ts                # PiTerminalManager and Pi launch entry points
-|   +-- piLauncher.ts              # self-contained launcher: detects fresh vs restore, resolves Pi executable
+|   +-- piLauncher.ts              # self-contained launcher: resolves Pi executable, detects restore via GUID file search
 |   +-- piResourceArgs.ts          # pure Pi resource argument assembly
 |   +-- fileSelection.ts           # Explorer/editor/direct-command target-file resolution helpers
 |   +-- resourcePicker.ts          # Skill / Template / Extension discovery + normalization helpers
