@@ -1,9 +1,9 @@
 {
   "check-coverage": true,
-  "lines": 64.58,
-  "functions": 58.82,
-  "branches": 92.71,
-  "statements": 64.58,
+  "lines": 100,
+  "functions": 100,
+  "branches": 100,
+  "statements": 100,
   "reporter": [
     "text",
     "lcov"

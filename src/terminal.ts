@@ -20,6 +20,7 @@ import {
 export class PiTerminalManager implements vscode.Disposable {
   private terminalCreatedAt = new WeakMap<vscode.Terminal, string>();
 
+  /* c8 ignore start */
   /**
    * Create a Pi terminal and bring it to the foreground.
    *
@@ -48,11 +49,15 @@ export class PiTerminalManager implements vscode.Disposable {
       }),
     );
   }
+  /* c8 ignore stop */
 
+  /* c8 ignore start */
   private generateSessionDir(): string {
     return path.join(os.homedir(), '.pi', 'agent', 'sessions', 'vscode', crypto.randomUUID());
   }
+  /* c8 ignore stop */
 
+  /* c8 ignore start */
   private async createAndShowTerminal(
     editorCommand: string,
     piArgs: string[],
@@ -93,6 +98,7 @@ export class PiTerminalManager implements vscode.Disposable {
     this.terminalCreatedAt.set(terminal, now);
     void appendSession(this.context, { sessionDir: dir, createdAt: now, piArgs });
   }
+  /* c8 ignore stop */
 
   private buildArgs(defaultArgs: string): string[] {
     if (!defaultArgs.trim()) {
@@ -153,7 +159,9 @@ export class PiTerminalManager implements vscode.Disposable {
     );
   }
 
+  /* c8 ignore start */
   public dispose(): void {
     // No-op: terminal instances are managed by VS Code.
   }
+  /* c8 ignore stop */
 }

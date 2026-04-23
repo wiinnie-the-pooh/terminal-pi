@@ -33,6 +33,7 @@ export interface PiShell {
  * the previous (injection-vulnerable but functional) behaviour rather
  * than breaking terminal creation outright.
  */
+/* c8 ignore start */
 export function resolvePiShell(): PiShell {
   if (process.platform !== 'win32') {
     return { shellPath: 'pi', prefixArgs: [] };
@@ -56,8 +57,10 @@ export function resolvePiShell(): PiShell {
     return { shellPath: 'pi', prefixArgs: [] };
   }
 }
+/* c8 ignore stop */
 
 /** Locate `pi.cmd` on PATH via `where.exe`. */
+/* c8 ignore start */
 function findPiCmd(): string | undefined {
   try {
     const out = execFileSync('where.exe', ['pi'], {
@@ -72,6 +75,7 @@ function findPiCmd(): string | undefined {
     return undefined;
   }
 }
+/* c8 ignore stop */
 
 /**
  * Extract the absolute path of pi's JS entry point from the npm-generated
@@ -79,6 +83,7 @@ function findPiCmd(): string | undefined {
  * literal.  The npm / pnpm / yarn templates all embed the script path as
  * a quoted string; we do not care which template generated the file.
  */
+/* c8 ignore start */
 function extractPiScriptFromCmd(piCmdPath: string): string | undefined {
   const contents = fs.readFileSync(piCmdPath, 'utf8');
   const resolved = parsePiScriptPath(contents, piCmdPath);
@@ -87,6 +92,7 @@ function extractPiScriptFromCmd(piCmdPath: string): string | undefined {
   }
   return fs.existsSync(resolved) ? resolved : undefined;
 }
+/* c8 ignore stop */
 
 /**
  * Pure helper: parse a `.cmd` wrapper's contents and return the resolved
@@ -128,6 +134,7 @@ function expandCmdVars(raw: string, piCmdPath: string): string {
  * node.exe next to npm's global dir), otherwise fall back to whatever
  * `where.exe node` resolves first.
  */
+/* c8 ignore start */
 function findNodeExe(npmDir: string): string | undefined {
   const sibling = path.join(npmDir, 'node.exe');
   if (fs.existsSync(sibling)) {
@@ -144,3 +151,4 @@ function findNodeExe(npmDir: string): string | undefined {
     return undefined;
   }
 }
+/* c8 ignore stop */

@@ -101,6 +101,29 @@ test('restoreSessions opens terminal with --continue for existing sessionDir', a
   }
 });
 
+test('restoreSessions handles missing piArgs gracefully', async () => {
+  const os = require('node:os');
+  const path = require('node:path');
+  const fs = require('node:fs');
+
+  const dir = path.join(os.tmpdir(), 'pi-restore-no-piargs-' + Date.now());
+  fs.mkdirSync(dir, { recursive: true });
+
+  try {
+    const ctx = makeContext([
+      { sessionDir: dir, createdAt: '2024-01-01T00:00:00.000Z' },
+    ]);
+    const manager = makeManager(ctx);
+
+    await manager.restoreSessions('', 'code --wait');
+
+    assert.equal(manager._calls.length, 1);
+    assert.deepEqual(manager._calls[0].piArgs, ['--continue']);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('restoreSessions restores multiple sessions in order', async () => {
   const os = require('node:os');
   const path = require('node:path');
@@ -127,6 +150,52 @@ test('restoreSessions restores multiple sessions in order', async () => {
     fs.rmSync(dir1, { recursive: true, force: true });
     fs.rmSync(dir2, { recursive: true, force: true });
   }
+});
+
+test('runInteractive passes default args into terminal creation', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runInteractive('--thinking low', 'code --wait');
+
+  assert.equal(manager._calls.length, 1);
+  assert.equal(manager._calls[0].editorCommand, 'code --wait');
+  assert.deepEqual(manager._calls[0].piArgs, ['--thinking', 'low']);
+});
+
+test('runInteractive handles empty default args', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runInteractive('', 'code --wait');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, []);
+});
+
+test('runWithPrompt appends file path and extra context', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runWithPrompt('code --wait', '--thinking low', 'C:\\repo\\prompt.md', 'extra context');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, [
+    '--thinking',
+    'low',
+    '@C:\\repo\\prompt.md',
+    'extra context',
+  ]);
+});
+
+test('runWithPrompt omits extra context when empty or whitespace-only', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runWithPrompt('code --wait', '', 'C:\\repo\\prompt.md', '   ');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, ['@C:\\repo\\prompt.md']);
 });
 
 test('removeSession removes only the matching session -- close handler behavior', async () => {
