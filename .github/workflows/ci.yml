@@ -75,22 +75,9 @@ jobs:
       - name: Install devcontainer CLI
         run: npm install -g @devcontainers/cli
 
-      - name: Build Dev Container
-        run: devcontainer build --workspace-folder .
-
-      - name: Start Dev Container
-        run: devcontainer up --workspace-folder . --remove-existing-container --log-level debug
+      - name: Build and test Dev Container
+        run: |
+          devcontainer up --workspace-folder . --remove-existing-container
+          devcontainer exec --workspace-folder . bash -c "node --version && npm --version && npm run lint && npm run compile && npm test"
         env:
           DOCKER_BUILDKIT: 1
-
-      - name: Verify Node in Dev Container
-        run: devcontainer exec --workspace-folder . bash -c "node --version && npm --version"
-
-      - name: Run lint in Dev Container
-        run: devcontainer exec --workspace-folder . bash -c "npm run lint"
-
-      - name: Run compile in Dev Container
-        run: devcontainer exec --workspace-folder . bash -c "npm run compile"
-
-      - name: Run tests in Dev Container
-        run: devcontainer exec --workspace-folder . bash -c "npm test"

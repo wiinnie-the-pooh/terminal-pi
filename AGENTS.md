@@ -104,7 +104,7 @@ Show diff coverage for the current branch vs `origin/main` (requires Python and 
 npm run diff-coverage
 ```
 
-`diff-cover` is pre-installed in the Dev Container. Outside a container, install it with `pip install diff-cover`.
+`diff-cover` is pre-installed in the Dev Container inside a Python virtual environment (`/home/node/.venv`). Outside a container, install it with `pip install diff-cover`.
 
 Set a different base branch:
 
