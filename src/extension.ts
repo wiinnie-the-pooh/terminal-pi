@@ -114,11 +114,6 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   void updateActiveTerminalContext();
-
-  const cfg = getConfig();
-  if (cfg.restoreSessionsOnStartup) {
-    void terminalManager.restoreSessions(cfg.defaultArgs, cfg.editorCommand);
-  }
 }
 /* c8 ignore stop */
 

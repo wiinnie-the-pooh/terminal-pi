@@ -102,12 +102,6 @@
           "minimum": 0,
           "maximum": 10000,
           "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piDock.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
-        },
-        "piDock.restoreSessionsOnStartup": {
-          "type": "boolean",
-          "order": 6,
-          "default": true,
-          "description": "When true, Pi Dock reopens the previous Pi session for each terminal that was open when VS Code last closed. Set to false to always start fresh."
         }
       }
     },

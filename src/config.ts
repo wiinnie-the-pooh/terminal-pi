@@ -6,7 +6,6 @@ export interface PiConfig {
   promptExtraContext: string;
   virtualEnvironmentOverride: boolean;
   virtualEnvironmentDrainMs: number;
-  restoreSessionsOnStartup: boolean;
 }
 
 const SECTION = 'piDock';
@@ -24,7 +23,6 @@ export function getConfig(): PiConfig {
     virtualEnvironmentDrainMs: sanitizeDrainMs(
       cfg.get<number>('virtualEnvironmentDrainMs', DRAIN_DEFAULT_MS),
     ),
-    restoreSessionsOnStartup: cfg.get<boolean>('restoreSessionsOnStartup', true),
   };
 }
 

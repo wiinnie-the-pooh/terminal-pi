@@ -7,17 +7,6 @@ module.exports = {
     Workspace: 2,
     WorkspaceFolder: 3,
   },
-  TerminalLocation: {
-    Panel: 1,
-    Editor: 2,
-  },
-  ViewColumn: {
-    Active: -1,
-    Beside: -2,
-    One: 1,
-    Two: 2,
-    Three: 3,
-  },
   window: {
     onDidCloseTerminal: () => ({ dispose: () => {} }),
     showErrorMessage: async () => undefined,
