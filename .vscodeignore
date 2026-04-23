@@ -1,7 +1,11 @@
 .github/**
 .vscode/**
 .claude/**
+.worktrees/**
+.devcontainer/**
 src/**
+tests/**
+scripts/**
 .gitignore
 run-tests.js
 run-diff-coverage.js
@@ -10,9 +14,11 @@ node_modules/**
 out/**/*.js.map
 *.vsix
 .remember/**
-AGENTS.md
-SPEC.md
 docs/**
-CHANGELOG.md
+*.md
+!README.md
 eslint.config.mjs
 coverage/**
+.c8rc.json
+.*.txt
+
