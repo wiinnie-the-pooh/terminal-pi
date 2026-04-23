@@ -88,6 +88,11 @@ Run through the relevant scenarios after every non-trivial change.
 | 46 | Close the restored Pi terminal, then close and reopen VS Code | No Pi terminal auto-opens (record was pruned on close) |
 | 47 | Set `piDock.restoreSessionsOnStartup` to `false`; run Pi, close VS Code, reopen | No auto-restore; Pi does not open on startup |
 | 48 | Run `piDock.runWithSkill` with a skill file; close VS Code; reopen (restore enabled) | Pi terminal reopens with `--continue --skill <path>` -- skill is restored |
+| 49 | Focus a Pi terminal and press `Alt+Up` | VS Code: sends the Alt+Up escape sequence (`ESC [ 1 ; 3 A`) to the terminal; Pi receives the key event instead of VS Code: intercepting it |
+
+### Adding more pass-through keybindings
+
+If additional keys need to be forwarded to Pi, add a new entry to `package.json` under `contributes.keybindings` using `workbench.action.terminal.sendSequence`, the desired `key`, and the same `when` clause (`terminalFocus && piDock.activeTerminal`). Add a corresponding one-line test in `tests/packageManifest.test.js` using `assertSendSequenceKeybinding(key, text)`. Finally, document the new key in the smoke-checklist table above.
 
 ## 4. Release-oriented verification
 
