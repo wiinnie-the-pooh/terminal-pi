@@ -185,8 +185,12 @@ test('createResourceActionHandler swallows terminalManager errors and does not t
     errorMessages.push(message);
   };
 
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
   t.after(() => {
     vscodeStub.window.showErrorMessage = originalShowError;
+    console.error = originalConsoleError;
   });
 
   const { deps, calls } = createDeps({
