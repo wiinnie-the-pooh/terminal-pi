@@ -79,7 +79,7 @@ jobs:
         run: devcontainer build --workspace-folder .
 
       - name: Start Dev Container
-        run: devcontainer up --workspace-folder . --remove-existing-container
+        run: devcontainer up --workspace-folder . --remove-existing-container --log-level debug
         env:
           DOCKER_BUILDKIT: 1
 
