@@ -91,6 +91,7 @@ function resolvePiCommand(): PiCommand {
 }
 
 if (require.main === module) {
+  process.title = 'Pi Dock';
   const piArgs = process.argv.slice(2);
   const sdIdx = piArgs.indexOf('--session-dir');
   const sessionDir = sdIdx >= 0 && sdIdx + 1 < piArgs.length ? piArgs[sdIdx + 1] : undefined;
