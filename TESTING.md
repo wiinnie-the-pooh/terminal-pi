@@ -99,11 +99,19 @@ Before publishing:
    npm run lint
    ```
 
-2. Run automated tests:
+2. Run automated tests with the full coverage gate:
 
    ```sh
-   npm test
+   npm run coverage
    ```
+
+2a. (Optional) Verify the diff coverage gate locally:
+
+   ```sh
+   npm run diff-coverage
+   ```
+
+2b. Confirm both gates pass before proceeding.
 
 3. Package the extension:
 
