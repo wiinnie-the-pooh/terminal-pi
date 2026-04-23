@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -51,6 +53,15 @@ jobs:
           echo '### Coverage Summary (${{ matrix.os }}, Node ${{ matrix.node-version }})' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
           npx c8 report --reporter=text >> $GITHUB_STEP_SUMMARY
+
+      - name: Diff coverage
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          pip install diff-cover
+          echo '### Diff Coverage (vs origin/main)' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          diff-cover coverage/lcov.info --compare-branch=origin/main --markdown-report >> $GITHUB_STEP_SUMMARY || true
 
       - name: Package extension
         run: npm run package

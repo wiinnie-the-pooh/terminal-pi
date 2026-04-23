@@ -178,7 +178,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "test": "npm run compile && node run-tests.js",
-    "coverage": "npm run compile && c8 node run-tests.js",
+    "coverage": "npm run compile && c8 --reporter=text --reporter=lcov node run-tests.js",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "lint": "eslint src --ext ts"
