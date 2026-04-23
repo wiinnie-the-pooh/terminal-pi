@@ -14,3 +14,4 @@ SPEC.md
 docs/**
 CHANGELOG.md
 eslint.config.mjs
+coverage/**
