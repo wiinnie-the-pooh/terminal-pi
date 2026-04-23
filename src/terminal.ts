@@ -62,6 +62,7 @@ export class PiTerminalManager implements vscode.Disposable {
     editorCommand: string,
     piArgs: string[],
     sessionDir?: string,
+    location: vscode.TerminalLocation | vscode.TerminalEditorLocationOptions = { viewColumn: vscode.ViewColumn.Beside },
   ): Promise<void> {
     const dir = sessionDir ?? this.generateSessionDir();
     fs.mkdirSync(dir, { recursive: true });
@@ -78,7 +79,7 @@ export class PiTerminalManager implements vscode.Disposable {
       name: PI_TERMINAL_NAME,
       shellPath,
       shellArgs: [...prefixArgs, '--session-dir', dir, ...piArgs],
-      location: { viewColumn: vscode.ViewColumn.Beside },
+      location,
       isTransient: true,
       env: getPiTerminalEnv(editorCommand, resolvedEditorCommand),
     };
@@ -115,7 +116,7 @@ export class PiTerminalManager implements vscode.Disposable {
       // Prepend --continue so pi resumes the session in this dir.
       // Re-apply current defaultArgs in case config changed since last launch.
       const piArgs = ['--continue', ...this.buildArgs(defaultArgs), ...(session.piArgs ?? [])];
-      await this.createAndShowTerminal(editorCommand, piArgs, session.sessionDir);
+      await this.createAndShowTerminal(editorCommand, piArgs, session.sessionDir, vscode.TerminalLocation.Editor);
     }
   }
 
