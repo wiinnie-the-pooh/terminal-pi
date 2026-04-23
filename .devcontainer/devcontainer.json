@@ -18,6 +18,9 @@
       }
     }
   },
-  "postCreateCommand": "npm install && pip install diff-cover",
+  "postCreateCommand": "npm install && python3 -m venv /home/node/.venv && /home/node/.venv/bin/pip install diff-cover",
+  "remoteEnv": {
+    "PATH": "/home/node/.venv/bin:${containerEnv:PATH}"
+  },
   "remoteUser": "node"
 }
