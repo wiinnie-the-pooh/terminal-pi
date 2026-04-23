@@ -80,5 +80,7 @@ jobs:
 
       - name: Test in Dev Container
         run: |
-          devcontainer up --workspace-folder .
+          devcontainer up --workspace-folder . --remove-existing-container
           devcontainer exec --workspace-folder . bash -c "node --version && npm --version && npm run lint && npm run compile && npm test"
+        env:
+          DOCKER_BUILDKIT: 1
