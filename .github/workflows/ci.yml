@@ -78,9 +78,19 @@ jobs:
       - name: Build Dev Container
         run: devcontainer build --workspace-folder .
 
-      - name: Test in Dev Container
-        run: |
-          devcontainer up --workspace-folder . --remove-existing-container
-          devcontainer exec --workspace-folder . bash -c "node --version && npm --version && npm run lint && npm run compile && npm test"
+      - name: Start Dev Container
+        run: devcontainer up --workspace-folder . --remove-existing-container
         env:
           DOCKER_BUILDKIT: 1
+
+      - name: Verify Node in Dev Container
+        run: devcontainer exec --workspace-folder . bash -c "node --version && npm --version"
+
+      - name: Run lint in Dev Container
+        run: devcontainer exec --workspace-folder . bash -c "npm run lint"
+
+      - name: Run compile in Dev Container
+        run: devcontainer exec --workspace-folder . bash -c "npm run compile"
+
+      - name: Run tests in Dev Container
+        run: devcontainer exec --workspace-folder . bash -c "npm test"
