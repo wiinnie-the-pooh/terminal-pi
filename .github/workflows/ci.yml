@@ -72,8 +72,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
       - name: Build Dev Container
-        uses: devcontainers/ci@v0.3
-        with:
-          push: never
-          runCmd: echo 'Dev Container built successfully'
+        run: devcontainer build --workspace-folder .
+
+      - name: Test in Dev Container
+        run: |
+          devcontainer up --workspace-folder .
+          devcontainer exec --workspace-folder . bash -c "node --version && npm --version && npm run lint && npm run compile && npm test"
