@@ -171,6 +171,14 @@
         "args": {
           "text": "\u0007"
         }
+      },
+      {
+        "command": "workbench.action.terminal.sendSequence",
+        "key": "alt+up",
+        "when": "terminalFocus && piDock.activeTerminal",
+        "args": {
+          "text": "\u001b[1;3A"
+        }
       }
     ]
   },
