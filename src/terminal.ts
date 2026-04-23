@@ -62,7 +62,7 @@ export class PiTerminalManager implements vscode.Disposable {
       name: PI_TERMINAL_NAME,
       shellPath: nodePath,
       shellArgs: [launcherPath, '--session-dir', dir, ...piArgs],
-      location: { viewColumn: vscode.ViewColumn.Beside },
+      location: { viewColumn: vscode.ViewColumn.Active },
       iconPath: {
         light: vscode.Uri.joinPath(this.context.extensionUri, 'resources', 'icons', 'pi-light.svg'),
         dark: vscode.Uri.joinPath(this.context.extensionUri, 'resources', 'icons', 'pi-dark.svg'),
