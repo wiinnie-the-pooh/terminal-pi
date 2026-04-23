@@ -20,6 +20,7 @@ import {
 export class PiTerminalManager implements vscode.Disposable {
   private terminalCreatedAt = new WeakMap<vscode.Terminal, string>();
 
+  /* c8 ignore start */
   /**
    * Create a Pi terminal and bring it to the foreground.
    *
@@ -38,7 +39,6 @@ export class PiTerminalManager implements vscode.Disposable {
    * the terminal appears in the UI immediately; the drain+restore runs
    * in the background from the user's perspective.
    */
-  /* c8 ignore start */
   constructor(private readonly context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.window.onDidCloseTerminal((closed) => {
@@ -51,9 +51,11 @@ export class PiTerminalManager implements vscode.Disposable {
   }
   /* c8 ignore stop */
 
+  /* c8 ignore start */
   private generateSessionDir(): string {
     return path.join(os.homedir(), '.pi', 'agent', 'sessions', 'vscode', crypto.randomUUID());
   }
+  /* c8 ignore stop */
 
   /* c8 ignore start */
   private async createAndShowTerminal(

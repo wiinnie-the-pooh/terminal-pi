@@ -4,6 +4,7 @@ const { spawnSync } = require('node:child_process');
 
 const {
   resolveEditorCommand,
+  detectEditorCommand,
   commandExistsOnPath,
 } = require('../out/editorCommandResolver.js');
 
@@ -109,6 +110,26 @@ test('returns undefined for unknown products', () => {
 
   assert.equal(result, undefined);
 });
+
+for (const { appName, expected } of [
+  { appName: 'Cursor', expected: 'cursor' },
+  { appName: 'Cursor IDE', expected: 'cursor' },
+  { appName: 'Visual Studio Code - Insiders', expected: 'code-insiders' },
+  { appName: 'VS Code', expected: 'code' },
+  { appName: 'Visual Studio Code', expected: 'code' },
+  { appName: 'Windsurf', expected: undefined },
+  { appName: undefined, expected: undefined },
+]) {
+  test(`detectEditorCommand detects '${appName}' as ${expected}`, () => {
+    const result = detectEditorCommand({
+      configuredEditorCommand: '',
+      appHost: 'desktop',
+      uriScheme: 'windsurf',
+      appName,
+    });
+    assert.equal(result, expected);
+  });
+}
 
 for (const { platform, expectedLocator } of [
   { platform: 'win32', expectedLocator: 'where' },

@@ -122,6 +122,10 @@ test('getActiveEditorFilePath returns the file-backed active document path', () 
   );
 });
 
+test('getEligibleResourcePaths returns undefined for empty entries', () => {
+  assert.equal(getEligibleResourcePaths('skill', []), undefined);
+});
+
 test('getActiveEditorFilePath rejects non-file-backed active documents', () => {
   assert.equal(
     getActiveEditorFilePath({ scheme: 'untitled', fsPath: 'C:\\repo\\scratch.ts' }),

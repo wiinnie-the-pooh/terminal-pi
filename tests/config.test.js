@@ -11,7 +11,7 @@ Module._resolveFilename = function (request, ...rest) {
 };
 
 const vscodeStub = require('./__fixtures__/vscode-config-stub.js');
-const { getConfig } = require('../out/config.js');
+const { getConfig, sanitizeDrainMs } = require('../out/config.js');
 
 test('editorCommand defaults to an empty string so the extension can auto-detect it', () => {
   vscodeStub.__setConfigValues({});
@@ -60,3 +60,18 @@ test('virtualEnvironmentDrainMs preserves an explicit configured value', () => {
 
   assert.equal(cfg.virtualEnvironmentDrainMs, 500);
 });
+
+for (const { input, expected, label } of [
+  { input: NaN, expected: 150, label: 'NaN' },
+  { input: Infinity, expected: 150, label: 'Infinity' },
+  { input: -Infinity, expected: 150, label: '-Infinity' },
+  { input: -1, expected: 150, label: 'negative' },
+  { input: 0, expected: 0, label: 'zero' },
+  { input: 150, expected: 150, label: 'valid value' },
+  { input: 10_001, expected: 10_000, label: 'above max clamp' },
+  { input: 10_000, expected: 10_000, label: 'at max boundary' },
+]) {
+  test(`sanitizeDrainMs handles ${label}`, () => {
+    assert.equal(sanitizeDrainMs(input), expected);
+  });
+}

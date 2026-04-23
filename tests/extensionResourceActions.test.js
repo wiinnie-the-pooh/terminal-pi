@@ -10,7 +10,13 @@ Module._resolveFilename = function (request, ...rest) {
   return originalResolve.call(this, request, ...rest);
 };
 
-const { createResourceActionHandler } = require('../out/extension.js');
+const {
+  createResourceActionHandler,
+  getModeLabel,
+  getModePlural,
+  toPiResourceMode,
+  runCommand,
+} = require('../out/extension.js');
 
 function createDeps(overrides = {}) {
   const calls = [];
@@ -175,6 +181,56 @@ test('command palette warns when no matching workspace resources are found', asy
   assert.equal(calls.length, 0);
   assert.equal(warnings.length, 1);
   assert.match(warnings[0], /extensions/i);
+});
+
+test('getModeLabel returns correct labels', () => {
+  assert.equal(getModeLabel('skill'), 'Skill');
+  assert.equal(getModeLabel('template'), 'Template');
+  assert.equal(getModeLabel('extension'), 'Extension');
+});
+
+test('getModePlural returns correct plural forms', () => {
+  assert.equal(getModePlural('skill'), 'skills');
+  assert.equal(getModePlural('template'), 'templates');
+  assert.equal(getModePlural('extension'), 'extensions');
+});
+
+test('toPiResourceMode maps picker modes to resource modes', () => {
+  assert.equal(toPiResourceMode('skill'), 'skill');
+  assert.equal(toPiResourceMode('template'), 'prompt-template');
+  assert.equal(toPiResourceMode('extension'), 'extension');
+});
+
+test('runCommand awaits the inner function without throwing on success', async () => {
+  let called = false;
+  await runCommand('test', async () => {
+    called = true;
+  });
+  assert.equal(called, true);
+});
+
+test('runCommand catches and logs errors from the inner function', async (t) => {
+  const vscodeStub = require('./__fixtures__/vscode-stub.js');
+  const errorMessages = [];
+  const originalShowError = vscodeStub.window.showErrorMessage;
+  vscodeStub.window.showErrorMessage = async (message) => {
+    errorMessages.push(message);
+  };
+
+  const originalConsoleError = console.error;
+  console.error = () => {};
+
+  t.after(() => {
+    vscodeStub.window.showErrorMessage = originalShowError;
+    console.error = originalConsoleError;
+  });
+
+  await runCommand('test', async () => {
+    throw new Error('inner failure');
+  });
+
+  assert.equal(errorMessages.length, 1);
+  assert.match(errorMessages[0], /inner failure/);
 });
 
 test('createResourceActionHandler swallows terminalManager errors and does not throw', async (t) => {

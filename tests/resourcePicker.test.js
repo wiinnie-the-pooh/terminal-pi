@@ -3,9 +3,16 @@ const assert = require('node:assert/strict');
 const {
   buildResourceQuickPickItems,
   filterDiscoveredResources,
+  getResourceSearchGlobs,
   normalizePickedResources,
   pickResources,
 } = require('../out/resourcePicker.js');
+
+test('getResourceSearchGlobs returns correct globs for each mode', () => {
+  assert.deepEqual(getResourceSearchGlobs('skill'), ['**/SKILL.md']);
+  assert.deepEqual(getResourceSearchGlobs('template'), ['**/*.md']);
+  assert.deepEqual(getResourceSearchGlobs('extension'), ['**/*.ts']);
+});
 
 test('filterDiscoveredResources keeps only SKILL.md files for skill mode', () => {
   assert.deepEqual(

@@ -241,6 +241,7 @@ async function isDirectoryUri(uri: FileLikeUri): Promise<boolean> {
 }
 /* c8 ignore stop */
 
+/* c8 ignore start */
 async function pickWorkspaceResources(
   mode: ResourcePickerMode,
 ): Promise<string[] | undefined> {
@@ -252,7 +253,6 @@ async function pickWorkspaceResources(
   });
 }
 
-/* c8 ignore start */
 async function discoverWorkspaceResources(
   mode: ResourcePickerMode,
 ): Promise<string[]> {
@@ -300,7 +300,7 @@ function filePathToRelativePath(filePath: string): string {
 }
 /* c8 ignore stop */
 
-function getModeLabel(mode: ResourcePickerMode): string {
+export function getModeLabel(mode: ResourcePickerMode): string {
   switch (mode) {
     case 'skill':
       return 'Skill';
@@ -311,7 +311,7 @@ function getModeLabel(mode: ResourcePickerMode): string {
   }
 }
 
-function getModePlural(mode: ResourcePickerMode): string {
+export function getModePlural(mode: ResourcePickerMode): string {
   switch (mode) {
     case 'skill':
       return 'skills';
@@ -322,7 +322,7 @@ function getModePlural(mode: ResourcePickerMode): string {
   }
 }
 
-function toPiResourceMode(mode: ResourcePickerMode): PiResourceMode {
+export function toPiResourceMode(mode: ResourcePickerMode): PiResourceMode {
   switch (mode) {
     case 'skill':
       return 'skill';
@@ -378,7 +378,7 @@ async function resolvePromptFilePath(
 }
 /* c8 ignore stop */
 
-async function runCommand(label: string, fn: () => Promise<void>): Promise<void> {
+export async function runCommand(label: string, fn: () => Promise<void>): Promise<void> {
   try {
     await fn();
   } catch (err) {

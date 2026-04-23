@@ -41,7 +41,7 @@ export function onConfigChange(
 /* c8 ignore stop */
 
 /** Clamp user-supplied drain values to a sane range. */
-function sanitizeDrainMs(raw: number): number {
+export function sanitizeDrainMs(raw: number): number {
   if (!Number.isFinite(raw) || raw < 0) {
     return DRAIN_DEFAULT_MS;
   }

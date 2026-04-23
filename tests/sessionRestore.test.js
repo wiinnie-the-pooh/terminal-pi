@@ -129,6 +129,52 @@ test('restoreSessions restores multiple sessions in order', async () => {
   }
 });
 
+test('runInteractive passes default args into terminal creation', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runInteractive('--thinking low', 'code --wait');
+
+  assert.equal(manager._calls.length, 1);
+  assert.equal(manager._calls[0].editorCommand, 'code --wait');
+  assert.deepEqual(manager._calls[0].piArgs, ['--thinking', 'low']);
+});
+
+test('runInteractive handles empty default args', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runInteractive('', 'code --wait');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, []);
+});
+
+test('runWithPrompt appends file path and extra context', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runWithPrompt('code --wait', '--thinking low', 'C:\\repo\\prompt.md', 'extra context');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, [
+    '--thinking',
+    'low',
+    '@C:\\repo\\prompt.md',
+    'extra context',
+  ]);
+});
+
+test('runWithPrompt omits extra context when empty or whitespace-only', async () => {
+  const ctx = makeContext();
+  const manager = makeManager(ctx);
+
+  await manager.runWithPrompt('code --wait', '', 'C:\\repo\\prompt.md', '   ');
+
+  assert.equal(manager._calls.length, 1);
+  assert.deepEqual(manager._calls[0].piArgs, ['@C:\\repo\\prompt.md']);
+});
+
 test('removeSession removes only the matching session -- close handler behavior', async () => {
   // The onDidCloseTerminal handler calls removeSession(ctx, createdAt).
   // This test verifies that removeSession removes the right entry,
