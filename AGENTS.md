@@ -88,6 +88,14 @@ Run the automated smoke tests:
 npm test
 ```
 
+Generate a code-coverage report (uses `c8`):
+
+```sh
+npm run coverage
+```
+
+Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
+
 For human verification in a live VS Code instance, see `TESTING.md`.
 
 The automated test suite covers non-VS-Code helpers only; integrated terminal behavior and UX flows require manual validation.
@@ -97,7 +105,7 @@ The automated test suite covers non-VS-Code helpers only; integrated terminal be
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`:
 
 - **Matrix:** Node.js 20 / 22 on `ubuntu-latest` and `windows-latest`
-- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm test` → `npm run package`
+- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm run coverage` → upload coverage artifact → `npm run package`
 
 Ensure the workflow passes before merging. Branch protection can be configured in the GitHub repository settings to require the CI check.
 
