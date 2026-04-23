@@ -123,7 +123,8 @@ The automated test suite covers non-VS-Code helpers only; integrated terminal be
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`:
 
 - **Matrix:** Node.js 20 / 22 on `ubuntu-latest` and `windows-latest`
-- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm run coverage` → upload coverage artifact → `npm run package`
+- **Steps:** `npm ci` → `npm run lint` → `npm run compile` → `npm run coverage` → upload coverage artifact → diff-cover report → `npm run package`
+- **Dev Container:** A separate job builds the Dev Container image and runs the full test suite inside it to verify the container configuration is valid.
 
 Ensure the workflow passes before merging. Branch protection can be configured in the GitHub repository settings to require the CI check.
 

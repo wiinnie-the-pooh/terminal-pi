@@ -65,3 +65,18 @@ jobs:
 
       - name: Package extension
         run: npm run package
+
+  devcontainer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and test Dev Container
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            npm run lint
+            npm run compile
+            npm test
+            npm run diff-coverage
