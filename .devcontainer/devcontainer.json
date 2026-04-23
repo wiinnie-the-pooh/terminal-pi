@@ -15,6 +15,6 @@
       }
     }
   },
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "npm install && pip install diff-cover",
   "remoteUser": "node"
 }

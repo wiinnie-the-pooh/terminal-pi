@@ -54,6 +54,10 @@ Install dev dependencies once after cloning:
 npm install
 ```
 
+## Dev Container
+
+A Dev Container configuration (`.devcontainer/devcontainer.json`) is provided for development in GitHub Codespaces or VS Code Dev Containers. It includes Node.js 20, ESLint, and `diff-cover` pre-installed.
+
 ## Build
 
 Compile TypeScript to `out/`:
@@ -99,6 +103,8 @@ Show diff coverage for the current branch vs `origin/main` (requires Python and 
 ```sh
 npm run diff-coverage
 ```
+
+`diff-cover` is pre-installed in the Dev Container. Outside a container, install it with `pip install diff-cover`.
 
 Set a different base branch:
 
