@@ -94,6 +94,18 @@ Generate a code-coverage report (uses `c8`):
 npm run coverage
 ```
 
+Show diff coverage for the current branch vs `origin/main` (requires Python and `diff-cover`):
+
+```sh
+npm run diff-coverage
+```
+
+Set a different base branch:
+
+```sh
+DIFF_COVER_BASE=origin/develop npm run diff-coverage
+```
+
 Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
 
 For human verification in a live VS Code instance, see `TESTING.md`.

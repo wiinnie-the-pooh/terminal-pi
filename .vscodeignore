@@ -4,6 +4,7 @@
 src/**
 .gitignore
 run-tests.js
+run-diff-coverage.js
 tsconfig.json
 node_modules/**
 out/**/*.js.map
