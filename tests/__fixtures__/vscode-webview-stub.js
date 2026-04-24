@@ -11,8 +11,10 @@ module.exports = {
     createWebviewPanel(viewType, title, column, options) {
       let disposeHandler = null;
       let messageHandler = null;
+      let viewStateHandler = null;
       const posted = [];
       const panel = {
+        visible: true,
         webview: {
           html: '',
           cspSource: 'test-csp',
@@ -21,12 +23,17 @@ module.exports = {
           onDidReceiveMessage(h) { messageHandler = h; return { dispose: () => {} }; },
           postMessage(m) { posted.push(m); },
         },
-        reveal() { panel.__revealed = true; },
+        reveal() { panel.__revealed = true; panel.visible = true; },
         __revealed: false,
         __posted: posted,
         onDidDispose(h) { disposeHandler = h; return { dispose: () => {} }; },
+        onDidChangeViewState(h) { viewStateHandler = h; return { dispose: () => {} }; },
         __triggerDispose() { disposeHandler?.(); },
         __triggerMessage(msg) { messageHandler?.(msg); },
+        __setVisible(value) {
+          panel.visible = value;
+          viewStateHandler?.({ webviewPanel: panel });
+        },
       };
       module.exports.window.__lastPanel = panel;
       return panel;

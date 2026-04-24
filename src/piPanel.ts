@@ -1,15 +1,17 @@
 import * as vscode from 'vscode';
-import type { PiSession } from './piSession';
+import type { PiSession, PiViewAttachment } from './piSession';
 import { generateNonce, getWebviewTemplate } from './webviewTemplate';
 
 export class PiPanel {
   private static instance: PiPanel | undefined;
 
   private readonly panel: vscode.WebviewPanel;
+  private readonly attachment: PiViewAttachment;
 
   static createOrReveal(piSession: PiSession, extensionUri: vscode.Uri): void {
     if (PiPanel.instance) {
       PiPanel.instance.panel.reveal();
+      PiPanel.instance.attachment.setVisible(true);
       return;
     }
     PiPanel.instance = new PiPanel(piSession, extensionUri);
@@ -18,7 +20,7 @@ export class PiPanel {
   private constructor(piSession: PiSession, extensionUri: vscode.Uri) {
     this.panel = vscode.window.createWebviewPanel(
       'piBay.panel',
-      'Pi Bay',
+      'Pi Editor View',
       vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -45,20 +47,26 @@ export class PiPanel {
       ).toString(),
     });
 
-    const unsubscribe = piSession.addSender(
+    this.attachment = piSession.attachView(
+      'editor-panel',
       (msg) => void webview.postMessage(msg),
     );
+    this.attachment.setVisible(this.panel.visible);
+
+    this.panel.onDidChangeViewState(() => {
+      this.attachment.setVisible(this.panel.visible);
+    });
 
     webview.onDidReceiveMessage((msg: { type: string; data?: string; cols?: number; rows?: number }) => {
       if (msg.type === 'input' && msg.data !== undefined) {
         piSession.write(msg.data);
       } else if (msg.type === 'resize' && msg.cols !== undefined && msg.rows !== undefined) {
-        piSession.resize(msg.cols, msg.rows);
+        this.attachment.setSize(msg.cols, msg.rows);
       }
     });
 
     this.panel.onDidDispose(() => {
-      unsubscribe();
+      this.attachment.dispose();
       PiPanel.instance = undefined;
     });
   }
