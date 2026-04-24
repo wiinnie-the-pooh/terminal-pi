@@ -112,7 +112,7 @@ test('runWithResources passes built args into terminal creation without @ resour
     assert.equal(capturedEditorCommand, 'cursor --wait');
     assert.deepEqual(capturedArgs, [
       '--extension',
-      path.join('/fake/ext', 'extensions', 'pi-dock-hotkeys', 'src', 'index.js'),
+      path.join('/fake/ext', 'extensions', 'pi-dock-hotkeys', 'pi-dock-hotkeys.js'),
       '--thinking',
       'low',
       '--prompt-template',

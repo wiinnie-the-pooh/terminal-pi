@@ -5,10 +5,19 @@ const { pathToFileURL } = require('node:url');
 
 async function loadHotkeysModule() {
   const modulePath = pathToFileURL(
-    path.join(process.cwd(), 'extensions', 'pi-dock-hotkeys', 'src', 'hotkeys.js')
+    path.join(process.cwd(), 'extensions', 'pi-dock-hotkeys', 'hotkeys.js')
   ).href;
   return import(modulePath);
 }
+
+async function loadPackageManifest() {
+  return require(path.join(process.cwd(), 'extensions', 'pi-dock-hotkeys', 'package.json'));
+}
+
+test('hotkeys package manifest points Pi at the flattened top-level entry file', async () => {
+  const pkg = await loadPackageManifest();
+  assert.deepEqual(pkg.pi?.extensions, ['./pi-dock-hotkeys.js']);
+});
 
 test('hotkeys helper exports the supported profile constants', async () => {
   const hotkeys = await loadHotkeysModule();
@@ -23,7 +32,7 @@ test('hotkey definitions expose a stable, unique Pi Dock shortcut set', async ()
   const keys = HOTKEY_DEFINITIONS.map((entry) => entry.shortcut);
   assert.equal(new Set(keys).size, keys.length);
 
-  assert.ok(HOTKEY_DEFINITIONS.some((entry) => entry.id === 'app.model.select' && entry.shortcut === 'alt+l'));
+  assert.ok(!HOTKEY_DEFINITIONS.some((entry) => entry.id === 'app.model.select'));
   assert.ok(HOTKEY_DEFINITIONS.some((entry) => entry.id === 'app.model.cycleForward' && entry.shortcut === 'alt+p'));
   assert.ok(HOTKEY_DEFINITIONS.some((entry) => entry.id === 'app.tools.expand' && entry.shortcut === 'alt+o'));
 
@@ -62,7 +71,8 @@ test('buildProfileCommandMessage explains how to switch back and lists shortcuts
   const pidockMessage = buildProfileCommandMessage(PROFILE_PIDOCK);
   assert.match(pidockMessage, /VS Code-friendly hotkeys enabled/i);
   assert.match(pidockMessage, /\/hotkeys-original/);
-  assert.match(pidockMessage, /Alt\+L/);
+  assert.match(pidockMessage, /Alt\+P/);
+  assert.doesNotMatch(pidockMessage, /Alt\+L/);
 
   const originalMessage = buildProfileCommandMessage(PROFILE_ORIGINAL);
   assert.match(originalMessage, /Original Pi hotkeys enabled/i);

@@ -40,7 +40,7 @@ In particular, Pi's native `Ctrl+L` does not work by submitting `/model` text. I
 From this folder:
 
 ```sh
-pi -e ./src/index.js
+pi -e ./pi-dock-hotkeys.js
 ```
 
 ## Run it automatically with Pi
@@ -60,7 +60,7 @@ This package uses the manifest approach:
 ```json
 {
   "pi": {
-    "extensions": ["./src/index.js"]
+    "extensions": ["./pi-dock-hotkeys.js"]
   }
 }
 ```
@@ -86,18 +86,18 @@ Then start Pi normally.
 Pi Dock itself can also attach this extension only for docked sessions. If you want to do that manually, launch Pi with:
 
 ```sh
---extension <path-to-pi-dock-hotkeys>/src/index.js
+--extension <path-to-pi-dock-hotkeys>/pi-dock-hotkeys.js
 ```
 
 That keeps standalone Pi untouched while giving Pi Dock sessions the alternate shortcut layer.
 
 ## Extract into a separate repo
 
-This folder is intentionally self-contained:
+This folder is intentionally self-contained and flat:
 
 - `package.json`
-- `src/index.js`
-- `src/hotkeys.js`
+- `pi-dock-hotkeys.js`
+- `hotkeys.js`
 - `README.md`
 
 You can copy it into a new repository and iterate there without depending on the rest of this repo.

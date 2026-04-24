@@ -21,8 +21,7 @@ const expectedBundledHotkeysExtension = path.join(
   FAKE_EXT_PATH,
   'extensions',
   'pi-dock-hotkeys',
-  'src',
-  'index.js',
+  'pi-dock-hotkeys.js',
 );
 const EXT_ARGS = ['--extension', expectedBundledHotkeysExtension];
 
