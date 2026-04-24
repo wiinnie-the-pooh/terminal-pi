@@ -17,7 +17,6 @@ The current mode is also shown in the footer as a status item.
 When `/hotkeys-pidock` is active, this extension adds these alternate shortcuts:
 
 - `Alt+C` -> Clear editor
-- `Alt+D` -> Exit when editor is empty
 - `Alt+T` -> Cycle thinking level
 - `Alt+P` -> Cycle to next model
 - `Shift+Alt+P` -> Cycle to previous model

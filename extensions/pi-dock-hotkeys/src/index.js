@@ -69,11 +69,6 @@ const shortcutHandlers = {
   "clear-editor": async (_pi, ctx) => {
     ctx.ui.setEditorText("");
   },
-  "exit-if-empty": async (_pi, ctx) => {
-    if (ctx.ui.getEditorText().length === 0) {
-      ctx.shutdown();
-    }
-  },
   "cycle-thinking": async (pi, ctx) => {
     const next = getNextThinkingLevel(pi.getThinkingLevel());
     pi.setThinkingLevel(next);

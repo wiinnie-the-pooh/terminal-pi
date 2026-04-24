@@ -12,13 +12,6 @@ export const HOTKEY_DEFINITIONS = [
     implementation: "clear-editor",
   },
   {
-    id: "app.exit",
-    shortcut: "alt+d",
-    original: "Ctrl+D",
-    label: "Exit when editor is empty",
-    implementation: "exit-if-empty",
-  },
-  {
     id: "app.thinking.cycle",
     shortcut: "alt+t",
     original: "Shift+Tab",
