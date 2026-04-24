@@ -1,5 +1,5 @@
 {
-  "name": "Pi Dock Dev",
+  "name": "Pi Coding Agent Dev",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},

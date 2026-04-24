@@ -8,7 +8,7 @@ export interface PiConfig {
   virtualEnvironmentDrainMs: number;
 }
 
-const SECTION = 'piDock';
+const SECTION = 'piAgent';
 
 const DRAIN_DEFAULT_MS = 150;
 const DRAIN_MAX_MS = 10_000;

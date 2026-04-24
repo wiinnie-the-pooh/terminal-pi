@@ -5,15 +5,15 @@ import {
   getNextThinkingLevel,
   HOTKEY_DEFINITIONS,
   PROFILE_ORIGINAL,
-  PROFILE_PIDOCK,
+  PROFILE_PIAGENT,
   restorePersistedProfile,
 } from "./hotkeys.js";
 
-const STATUS_KEY = "pi-dock-hotkeys";
-let activeProfile = PROFILE_PIDOCK;
+const STATUS_KEY = "pi-agent-hotkeys";
+let activeProfile = PROFILE_PIAGENT;
 
-function isPiDockProfileActive() {
-  return activeProfile === PROFILE_PIDOCK;
+function isPiAgentProfileActive() {
+  return activeProfile === PROFILE_PIAGENT;
 }
 
 function updateStatus(ctx) {
@@ -88,23 +88,23 @@ const shortcutHandlers = {
   },
 };
 
-export default function piDockHotkeysExtension(pi) {
+export default function piAgentHotkeysExtension(pi) {
   pi.on("session_start", async (_event, ctx) => {
     activeProfile = restorePersistedProfile(ctx.sessionManager.getBranch());
     updateStatus(ctx);
   });
 
-  pi.registerCommand("hotkeys-pidock", {
-    description: "Enable Pi Dock-friendly alternate hotkeys for this session",
+  pi.registerCommand("hotkeys-piagent", {
+    description: "Enable Pi Coding Agent-friendly alternate hotkeys for this session",
     handler: async (_args, ctx) => {
-      persistProfile(pi, PROFILE_PIDOCK);
+      persistProfile(pi, PROFILE_PIAGENT);
       updateStatus(ctx);
-      ctx.ui.notify(buildProfileCommandMessage(PROFILE_PIDOCK), "info");
+      ctx.ui.notify(buildProfileCommandMessage(PROFILE_PIAGENT), "info");
     },
   });
 
   pi.registerCommand("hotkeys-original", {
-    description: "Disable the Pi Dock shortcut layer and keep Pi defaults only",
+    description: "Disable the Pi Coding Agent shortcut layer and keep Pi defaults only",
     handler: async (_args, ctx) => {
       persistProfile(pi, PROFILE_ORIGINAL);
       updateStatus(ctx);
@@ -121,7 +121,7 @@ export default function piDockHotkeysExtension(pi) {
     pi.registerShortcut(definition.shortcut, {
       description: definition.label,
       handler: async (ctx) => {
-        if (!isPiDockProfileActive()) {
+        if (!isPiAgentProfileActive()) {
           return;
         }
         await handler(pi, ctx);

@@ -1,4 +1,4 @@
-# Pi Dock VS Code Extension -- Developer Reference
+# Pi Coding Agent VS Code Extension -- Developer Reference
 
 This file documents how to build, package, publish, and version the extension.
 It is the authoritative reference for both human developers and AI coding agents.
@@ -10,7 +10,7 @@ terminal-pi/
 +-- src/
 |   +-- extension.ts               # activate(), command registrations, status bar, context-action wiring
 |   +-- terminal.ts                # PiTerminalManager and Pi launch entry points
-|   +-- piLauncher.ts              # self-contained launcher: resolves Pi executable, sidecar map (.pidock/<guid>.map) for session restore
+|   +-- piLauncher.ts              # self-contained launcher: resolves Pi executable, sidecar map (.piagent/<guid>.map) for session restore
 |   +-- piResourceArgs.ts          # pure Pi resource argument assembly
 |   +-- fileSelection.ts           # Explorer/editor/direct-command target-file resolution helpers
 |   +-- resourcePicker.ts          # Skill / Template / Extension discovery + normalization helpers
@@ -187,7 +187,7 @@ Build a local `.vsix` installable file:
 
 ```sh
 npm run package
-# emits: pi-dock-<version>.vsix
+# emits: pi-agent-<version>.vsix
 ```
 
 `vsce package` reads `package.json`, compiles via `vscode:prepublish`, applies `.vscodeignore`, and writes the `.vsix`.

@@ -1,7 +1,7 @@
-export const PROFILE_PIDOCK = "pidock";
+export const PROFILE_PIAGENT = "piagent";
 export const PROFILE_ORIGINAL = "original";
 
-export const CUSTOM_ENTRY_TYPE = "pi-dock-hotkeys.profile";
+export const CUSTOM_ENTRY_TYPE = "pi-agent-hotkeys.profile";
 
 export const HOTKEY_DEFINITIONS = [
   {
@@ -48,7 +48,7 @@ export const HOTKEY_DEFINITIONS = [
   },
 ];
 
-const DEFAULT_PROFILE = PROFILE_PIDOCK;
+const DEFAULT_PROFILE = PROFILE_PIAGENT;
 
 export function restorePersistedProfile(entries) {
   for (let index = entries.length - 1; index >= 0; index -= 1) {
@@ -65,27 +65,27 @@ export function restorePersistedProfile(entries) {
 }
 
 export function isSupportedProfile(profile) {
-  return profile === PROFILE_PIDOCK || profile === PROFILE_ORIGINAL;
+  return profile === PROFILE_PIAGENT || profile === PROFILE_ORIGINAL;
 }
 
 export function buildProfileCommandMessage(profile) {
-  const isPiDock = profile === PROFILE_PIDOCK;
-  const heading = isPiDock
+  const isPiAgent = profile === PROFILE_PIAGENT;
+  const heading = isPiAgent
     ? "VS Code-friendly hotkeys enabled"
     : "Original Pi hotkeys enabled";
-  const switchHint = isPiDock
-    ? "Run /hotkeys-original to disable the Pi Dock shortcut layer."
-    : "Run /hotkeys-pidock to enable the Pi Dock shortcut layer again.";
+  const switchHint = isPiAgent
+    ? "Run /hotkeys-original to disable the Pi Coding Agent shortcut layer."
+    : "Run /hotkeys-piagent to enable the Pi Coding Agent shortcut layer again.";
 
   const rows = HOTKEY_DEFINITIONS
     .map((entry) => `- ${toDisplayKey(entry.shortcut)} -> ${entry.label} (Pi default: ${entry.original})`)
     .join("\n");
 
-  return `${heading}.\n${switchHint}\n\nPi Dock shortcut layer:\n${rows}`;
+  return `${heading}.\n${switchHint}\n\nPi Coding Agent shortcut layer:\n${rows}`;
 }
 
 export function buildStatusText(profile) {
-  return profile === PROFILE_PIDOCK ? "hotkeys: Pi Dock" : "hotkeys: original";
+  return profile === PROFILE_PIAGENT ? "hotkeys: Pi Coding Agent" : "hotkeys: original";
 }
 
 export function toDisplayKey(shortcut) {

@@ -1,13 +1,13 @@
-# Pi Dock
+# Pi Coding Agent
 
-[Pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) is an open-source AI coding agent that runs in your terminal. Pi Dock docks it right inside the VS Code editor area -- one click to launch, zero context switches. Feed Pi your skills and templates from the Explorer or Command Palette, use `Ctrl+G` to compose prompts in a full editor tab, and never lose a session: Pi Dock automatically restores your sessions when VS Code restarts, so you pick up right where you left off.
+[Pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) is an open-source AI coding agent that runs in your terminal. Pi Coding Agent docks it right inside the VS Code editor area -- one click to launch, zero context switches. Feed Pi your skills and templates from the Explorer or Command Palette, use `Ctrl+G` to compose prompts in a full editor tab, and never lose a session: Pi Coding Agent automatically restores your sessions when VS Code restarts, so you pick up right where you left off.
 
-![Pi Dock in the VS Code editor area](resources/images/statusbar-click.png)
+![Pi Coding Agent in the VS Code editor area](resources/images/statusbar-click.png)
 
 ## Quick Start
 
 1. Install the [Pi CLI](https://www.npmjs.com/package/@mariozechner/pi-coding-agent): `npm install -g @mariozechner/pi-coding-agent`
-2. Install Pi Dock from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-dock).
+2. Install Pi Coding Agent from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wiinnie-the-pooh.pi-agent).
 3. Click the Pi icon in the editor title bar -- a Pi session opens in your editor area.
 
 ## Features
@@ -22,7 +22,7 @@
 
 - **Configurable** -- Set default CLI flags (`--model openai/gpt-4o`), choose your external editor command, and fine-tune terminal behavior through VS Code settings.
 
-- **VS Code-friendly hotkeys** -- Alternate shortcuts for actions VS Code would otherwise intercept (`Ctrl+C`, `Ctrl+L`, etc.). Type `/hotkeys-original` to revert to Pi's built-in keys, or `/hotkeys-pidock` to bring them back.
+- **VS Code-friendly hotkeys** -- Alternate shortcuts for actions VS Code would otherwise intercept (`Ctrl+C`, `Ctrl+L`, etc.). Type `/hotkeys-original` to revert to Pi's built-in keys, or `/hotkeys-piagent` to bring them back.
 
 <details>
 <summary>Resource type details</summary>
@@ -45,21 +45,21 @@ Each "Run Pi with..." command accepts specific file types:
 <details>
 <summary>External editor auto-detection</summary>
 
-Pi Dock auto-detects your VS Code variant and exports a matching `EDITOR` / `VISUAL` command for Pi's external editor flow:
+Pi Coding Agent auto-detects your VS Code variant and exports a matching `EDITOR` / `VISUAL` command for Pi's external editor flow:
 
 - VS Code Stable -> `code --wait`
 - VS Code Insiders -> `code-insiders --wait`
 - Cursor -> `cursor --wait`
 
-If auto-detection fails, Pi Dock preserves your existing `VISUAL` / `EDITOR` values. Override this with the `piDock.editorCommand` setting.
+If auto-detection fails, Pi Coding Agent preserves your existing `VISUAL` / `EDITOR` values. Override this with the `piAgent.editorCommand` setting.
 
 </details>
 
-## Additional Shortcuts in Pi Dock
+## Additional Shortcuts in Pi Coding Agent
 
-Pi Dock adds alternate shortcuts for the keys VS Code would otherwise steal. Most of Pi's `Ctrl` shortcuts become `Alt`:
+Pi Coding Agent adds alternate shortcuts for the keys VS Code would otherwise steal. Most of Pi's `Ctrl` shortcuts become `Alt`:
 
-| Pi Dock shortcut | Action | Pi built-in shortcut |
+| Pi Coding Agent shortcut | Action | Pi built-in shortcut |
 | ---------------- | ------ | -------------------- |
 | `Alt+C` | Clear editor | `Ctrl+C` |
 | `Alt+D` | Exit when editor is empty | `Ctrl+D` |
@@ -69,31 +69,31 @@ Pi Dock adds alternate shortcuts for the keys VS Code would otherwise steal. Mos
 | `Alt+O` | Toggle tool output | `Ctrl+O` |
 | `Ctrl+Shift+Enter` | Queue follow-up message | `Alt+Enter` |
 
-Use these slash commands inside Pi Dock:
+Use these slash commands inside Pi Coding Agent:
 
-- `/hotkeys-pidock` -- enable the Pi Dock shortcut layer
+- `/hotkeys-piagent` -- enable the Pi Coding Agent shortcut layer
 - `/hotkeys-original` -- revert to Pi's built-in shortcuts
 
 ## Commands
 
 | Command | Description |
 | ------- | ----------- |
-| Pi Dock: Run Pi Dock | Open an interactive Pi session in the editor area |
-| Pi Dock: Run Pi with Skill... | Launch Pi with one or more Skill resources (`SKILL.md` files) |
-| Pi Dock: Run Pi with Template... | Launch Pi with one or more prompt templates (`.md` files) |
-| Pi Dock: Run Pi with Extension... | Launch Pi with one or more extensions (`.ts` files) |
-| Pi Dock: Run Pi with Prompt... | Launch Pi with a text file as a prompt reference |
+| Pi Coding Agent: Run Pi Coding Agent | Open an interactive Pi session in the editor area |
+| Pi Coding Agent: Run Pi with Skill... | Launch Pi with one or more Skill resources (`SKILL.md` files) |
+| Pi Coding Agent: Run Pi with Template... | Launch Pi with one or more prompt templates (`.md` files) |
+| Pi Coding Agent: Run Pi with Extension... | Launch Pi with one or more extensions (`.ts` files) |
+| Pi Coding Agent: Run Pi with Prompt... | Launch Pi with a text file as a prompt reference |
 
 ## Settings
 
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
-| `piDock.defaultArgs` | `""` | Extra CLI flags for every Pi invocation (e.g. `--model openai/gpt-4o`) |
-| `piDock.editorCommand` | `""` (auto) | Override the `EDITOR` / `VISUAL` command. Leave empty to auto-detect |
-| `piDock.promptExtraContext` | `""` | Extra context appended after the `@file` reference in Prompt invocations |
-| `piDock.virtualEnvironmentOverride` | `true` | Temporarily disable Python venv activation when creating a Pi terminal |
-| `piDock.virtualEnvironmentDrainMs` | `150` | Milliseconds to wait before restoring venv activation (ignored when override is off) |
-| `piDock.restoreSessionsOnStartup` | `true` | Reopen previous Pi sessions on VS Code startup |
+| `piAgent.defaultArgs` | `""` | Extra CLI flags for every Pi invocation (e.g. `--model openai/gpt-4o`) |
+| `piAgent.editorCommand` | `""` (auto) | Override the `EDITOR` / `VISUAL` command. Leave empty to auto-detect |
+| `piAgent.promptExtraContext` | `""` | Extra context appended after the `@file` reference in Prompt invocations |
+| `piAgent.virtualEnvironmentOverride` | `true` | Temporarily disable Python venv activation when creating a Pi terminal |
+| `piAgent.virtualEnvironmentDrainMs` | `150` | Milliseconds to wait before restoring venv activation (ignored when override is off) |
+| `piAgent.restoreSessionsOnStartup` | `true` | Reopen previous Pi sessions on VS Code startup |
 
 <details>
 <summary>Building from source</summary>
@@ -110,8 +110,8 @@ For manual verification in a live VS Code instance, see `TESTING.md`.
 
 ```sh
 npm run package
-# Produces: pi-dock-<version>.vsix
-code --install-extension pi-dock-<version>.vsix
+# Produces: pi-agent-<version>.vsix
+code --install-extension pi-agent-<version>.vsix
 ```
 
 </details>

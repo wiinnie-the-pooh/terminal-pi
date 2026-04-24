@@ -23,9 +23,9 @@ const PI_SESSION_ID = 'abcd1234-ef56-7890-abcd-ef1234567890';
 // mapFilePath
 // ---------------------------------------------------------------------------
 
-test('mapFilePath returns .pidock subpath with .map extension', () => {
+test('mapFilePath returns .piagent subpath with .map extension', () => {
   const base = '/home/user/.pi/agent/sessions';
-  assert.equal(mapFilePath(base, TEST_GUID), path.join(base, '.pidock', TEST_GUID + '.map'));
+  assert.equal(mapFilePath(base, TEST_GUID), path.join(base, '.piagent', TEST_GUID + '.map'));
 });
 
 // ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ test('mapFilePath returns .pidock subpath with .map extension', () => {
 // ---------------------------------------------------------------------------
 
 test('readMapFile returns session ID from existing file', () => {
-  const f = path.join(os.tmpdir(), 'pidock-read-' + Date.now() + '.map');
+  const f = path.join(os.tmpdir(), 'piagent-read-' + Date.now() + '.map');
   fs.writeFileSync(f, PI_SESSION_ID + '\n');
   try {
     assert.equal(readMapFile(f), PI_SESSION_ID);
@@ -47,7 +47,7 @@ test('readMapFile returns undefined for missing file', () => {
 });
 
 test('readMapFile returns undefined for empty file', () => {
-  const f = path.join(os.tmpdir(), 'pidock-empty-' + Date.now() + '.map');
+  const f = path.join(os.tmpdir(), 'piagent-empty-' + Date.now() + '.map');
   fs.writeFileSync(f, '');
   try {
     assert.equal(readMapFile(f), undefined);
@@ -61,8 +61,8 @@ test('readMapFile returns undefined for empty file', () => {
 // ---------------------------------------------------------------------------
 
 test('writeMapFile creates parent directory and writes session ID', () => {
-  const base = path.join(os.tmpdir(), 'pidock-write-' + Date.now());
-  const f = path.join(base, '.pidock', TEST_GUID + '.map');
+  const base = path.join(os.tmpdir(), 'piagent-write-' + Date.now());
+  const f = path.join(base, '.piagent', TEST_GUID + '.map');
   try {
     writeMapFile(f, PI_SESSION_ID);
     assert.equal(fs.readFileSync(f, 'utf8'), PI_SESSION_ID);

@@ -60,7 +60,7 @@ export async function withActivationDisabled<T>(
       await writeSetting(state.target, state.previousValue);
     } catch (err) {
       console.error(
-        '[pi-dock] Failed to restore python.terminal.activateEnvironment:',
+        '[pi-agent] Failed to restore python.terminal.activateEnvironment:',
         err,
       );
     }

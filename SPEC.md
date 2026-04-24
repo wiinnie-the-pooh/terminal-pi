@@ -1,6 +1,6 @@
-# Pi Dock VS Code Extension -- Functional Specification
+# Pi Coding Agent VS Code Extension -- Functional Specification
 
-This document describes the intended behavior of the `pi-dock` VS Code extension as it exists today and as the current resource-action fixes should behave.
+This document describes the intended behavior of the `pi-agent` VS Code extension as it exists today and as the current resource-action fixes should behave.
 
 It is intentionally focused on the extension's real scope. Obsolete requirements from earlier iterations have been removed.
 
@@ -10,7 +10,7 @@ For user-facing usage examples see `README.md`.
 
 ## 1. Purpose
 
-`pi-dock` makes the `pi` CLI feel native inside VS Code.
+`pi-agent` makes the `pi` CLI feel native inside VS Code.
 
 The extension is a thin launcher. It does not embed Pi, parse Pi output, or speak a protocol to Pi. It only:
 
@@ -135,7 +135,7 @@ For these resource actions:
 
 ### 4.3 Default arguments
 
-`piDock.defaultArgs` is split on whitespace and prepended before resource-specific flags.
+`piAgent.defaultArgs` is split on whitespace and prepended before resource-specific flags.
 
 Example:
 
@@ -147,39 +147,39 @@ pi --thinking low --prompt-template C:\repo\.pi\prompts\review.md
 
 ### 5.1 Commands
 
-The extension contributes four user-facing commands in the `Pi Dock` category.
+The extension contributes four user-facing commands in the `Pi Coding Agent` category.
 
-#### FR-CMD-1  Run Pi Dock
+#### FR-CMD-1  Run Pi Coding Agent
 
-- Command ID: `piDock.run`
+- Command ID: `piAgent.run`
 - Behavior: launch an interactive Pi session with configured default arguments
 - Pi shape: `pi [defaultArgs...]`
 - Surface: Command Palette and status bar
 
 #### FR-CMD-2  Run Pi with Skill
 
-- Command ID: `piDock.runWithSkill`
+- Command ID: `piAgent.runWithSkill`
 - Behavior: launch Pi with one or more Skill resources
 - Pi shape: `pi [defaultArgs...] --skill <dir> [...]`
 
 #### FR-CMD-3  Run Pi with Template
 
-- Command ID: `piDock.runWithTemplate`
+- Command ID: `piAgent.runWithTemplate`
 - Behavior: launch Pi with one or more Template resources
 - Pi shape: `pi [defaultArgs...] --prompt-template <file> [...]`
 
 #### FR-CMD-4  Run Pi with Extension
 
-- Command ID: `piDock.runWithExtension`
+- Command ID: `piAgent.runWithExtension`
 - Behavior: launch Pi with one or more Extension resources
 - Pi shape: `pi [defaultArgs...] --extension <file> [...]`
 
 #### FR-CMD-5  Run Pi with Prompt
 
-- Command ID: `piDock.runWithPrompt`
+- Command ID: `piAgent.runWithPrompt`
 - Behavior: launch Pi with a file as a prompt reference
 - Pi shape: `pi [defaultArgs...] @<file> [extraContext]`
-- `extraContext` is the trimmed value of `piDock.promptExtraContext`; omitted when empty
+- `extraContext` is the trimmed value of `piAgent.promptExtraContext`; omitted when empty
 
 ### 5.2 Resource classification rules
 
@@ -347,7 +347,7 @@ Selected Extension files are passed directly as repeated `--extension <file>` fl
 
 The selected file is passed as `@<file>` (no flag prefix, no deduplication needed -- only one file).
 
-If `piDock.promptExtraContext` is non-empty after trimming, its trimmed value is appended as an additional argument after the `@<file>` argument.
+If `piAgent.promptExtraContext` is non-empty after trimming, its trimmed value is appended as an additional argument after the `@<file>` argument.
 
 #### FR-ARGS-4  Ordering and deduplication
 
@@ -362,7 +362,7 @@ Duplicate normalized resource values must be removed while preserving first-seen
 
 #### FR-TERM-1  Named terminal
 
-Pi terminals use the fixed name `Pi Dock`.
+Pi terminals use the fixed name `Pi Coding Agent`.
 
 #### FR-TERM-2  Fresh terminal per invocation
 
@@ -378,7 +378,7 @@ The terminal is shown beside the editor and shown without stealing focus.
 
 #### FR-TERM-5  Python activation guard
 
-When enabled, Pi Dock temporarily disables Python terminal environment activation during Pi terminal creation so venv activation commands are not injected into Pi.
+When enabled, Pi Coding Agent temporarily disables Python terminal environment activation during Pi terminal creation so venv activation commands are not injected into Pi.
 
 #### FR-TERM-6  Editor environment
 
@@ -386,16 +386,16 @@ Pi terminals export `EDITOR` / `VISUAL` so Pi's external-editor flow works in th
 
 ### 5.7 Settings
 
-All settings live under the `piDock` namespace.
+All settings live under the `piAgent` namespace.
 
 | Key | Type | Default | Meaning |
 |---|---|---:|---|
-| `piDock.defaultArgs` | string | `""` | Extra CLI args prepended to every Pi launch |
-| `piDock.editorCommand` | string | `""` | Explicit `EDITOR` / `VISUAL` override; empty means auto-detect |
-| `piDock.promptExtraContext` | string | `""` | Extra context argument appended after the `@<file>` reference in Prompt invocations; omitted when empty |
-| `piDock.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
-| `piDock.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
-| `piDock.restoreSessionsOnStartup` | boolean | `true` | Reopen previous Pi sessions when VS Code starts |
+| `piAgent.defaultArgs` | string | `""` | Extra CLI args prepended to every Pi launch |
+| `piAgent.editorCommand` | string | `""` | Explicit `EDITOR` / `VISUAL` override; empty means auto-detect |
+| `piAgent.promptExtraContext` | string | `""` | Extra context argument appended after the `@<file>` reference in Prompt invocations; omitted when empty |
+| `piAgent.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
+| `piAgent.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
+| `piAgent.restoreSessionsOnStartup` | boolean | `true` | Reopen previous Pi sessions when VS Code starts |
 
 ### 5.8 Activation and deactivation
 
@@ -409,9 +409,9 @@ All settings live under the `piDock` namespace.
 
 Each Pi terminal is launched with `--session <ext-guid>` injected into its `shellArgs`, where `ext-guid` is a `crypto.randomUUID()` value generated by the extension. This key is used only by `piLauncher.ts` for sidecar map lookup -- Pi never sees it.
 
-**Fresh start:** `piLauncher.ts` strips `--session <ext-guid>` from the args before invoking Pi. Pi creates a session using its own UUID and writes it to `~/.pi/agent/sessions/<encoded-cwd>/<timestamp>_<pi-uuid>.jsonl`. The launcher runs an inline poll loop (2 s interval, 60 s timeout) watching for new `.jsonl` files. When one appears, it extracts Pi's session UUID from the filename and writes it to `~/.pi/agent/sessions/.pidock/<ext-guid>.map`.
+**Fresh start:** `piLauncher.ts` strips `--session <ext-guid>` from the args before invoking Pi. Pi creates a session using its own UUID and writes it to `~/.pi/agent/sessions/<encoded-cwd>/<timestamp>_<pi-uuid>.jsonl`. The launcher runs an inline poll loop (2 s interval, 60 s timeout) watching for new `.jsonl` files. When one appears, it extracts Pi's session UUID from the filename and writes it to `~/.pi/agent/sessions/.piagent/<ext-guid>.map`.
 
-**VS Code terminal restore:** VS Code re-runs the original shell command, including `--session <ext-guid>`. The launcher reads `~/.pi/agent/sessions/.pidock/<ext-guid>.map`, retrieves Pi's session UUID, and invokes `pi --continue --session <pi-uuid>` to resume the session.
+**VS Code terminal restore:** VS Code re-runs the original shell command, including `--session <ext-guid>`. The launcher reads `~/.pi/agent/sessions/.piagent/<ext-guid>.map`, retrieves Pi's session UUID, and invokes `pi --continue --session <pi-uuid>` to resume the session.
 
 ## 6. Eligible and Ineligible User Scenarios
 
@@ -462,7 +462,7 @@ If no matching workspace files exist for the Skill / Template / Extension modes,
 ### 7.1 Module responsibilities
 
 ```text
-src/config.ts          -- read and sanitize piDock settings
+src/config.ts          -- read and sanitize piAgent settings
 src/extension.ts       -- register commands and route by invocation source
 src/fileSelection.ts   -- pure resource-file matching / eligibility helpers
 src/resourcePicker.ts  -- Command Palette resource discovery and Quick Pick logic

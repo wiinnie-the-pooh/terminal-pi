@@ -5,27 +5,27 @@ const { pathToFileURL } = require('node:url');
 
 async function loadHotkeysModule() {
   const modulePath = pathToFileURL(
-    path.join(process.cwd(), 'extensions', 'pi-dock-hotkeys', 'hotkeys.js')
+    path.join(process.cwd(), 'extensions', 'pi-agent-hotkeys', 'hotkeys.js')
   ).href;
   return import(modulePath);
 }
 
 async function loadPackageManifest() {
-  return require(path.join(process.cwd(), 'extensions', 'pi-dock-hotkeys', 'package.json'));
+  return require(path.join(process.cwd(), 'extensions', 'pi-agent-hotkeys', 'package.json'));
 }
 
 test('hotkeys package manifest points Pi at the flattened top-level entry file', async () => {
   const pkg = await loadPackageManifest();
-  assert.deepEqual(pkg.pi?.extensions, ['./pi-dock-hotkeys.js']);
+  assert.deepEqual(pkg.pi?.extensions, ['./pi-agent-hotkeys.js']);
 });
 
 test('hotkeys helper exports the supported profile constants', async () => {
   const hotkeys = await loadHotkeysModule();
-  assert.equal(hotkeys.PROFILE_PIDOCK, 'pidock');
+  assert.equal(hotkeys.PROFILE_PIAGENT, 'piagent');
   assert.equal(hotkeys.PROFILE_ORIGINAL, 'original');
 });
 
-test('hotkey definitions expose a stable, unique Pi Dock shortcut set', async () => {
+test('hotkey definitions expose a stable, unique Pi Coding Agent shortcut set', async () => {
   const { HOTKEY_DEFINITIONS } = await loadHotkeysModule();
   assert.ok(HOTKEY_DEFINITIONS.length > 0);
 
@@ -41,13 +41,13 @@ test('hotkey definitions expose a stable, unique Pi Dock shortcut set', async ()
   assert.ok(HOTKEY_DEFINITIONS.every((entry) => typeof entry.label === 'string' && entry.label.length > 0));
 });
 
-test('restorePersistedProfile prefers the newest custom profile entry and falls back to pidock', async () => {
-  const { CUSTOM_ENTRY_TYPE, PROFILE_ORIGINAL, PROFILE_PIDOCK, restorePersistedProfile } = await loadHotkeysModule();
+test('restorePersistedProfile prefers the newest custom profile entry and falls back to piagent', async () => {
+  const { CUSTOM_ENTRY_TYPE, PROFILE_ORIGINAL, PROFILE_PIAGENT, restorePersistedProfile } = await loadHotkeysModule();
 
-  assert.equal(restorePersistedProfile([]), PROFILE_PIDOCK);
+  assert.equal(restorePersistedProfile([]), PROFILE_PIAGENT);
   assert.equal(
     restorePersistedProfile([
-      { type: 'custom', customType: CUSTOM_ENTRY_TYPE, data: { profile: PROFILE_PIDOCK } },
+      { type: 'custom', customType: CUSTOM_ENTRY_TYPE, data: { profile: PROFILE_PIAGENT } },
       { type: 'custom', customType: CUSTOM_ENTRY_TYPE, data: { profile: PROFILE_ORIGINAL } },
     ]),
     PROFILE_ORIGINAL,
@@ -57,24 +57,24 @@ test('restorePersistedProfile prefers the newest custom profile entry and falls 
     restorePersistedProfile([
       { type: 'custom', customType: 'other-extension', data: { profile: PROFILE_ORIGINAL } },
     ]),
-    PROFILE_PIDOCK,
+    PROFILE_PIAGENT,
   );
 });
 
 test('buildProfileCommandMessage explains how to switch back and lists shortcuts', async () => {
   const {
-    PROFILE_PIDOCK,
+    PROFILE_PIAGENT,
     PROFILE_ORIGINAL,
     buildProfileCommandMessage,
   } = await loadHotkeysModule();
 
-  const pidockMessage = buildProfileCommandMessage(PROFILE_PIDOCK);
-  assert.match(pidockMessage, /VS Code-friendly hotkeys enabled/i);
-  assert.match(pidockMessage, /\/hotkeys-original/);
-  assert.match(pidockMessage, /Alt\+P/);
-  assert.doesNotMatch(pidockMessage, /Alt\+L/);
+  const piagentMessage = buildProfileCommandMessage(PROFILE_PIAGENT);
+  assert.match(piagentMessage, /VS Code-friendly hotkeys enabled/i);
+  assert.match(piagentMessage, /\/hotkeys-original/);
+  assert.match(piagentMessage, /Alt\+P/);
+  assert.doesNotMatch(piagentMessage, /Alt\+L/);
 
   const originalMessage = buildProfileCommandMessage(PROFILE_ORIGINAL);
   assert.match(originalMessage, /Original Pi hotkeys enabled/i);
-  assert.match(originalMessage, /\/hotkeys-pidock/);
+  assert.match(originalMessage, /\/hotkeys-piagent/);
 });

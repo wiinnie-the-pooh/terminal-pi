@@ -5,7 +5,7 @@ import * as path from 'path';
 import { clearInterval, setInterval, setTimeout } from 'timers';
 
 export function mapFilePath(baseDir: string, guid: string): string {
-  return path.join(baseDir, '.pidock', guid + '.map');
+  return path.join(baseDir, '.piagent', guid + '.map');
 }
 
 export function readMapFile(filePath: string): string | undefined {
@@ -158,7 +158,7 @@ function resolvePiCommand(): PiCommand {
 }
 
 if (require.main === module) {
-  process.title = 'Pi Dock';
+  process.title = 'Pi Coding Agent';
   const piArgs = process.argv.slice(2);
   const sIdx = piArgs.indexOf('--session');
   const guid = sIdx >= 0 && sIdx + 1 < piArgs.length ? piArgs[sIdx + 1] : undefined;
