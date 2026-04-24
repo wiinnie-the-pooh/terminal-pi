@@ -77,11 +77,11 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   context.subscriptions.push({ dispose: () => piSession.dispose() });
 
-  const sidebarProvider = new PiSidebarProvider(piSession, context.extensionUri);
+  const primaryPiViewProvider = new PiSidebarProvider(piSession, context.extensionUri);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       PiSidebarProvider.viewId,
-      sidebarProvider,
+      primaryPiViewProvider,
       { webviewOptions: { retainContextWhenHidden: true } },
     ),
   );
