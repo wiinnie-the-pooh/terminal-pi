@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext): void {
   piSession = new PiSession({
     file: nodePath,
     args: [launcherPath, '--session', sessionId, ...piArgs],
-    env: { ...process.env, ...editorEnv } as NodeJS.ProcessEnv,
+    env: { ...process.env, ...editorEnv },
   });
   context.subscriptions.push({ dispose: () => piSession.dispose() });
 

@@ -4,7 +4,7 @@ import type { IPty } from 'node-pty';
 export interface PiSpawnConfig {
   file: string;
   args: string[];
-  env: NodeJS.ProcessEnv;
+  env: Record<string, string | undefined>;
 }
 
 type PtySpawnFn = typeof nodePty.spawn;
