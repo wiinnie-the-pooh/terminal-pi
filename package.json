@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.94.0"
+    "vscode": "^1.106.0"
   },
   "categories": [
     "AI",
@@ -69,13 +69,13 @@
       },
       {
         "command": "piBay.openPanel",
-        "title": "Open Pi Bay Panel",
+        "title": "Open Pi Editor View",
         "category": "Pi Bay",
         "icon": "$(open-preview)"
       }
     ],
     "viewsContainers": {
-      "activitybar": [
+      "secondarySidebar": [
         {
           "id": "piBay",
           "title": "Pi Bay",
@@ -88,7 +88,7 @@
         {
           "type": "webview",
           "id": "piBay.session",
-          "name": "Pi Bay"
+          "name": "Pi"
         }
       ]
     },
@@ -223,7 +223,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^20.19.39",
-    "@types/vscode": "^1.94.0",
+    "@types/vscode": "^1.106.0",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
     "@vscode/vsce": "^3.9.1",
