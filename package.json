@@ -2,7 +2,7 @@
   "name": "pi-agent",
   "displayName": ".Pi Coding Agent",
   "description": "Pi Coding Agent Docked in the VS Code Editor Area",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
