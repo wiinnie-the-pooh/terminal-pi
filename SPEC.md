@@ -1,6 +1,6 @@
-# Pi Dock VS Code Extension -- Functional Specification
+# Pi Bay VS Code Extension -- Functional Specification
 
-This document describes the intended behavior of the `pi-dock` VS Code extension as it exists today and as the current resource-action fixes should behave.
+This document describes the intended behavior of the `pi-bay` VS Code extension as it exists today.
 
 It is intentionally focused on the extension's real scope. Obsolete requirements from earlier iterations have been removed.
 
@@ -10,7 +10,7 @@ For user-facing usage examples see `README.md`.
 
 ## 1. Purpose
 
-`pi-dock` makes the `pi` CLI feel native inside VS Code.
+`pi-bay` makes the `pi` CLI feel native inside VS Code.
 
 The extension is a thin launcher. It does not embed Pi, parse Pi output, or speak a protocol to Pi. It only:
 
@@ -112,11 +112,11 @@ This is used by the status-bar launcher.
 ### 4.2 Session continuity
 
 ```text
-pi --session-dir <dir>   scope all session I/O to a specific directory
-pi --continue            resume the most recent session in the current session-dir
+pi --session <path|id>   use a specific session file or partial UUID
+pi --continue            resume the session identified by --session
 ```
 
-The extension always passes `--session-dir <unique-dir>` so each Pi terminal writes its session to an isolated directory. On restart, `--continue --session-dir <stored-dir>` resumes the session in that directory.
+The extension injects `--session <guid>` into the terminal's `shellArgs` as an opaque key for its own session tracking. `piLauncher.ts` strips `--session <guid>` before invoking Pi on a fresh start, so Pi creates its session using its own UUID. On VS Code terminal restore, the launcher reads a sidecar map file to recover Pi's session ID and passes `--continue --session <pi-session-id>` to Pi.
 
 ### 4.2 Resource actions
 
@@ -135,7 +135,7 @@ For these resource actions:
 
 ### 4.3 Default arguments
 
-`piDock.defaultArgs` is split on whitespace and prepended before resource-specific flags.
+`piBay.defaultArgs` is split on whitespace and prepended before resource-specific flags.
 
 Example:
 
@@ -147,39 +147,39 @@ pi --thinking low --prompt-template C:\repo\.pi\prompts\review.md
 
 ### 5.1 Commands
 
-The extension contributes four user-facing commands in the `Pi Dock` category.
+The extension contributes four user-facing commands in the `Pi Bay` category.
 
-#### FR-CMD-1  Run Pi Dock
+#### FR-CMD-1  Run Pi Bay
 
-- Command ID: `piDock.run`
+- Command ID: `piBay.run`
 - Behavior: launch an interactive Pi session with configured default arguments
 - Pi shape: `pi [defaultArgs...]`
 - Surface: Command Palette and status bar
 
 #### FR-CMD-2  Run Pi with Skill
 
-- Command ID: `piDock.runWithSkill`
+- Command ID: `piBay.runWithSkill`
 - Behavior: launch Pi with one or more Skill resources
 - Pi shape: `pi [defaultArgs...] --skill <dir> [...]`
 
 #### FR-CMD-3  Run Pi with Template
 
-- Command ID: `piDock.runWithTemplate`
+- Command ID: `piBay.runWithTemplate`
 - Behavior: launch Pi with one or more Template resources
 - Pi shape: `pi [defaultArgs...] --prompt-template <file> [...]`
 
 #### FR-CMD-4  Run Pi with Extension
 
-- Command ID: `piDock.runWithExtension`
+- Command ID: `piBay.runWithExtension`
 - Behavior: launch Pi with one or more Extension resources
 - Pi shape: `pi [defaultArgs...] --extension <file> [...]`
 
 #### FR-CMD-5  Run Pi with Prompt
 
-- Command ID: `piDock.runWithPrompt`
+- Command ID: `piBay.runWithPrompt`
 - Behavior: launch Pi with a file as a prompt reference
 - Pi shape: `pi [defaultArgs...] @<file> [extraContext]`
-- `extraContext` is the trimmed value of `piDock.promptExtraContext`; omitted when empty
+- `extraContext` is the trimmed value of `piBay.promptExtraContext`; omitted when empty
 
 ### 5.2 Resource classification rules
 
@@ -347,7 +347,7 @@ Selected Extension files are passed directly as repeated `--extension <file>` fl
 
 The selected file is passed as `@<file>` (no flag prefix, no deduplication needed -- only one file).
 
-If `piDock.promptExtraContext` is non-empty after trimming, its trimmed value is appended as an additional argument after the `@<file>` argument.
+If `piBay.promptExtraContext` is non-empty after trimming, its trimmed value is appended as an additional argument after the `@<file>` argument.
 
 #### FR-ARGS-4  Ordering and deduplication
 
@@ -362,7 +362,7 @@ Duplicate normalized resource values must be removed while preserving first-seen
 
 #### FR-TERM-1  Named terminal
 
-Pi terminals use the fixed name `Pi Dock`.
+Pi terminals use the fixed name `Pi Bay`.
 
 #### FR-TERM-2  Fresh terminal per invocation
 
@@ -378,7 +378,7 @@ The terminal is shown beside the editor and shown without stealing focus.
 
 #### FR-TERM-5  Python activation guard
 
-When enabled, Pi Dock temporarily disables Python terminal environment activation during Pi terminal creation so venv activation commands are not injected into Pi.
+When enabled, Pi Bay temporarily disables Python terminal environment activation during Pi terminal creation so venv activation commands are not injected into Pi.
 
 #### FR-TERM-6  Editor environment
 
@@ -386,16 +386,16 @@ Pi terminals export `EDITOR` / `VISUAL` so Pi's external-editor flow works in th
 
 ### 5.7 Settings
 
-All settings live under the `piDock` namespace.
+All settings live under the `piBay` namespace.
 
 | Key | Type | Default | Meaning |
 |---|---|---:|---|
-| `piDock.defaultArgs` | string | `""` | Extra CLI args prepended to every Pi launch |
-| `piDock.editorCommand` | string | `""` | Explicit `EDITOR` / `VISUAL` override; empty means auto-detect |
-| `piDock.promptExtraContext` | string | `""` | Extra context argument appended after the `@<file>` reference in Prompt invocations; omitted when empty |
-| `piDock.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
-| `piDock.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
-| `piDock.restoreSessionsOnStartup` | boolean | `true` | Reopen previous Pi sessions when VS Code starts |
+| `piBay.defaultArgs` | string | `""` | Extra CLI args prepended to every Pi launch |
+| `piBay.editorCommand` | string | `""` | Explicit `EDITOR` / `VISUAL` override; empty means auto-detect |
+| `piBay.promptExtraContext` | string | `""` | Extra context argument appended after the `@<file>` reference in Prompt invocations; omitted when empty |
+| `piBay.virtualEnvironmentOverride` | boolean | `true` | Temporarily suppress Python terminal activation during Pi launch |
+| `piBay.virtualEnvironmentDrainMs` | number | `150` | Delay before restoring Python activation setting |
+| `piBay.restoreSessionsOnStartup` | boolean | `true` | Reopen previous Pi sessions when VS Code starts |
 
 ### 5.8 Activation and deactivation
 
@@ -403,16 +403,15 @@ All settings live under the `piDock` namespace.
 - status-bar launcher appears after activation
 - disposables are owned by `context.subscriptions`
 - `deactivate()` remains a no-op
-- on startup: if `restoreSessionsOnStartup` is true, reopen each persisted session via `pi --continue --session-dir <stored-dir>`
+- on startup: if `restoreSessionsOnStartup` is true, VS Code natively restores terminals; the launcher detects the sidecar map and passes `--continue --session <pi-session-id>`
 
 ### 5.9 Session persistence
 
-Each Pi terminal is launched with `--session-dir <unique-dir>` injected into its `shellArgs`. This scopes the session to an isolated directory the extension controls.
+Each Pi terminal is launched with `--session <ext-guid>` injected into its `shellArgs`, where `ext-guid` is a `crypto.randomUUID()` value generated by the extension. This key is used only by `piLauncher.ts` for sidecar map lookup -- Pi never sees it.
 
-- The session dir path and piArgs are stored in `workspaceState` under key `piDock.sessions` as a `PersistedSession[]`.
-- When a Pi terminal is closed, its record is removed from `workspaceState`.
-- When VS Code restarts and `restoreSessionsOnStartup` is true, each stored session dir is reopened with `pi --continue --session-dir <dir>`, resuming the previous conversation.
-- Session dirs live at `~/.pi/agent/sessions/vscode/<uuid>/`, separate from pi's own default session directories.
+**Fresh start:** `piLauncher.ts` strips `--session <ext-guid>` from the args before invoking Pi. Pi creates a session using its own UUID and writes it to `~/.pi/agent/sessions/<encoded-cwd>/<timestamp>_<pi-uuid>.jsonl`. The launcher runs an inline poll loop (2 s interval, 60 s timeout) watching for new `.jsonl` files. When one appears, it extracts Pi's session UUID from the filename and writes it to `~/.pi/agent/sessions/.piagent/<ext-guid>.map`.
+
+**VS Code terminal restore:** VS Code re-runs the original shell command, including `--session <ext-guid>`. The launcher reads `~/.pi/agent/sessions/.piagent/<ext-guid>.map`, retrieves Pi's session UUID, and invokes `pi --continue --session <pi-uuid>` to resume the session.
 
 ## 6. Eligible and Ineligible User Scenarios
 
@@ -463,13 +462,13 @@ If no matching workspace files exist for the Skill / Template / Extension modes,
 ### 7.1 Module responsibilities
 
 ```text
-src/config.ts          -- read and sanitize piDock settings
+src/config.ts          -- read and sanitize piBay settings
 src/extension.ts       -- register commands and route by invocation source
 src/fileSelection.ts   -- pure resource-file matching / eligibility helpers
 src/resourcePicker.ts  -- Command Palette resource discovery and Quick Pick logic
 src/piResourceArgs.ts  -- deterministic Pi arg assembly for resource actions
-src/sessionStore.ts    -- workspaceState CRUD for persisted session dirs
-src/terminal.ts        -- create Pi terminals, inject --session-dir, restore sessions
+src/terminal.ts        -- create Pi terminals, inject --session <guid>
+src/piLauncher.ts      -- Windows node.exe resolver; detects fresh vs restore via GUID file search
 src/piResolver.ts      -- resolve the best shellPath / prefixArgs for launching Pi
 src/terminalEnv.ts     -- assemble EDITOR / VISUAL environment variables
 src/pythonActivationGuard.ts -- suppress Python activation during terminal creation

@@ -17,40 +17,40 @@ function getMenuItem(items, command) {
 test('package.json contributes Pi resource action commands with Template labels', () => {
   const titles = getCommandTitles(pkg.contributes.commands);
 
-  assert.equal(titles.get('piDock.runWithSkill'), 'Run Pi with Skill...');
-  assert.equal(titles.get('piDock.runWithTemplate'), 'Run Pi with Template...');
-  assert.equal(titles.get('piDock.runWithExtension'), 'Run Pi with Extension...');
-  assert.equal(titles.has('piDock.runWithPromptTemplate'), false);
+  assert.equal(titles.get('piBay.runWithSkill'), 'Run Pi with Skill...');
+  assert.equal(titles.get('piBay.runWithTemplate'), 'Run Pi with Template...');
+  assert.equal(titles.get('piBay.runWithExtension'), 'Run Pi with Extension...');
+  assert.equal(titles.has('piBay.runWithPromptTemplate'), false);
 });
 
-test('package.json contributes piDock.runWithPrompt command with correct title', () => {
+test('package.json contributes piBay.runWithPrompt command with correct title', () => {
   const titles = getCommandTitles(pkg.contributes.commands);
 
-  assert.equal(titles.get('piDock.runWithPrompt'), 'Run Pi with Prompt...');
+  assert.equal(titles.get('piBay.runWithPrompt'), 'Run Pi with Prompt...');
 });
 
 test('package.json contributes explorer context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['explorer/context']);
 
-  assert.equal(commands.has('piDock.runWithSkill'), true);
-  assert.equal(commands.has('piDock.runWithTemplate'), true);
-  assert.equal(commands.has('piDock.runWithExtension'), true);
-  assert.equal(commands.has('piDock.runWithPrompt'), true);
+  assert.equal(commands.has('piBay.runWithSkill'), true);
+  assert.equal(commands.has('piBay.runWithTemplate'), true);
+  assert.equal(commands.has('piBay.runWithExtension'), true);
+  assert.equal(commands.has('piBay.runWithPrompt'), true);
 });
 
 test('explorer context menu scopes actions to the matching resource file types', () => {
   const explorerItems = pkg.contributes.menus['explorer/context'];
 
   assert.equal(
-    getMenuItem(explorerItems, 'piDock.runWithSkill')?.when,
+    getMenuItem(explorerItems, 'piBay.runWithSkill')?.when,
     'resourceScheme == file && resourceFilename == SKILL.md'
   );
   assert.equal(
-    getMenuItem(explorerItems, 'piDock.runWithTemplate')?.when,
+    getMenuItem(explorerItems, 'piBay.runWithTemplate')?.when,
     'resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md'
   );
   assert.equal(
-    getMenuItem(explorerItems, 'piDock.runWithExtension')?.when,
+    getMenuItem(explorerItems, 'piBay.runWithExtension')?.when,
     'resourceScheme == file && resourceExtname == .ts'
   );
 });
@@ -58,43 +58,43 @@ test('explorer context menu scopes actions to the matching resource file types',
 test('package.json contributes editor context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['editor/context']);
 
-  assert.equal(commands.has('piDock.runWithSkill'), true);
-  assert.equal(commands.has('piDock.runWithTemplate'), true);
-  assert.equal(commands.has('piDock.runWithExtension'), true);
-  assert.equal(commands.has('piDock.runWithPrompt'), true);
+  assert.equal(commands.has('piBay.runWithSkill'), true);
+  assert.equal(commands.has('piBay.runWithTemplate'), true);
+  assert.equal(commands.has('piBay.runWithExtension'), true);
+  assert.equal(commands.has('piBay.runWithPrompt'), true);
 });
 
 test('editor context menu scopes actions to the matching resource file types', () => {
   const editorItems = pkg.contributes.menus['editor/context'];
 
   assert.equal(
-    getMenuItem(editorItems, 'piDock.runWithSkill')?.when,
+    getMenuItem(editorItems, 'piBay.runWithSkill')?.when,
     'resourceScheme == file && resourceFilename == SKILL.md'
   );
   assert.equal(
-    getMenuItem(editorItems, 'piDock.runWithTemplate')?.when,
+    getMenuItem(editorItems, 'piBay.runWithTemplate')?.when,
     'resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md'
   );
   assert.equal(
-    getMenuItem(editorItems, 'piDock.runWithExtension')?.when,
+    getMenuItem(editorItems, 'piBay.runWithExtension')?.when,
     'resourceScheme == file && resourceExtname == .ts'
   );
 });
 
-test('explorer context menu shows piDock.runWithPrompt for all file-scheme resources', () => {
+test('explorer context menu shows piBay.runWithPrompt for all file-scheme resources', () => {
   const explorerItems = pkg.contributes.menus['explorer/context'];
 
   assert.equal(
-    getMenuItem(explorerItems, 'piDock.runWithPrompt')?.when,
+    getMenuItem(explorerItems, 'piBay.runWithPrompt')?.when,
     'resourceScheme == file'
   );
 });
 
-test('editor context menu shows piDock.runWithPrompt for all file-scheme resources', () => {
+test('editor context menu shows piBay.runWithPrompt for all file-scheme resources', () => {
   const editorItems = pkg.contributes.menus['editor/context'];
 
   assert.equal(
-    getMenuItem(editorItems, 'piDock.runWithPrompt')?.when,
+    getMenuItem(editorItems, 'piBay.runWithPrompt')?.when,
     'resourceScheme == file'
   );
 });
@@ -108,7 +108,7 @@ function assertSendSequenceKeybinding(key, expectedText) {
   const kb = kbs.get(key);
   assert.ok(kb, `${key} keybinding should exist`);
   assert.equal(kb.command, 'workbench.action.terminal.sendSequence');
-  assert.equal(kb.when, 'terminalFocus && piDock.activeTerminal');
+  assert.equal(kb.when, 'terminalFocus && piBay.activeTerminal');
   assert.equal(kb.args?.text, expectedText);
 }
 

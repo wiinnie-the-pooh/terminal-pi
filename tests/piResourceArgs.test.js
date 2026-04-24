@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('module');
+const path = require('node:path');
 const {
   buildPiResourceArgs,
 } = require('../out/piResourceArgs.js');
@@ -89,6 +90,7 @@ test('runWithResources passes built args into terminal creation without @ resour
     const { PiTerminalManager } = require('../out/terminal.js');
     const stubContext = {
       subscriptions: [],
+      extensionPath: '/fake/ext',
       workspaceState: { get: () => undefined, update: async () => {} },
     };
     const manager = new PiTerminalManager(stubContext);
@@ -109,6 +111,8 @@ test('runWithResources passes built args into terminal creation without @ resour
 
     assert.equal(capturedEditorCommand, 'cursor --wait');
     assert.deepEqual(capturedArgs, [
+      '--extension',
+      path.join('/fake/ext', 'extensions', 'vs-code-hotkeys', 'vs-code-hotkeys.js'),
       '--thinking',
       'low',
       '--prompt-template',

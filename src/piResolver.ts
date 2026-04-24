@@ -59,6 +59,18 @@ export function resolvePiShell(): PiShell {
 }
 /* c8 ignore stop */
 
+/* c8 ignore start */
+export function resolveNodePath(): string {
+  if (process.platform !== 'win32') return 'node';
+  const piCmd = findPiCmd();
+  if (piCmd) {
+    const nodeExe = findNodeExe(path.dirname(piCmd));
+    if (nodeExe) return nodeExe;
+  }
+  return 'node';
+}
+/* c8 ignore stop */
+
 /** Locate `pi.cmd` on PATH via `where.exe`. */
 /* c8 ignore start */
 function findPiCmd(): string | undefined {
@@ -107,7 +119,7 @@ export function parsePiScriptPath(
   if (matches.length === 0) {
     return undefined;
   }
-  // Take the last match — npm's template mentions node.exe first, then the
+  // Take the last match -- npm's template mentions node.exe first, then the
   // script path.  Using last-match is robust to template reordering.
   const raw = matches[matches.length - 1][1];
   const expanded = expandCmdVars(raw, piCmdPath);
