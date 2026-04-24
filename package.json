@@ -1,8 +1,8 @@
 {
-  "name": "pi-agent",
-  "displayName": ".Pi Coding Agent",
-  "description": "Pi Coding Agent Docked in the VS Code Editor Area",
-  "version": "1.3.1",
+  "name": "pi-bay",
+  "displayName": ".Pi Bay",
+  "description": "Dock the Pi coding agent in VS Code",
+  "version": "1.3.2",
   "publisher": "wiinnie-the-pooh",
   "license": "MIT",
   "repository": {
@@ -13,7 +13,7 @@
     "url": "https://github.com/wiinnie-the-pooh/terminal-pi/issues"
   },
   "homepage": "https://github.com/wiinnie-the-pooh/terminal-pi#readme",
-  "icon": "resources/icons/pi-agent.png",
+  "icon": "resources/icons/pi-bay.png",
   "galleryBanner": {
     "color": "#1e1e1e",
     "theme": "dark"
@@ -39,119 +39,119 @@
   "contributes": {
     "commands": [
       {
-        "command": "piAgent.run",
-        "title": "Run Pi Agent",
-        "category": "Pi Coding Agent",
+        "command": "piBay.run",
+        "title": "Run Pi Bay",
+        "category": "Pi Bay",
         "icon": {
           "light": "resources/icons/pi-light.svg",
           "dark": "resources/icons/pi-dark.svg"
         }
       },
       {
-        "command": "piAgent.runWithSkill",
+        "command": "piBay.runWithSkill",
         "title": "Run Pi with Skill...",
-        "category": "Pi Coding Agent"
+        "category": "Pi Bay"
       },
       {
-        "command": "piAgent.runWithTemplate",
+        "command": "piBay.runWithTemplate",
         "title": "Run Pi with Template...",
-        "category": "Pi Coding Agent"
+        "category": "Pi Bay"
       },
       {
-        "command": "piAgent.runWithExtension",
+        "command": "piBay.runWithExtension",
         "title": "Run Pi with Extension...",
-        "category": "Pi Coding Agent"
+        "category": "Pi Bay"
       },
       {
-        "command": "piAgent.runWithPrompt",
+        "command": "piBay.runWithPrompt",
         "title": "Run Pi with Prompt...",
-        "category": "Pi Coding Agent"
+        "category": "Pi Bay"
       }
     ],
     "configuration": {
-      "title": "Pi Coding Agent",
+      "title": "Pi Bay",
       "properties": {
-        "piAgent.defaultArgs": {
+        "piBay.defaultArgs": {
           "type": "string",
           "order": 1,
           "default": "",
           "description": "Default arguments to pass to the pi CLI on every invocation (e.g. '--model openai/gpt-4o --thinking low')."
         },
-        "piAgent.editorCommand": {
+        "piBay.editorCommand": {
           "type": "string",
           "order": 2,
           "default": "",
-          "description": "Command exported as EDITOR and VISUAL in Pi terminals. Leave empty to auto-detect the current desktop editor CLI (VS Code, VS Code Insiders, or Cursor). If detection fails, Pi Coding Agent preserves existing VISUAL/EDITOR values and otherwise lets pi use its own fallback behavior."
+          "description": "Command exported as EDITOR and VISUAL in Pi terminals. Leave empty to auto-detect the current desktop editor CLI (VS Code, VS Code Insiders, or Cursor). If detection fails, Pi Bay preserves existing VISUAL/EDITOR values and otherwise lets pi use its own fallback behavior."
         },
-        "piAgent.promptExtraContext": {
+        "piBay.promptExtraContext": {
           "type": "string",
           "order": 3,
           "default": "",
           "description": "Extra context appended to 'Run Pi with Prompt...' invocations. When non-empty, the value is passed as an additional argument after the @-file reference (e.g. 'focus on errors')."
         },
-        "piAgent.virtualEnvironmentOverride": {
+        "piBay.virtualEnvironmentOverride": {
           "type": "boolean",
           "order": 4,
           "default": true,
           "description": "When true, the extension briefly disables Python terminal environment activation while creating a Pi terminal, preventing virtual-environment activation text from being injected into pi. Set to false to disable this workaround."
         },
-        "piAgent.virtualEnvironmentDrainMs": {
+        "piBay.virtualEnvironmentDrainMs": {
           "type": "number",
           "order": 5,
           "default": 150,
           "minimum": 0,
           "maximum": 10000,
-          "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piAgent.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
+          "description": "Milliseconds to wait after creating a Pi terminal before restoring 'python.terminal.activateEnvironment'. The delay lets the Python extension's onDidOpenTerminal handler observe the temporarily-disabled value so it skips injecting venv activation commands. Ignored when 'piBay.virtualEnvironmentOverride' is false. Set to 0 to restore immediately (may race with the Python extension)."
         }
       }
     },
     "menus": {
       "editor/title": [
         {
-          "command": "piAgent.run",
+          "command": "piBay.run",
           "group": "navigation@-1"
         }
       ],
       "explorer/context": [
         {
-          "command": "piAgent.runWithSkill",
+          "command": "piBay.runWithSkill",
           "when": "resourceScheme == file && resourceFilename == SKILL.md",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithTemplate",
+          "command": "piBay.runWithTemplate",
           "when": "resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithExtension",
+          "command": "piBay.runWithExtension",
           "when": "resourceScheme == file && resourceExtname == .ts",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithPrompt",
+          "command": "piBay.runWithPrompt",
           "when": "resourceScheme == file",
           "group": "navigation"
         }
       ],
       "editor/context": [
         {
-          "command": "piAgent.runWithSkill",
+          "command": "piBay.runWithSkill",
           "when": "resourceScheme == file && resourceFilename == SKILL.md",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithTemplate",
+          "command": "piBay.runWithTemplate",
           "when": "resourceScheme == file && resourceExtname == .md && resourceFilename != SKILL.md",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithExtension",
+          "command": "piBay.runWithExtension",
           "when": "resourceScheme == file && resourceExtname == .ts",
           "group": "navigation"
         },
         {
-          "command": "piAgent.runWithPrompt",
+          "command": "piBay.runWithPrompt",
           "when": "resourceScheme == file",
           "group": "navigation"
         }
@@ -161,7 +161,7 @@
       {
         "command": "workbench.action.terminal.sendSequence",
         "key": "ctrl+g",
-        "when": "terminalFocus && piAgent.activeTerminal",
+        "when": "terminalFocus && piBay.activeTerminal",
         "args": {
           "text": "\u0007"
         }
@@ -169,7 +169,7 @@
       {
         "command": "workbench.action.terminal.sendSequence",
         "key": "alt+up",
-        "when": "terminalFocus && piAgent.activeTerminal",
+        "when": "terminalFocus && piBay.activeTerminal",
         "args": {
           "text": "\u001b[1;3A"
         }

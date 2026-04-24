@@ -5,15 +5,15 @@ import {
   getNextThinkingLevel,
   HOTKEY_DEFINITIONS,
   PROFILE_ORIGINAL,
-  PROFILE_PIAGENT,
+  PROFILE_PIBAY,
   restorePersistedProfile,
 } from "./hotkeys.js";
 
-const STATUS_KEY = "pi-agent-hotkeys";
-let activeProfile = PROFILE_PIAGENT;
+const STATUS_KEY = "vs-code-hotkeys";
+let activeProfile = PROFILE_PIBAY;
 
-function isPiAgentProfileActive() {
-  return activeProfile === PROFILE_PIAGENT;
+function isPiBayProfileActive() {
+  return activeProfile === PROFILE_PIBAY;
 }
 
 function updateStatus(ctx) {
@@ -88,7 +88,7 @@ const shortcutHandlers = {
   },
 };
 
-export default function piAgentHotkeysExtension(pi) {
+export default function piBayHotkeysExtension(pi) {
   pi.on("session_start", async (_event, ctx) => {
     activeProfile = restorePersistedProfile(ctx.sessionManager.getBranch());
     updateStatus(ctx);
@@ -97,9 +97,9 @@ export default function piAgentHotkeysExtension(pi) {
   pi.registerCommand("hotkeys-vs-code", {
     description: "Enable VS Code-compatible alternate hotkeys for this session",
     handler: async (_args, ctx) => {
-      persistProfile(pi, PROFILE_PIAGENT);
+      persistProfile(pi, PROFILE_PIBAY);
       updateStatus(ctx);
-      ctx.ui.notify(buildProfileCommandMessage(PROFILE_PIAGENT), "info");
+      ctx.ui.notify(buildProfileCommandMessage(PROFILE_PIBAY), "info");
     },
   });
 
@@ -121,7 +121,7 @@ export default function piAgentHotkeysExtension(pi) {
     pi.registerShortcut(definition.shortcut, {
       description: definition.label,
       handler: async (ctx) => {
-        if (!isPiAgentProfileActive()) {
+        if (!isPiBayProfileActive()) {
           return;
         }
         await handler(pi, ctx);

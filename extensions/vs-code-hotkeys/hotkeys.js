@@ -1,7 +1,7 @@
-export const PROFILE_PIAGENT = "piagent";
+export const PROFILE_PIBAY = "pibay";
 export const PROFILE_ORIGINAL = "original";
 
-export const CUSTOM_ENTRY_TYPE = "pi-agent-hotkeys.profile";
+export const CUSTOM_ENTRY_TYPE = "vs-code-hotkeys.profile";
 
 export const HOTKEY_DEFINITIONS = [
   {
@@ -48,7 +48,7 @@ export const HOTKEY_DEFINITIONS = [
   },
 ];
 
-const DEFAULT_PROFILE = PROFILE_PIAGENT;
+const DEFAULT_PROFILE = PROFILE_PIBAY;
 
 export function restorePersistedProfile(entries) {
   for (let index = entries.length - 1; index >= 0; index -= 1) {
@@ -65,15 +65,15 @@ export function restorePersistedProfile(entries) {
 }
 
 export function isSupportedProfile(profile) {
-  return profile === PROFILE_PIAGENT || profile === PROFILE_ORIGINAL;
+  return profile === PROFILE_PIBAY || profile === PROFILE_ORIGINAL;
 }
 
 export function buildProfileCommandMessage(profile) {
-  const isPiAgent = profile === PROFILE_PIAGENT;
-  const heading = isPiAgent
+  const isPiBay = profile === PROFILE_PIBAY;
+  const heading = isPiBay
     ? "VS Code-friendly hotkeys enabled"
     : "Original Pi hotkeys enabled";
-  const switchHint = isPiAgent
+  const switchHint = isPiBay
     ? "Run /hotkeys-original to disable the VS Code-compatible shortcut layer."
     : "Run /hotkeys-vs-code to enable the VS Code-compatible shortcut layer again.";
 
@@ -85,7 +85,7 @@ export function buildProfileCommandMessage(profile) {
 }
 
 export function buildStatusText(profile) {
-  return profile === PROFILE_PIAGENT ? "hotkeys: VS Code Compatible" : "hotkeys: original";
+  return profile === PROFILE_PIBAY ? 'hotkeys: VS Code Compatible' : 'hotkeys: original';
 }
 
 export function toDisplayKey(shortcut) {

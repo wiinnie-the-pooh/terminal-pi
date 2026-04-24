@@ -1,4 +1,4 @@
-# Pi Coding Agent VS Code Extension -- Developer Reference
+# Pi Bay VS Code Extension -- Developer Reference
 
 This file documents how to build, package, publish, and version the extension.
 It is the authoritative reference for both human developers and AI coding agents.
@@ -187,7 +187,7 @@ Build a local `.vsix` installable file:
 
 ```sh
 npm run package
-# emits: pi-agent-<version>.vsix
+# emits: pi-bay-<version>.vsix
 ```
 
 `vsce package` reads `package.json`, compiles via `vscode:prepublish`, applies `.vscodeignore`, and writes the `.vsix`.

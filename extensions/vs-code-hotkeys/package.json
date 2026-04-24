@@ -1,9 +1,9 @@
 {
-  "name": "pi-agent-hotkeys",
+  "name": "vs-code-hotkeys",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Pi extension that adds VS Code-friendly alternate hotkeys for Pi Coding Agent sessions.",
+  "description": "VS Code-friendly hotkeys for Pi, right in your terminal.",
   "scripts": {
     "test": "node --test"
   },

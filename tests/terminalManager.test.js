@@ -20,7 +20,7 @@ const PROMPT_FILE = '/home/user/prompt.md';
 const expectedBundledHotkeysExtension = path.join(
   FAKE_EXT_PATH,
   'extensions',
-  'pi-agent-hotkeys',
+  'vs-code-hotkeys',
   'vs-code-hotkeys.js',
 );
 const EXT_ARGS = ['--extension', expectedBundledHotkeysExtension];

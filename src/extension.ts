@@ -59,35 +59,35 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('piAgent.run', () =>
+    vscode.commands.registerCommand('piBay.run', () =>
       runCommand('run', async () => {
         const cfg = getConfig();
         await terminalManager.runInteractive(cfg.defaultArgs, cfg.editorCommand);
       })
     ),
     vscode.commands.registerCommand(
-      'piAgent.runWithSkill',
+      'piBay.runWithSkill',
       (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
         runCommand('runWithSkill', async () => {
           await runResourceAction('skill', resource, resources);
         }),
     ),
     vscode.commands.registerCommand(
-      'piAgent.runWithTemplate',
+      'piBay.runWithTemplate',
       (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
         runCommand('runWithTemplate', async () => {
           await runResourceAction('template', resource, resources);
         }),
     ),
     vscode.commands.registerCommand(
-      'piAgent.runWithExtension',
+      'piBay.runWithExtension',
       (resource?: vscode.Uri, resources?: vscode.Uri[]) =>
         runCommand('runWithExtension', async () => {
           await runResourceAction('extension', resource, resources);
         }),
     ),
     vscode.commands.registerCommand(
-      'piAgent.runWithPrompt',
+      'piBay.runWithPrompt',
       (resource?: vscode.Uri) =>
         runCommand('runWithPrompt', async () => {
           const cfg = getConfig();
@@ -148,8 +148,8 @@ export function createResourceActionHandler(
         selectedResources,
       );
     } catch (err) {
-      console.error('Pi Coding Agent: runWithResources failed:', err);
-      void vscode.window.showErrorMessage(`Pi Coding Agent failed to start: ${String(err)}`);
+      console.error('Pi Bay: runWithResources failed:', err);
+      void vscode.window.showErrorMessage(`Pi Bay failed to start: ${String(err)}`);
     }
   };
 }
@@ -188,11 +188,11 @@ function setupStatusBar(context: vscode.ExtensionContext): void {
     vscode.StatusBarAlignment.Left,
     100
   );
-  statusBarItem.command = 'piAgent.run';
+  statusBarItem.command = 'piBay.run';
   statusBarItem.text = '$(terminal) Pi';
-  statusBarItem.tooltip = 'Run Pi Coding Agent';
+  statusBarItem.tooltip = 'Run Pi Bay';
   statusBarItem.accessibilityInformation = {
-    label: 'Pi Coding Agent',
+    label: 'Pi Bay',
     role: 'button',
   };
   context.subscriptions.push(statusBarItem);
@@ -377,8 +377,8 @@ export async function runCommand(label: string, fn: () => Promise<void>): Promis
   try {
     await fn();
   } catch (err) {
-    console.error(`Pi Coding Agent: ${label} command failed:`, err);
-    void vscode.window.showErrorMessage(`Pi Coding Agent failed to start: ${String(err)}`);
+    console.error(`Pi Bay: ${label} command failed:`, err);
+    void vscode.window.showErrorMessage(`Pi Bay failed to start: ${String(err)}`);
   }
 }
 

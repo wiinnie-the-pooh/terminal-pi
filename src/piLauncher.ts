@@ -158,7 +158,7 @@ function resolvePiCommand(): PiCommand {
 }
 
 if (require.main === module) {
-  process.title = 'Pi Coding Agent';
+  process.title = 'Pi Bay';
   const piArgs = process.argv.slice(2);
   const sIdx = piArgs.indexOf('--session');
   const guid = sIdx >= 0 && sIdx + 1 < piArgs.length ? piArgs[sIdx + 1] : undefined;
