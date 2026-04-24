@@ -28,6 +28,18 @@ interface PiViewAttachmentState {
   rows: number | undefined;
 }
 
+interface VisibleSizedPiViewAttachmentState extends PiViewAttachmentState {
+  visible: true;
+  cols: number;
+  rows: number;
+}
+
+function isVisibleSizedAttachment(
+  attachment: PiViewAttachmentState,
+): attachment is VisibleSizedPiViewAttachmentState {
+  return attachment.visible && attachment.cols !== undefined && attachment.rows !== undefined;
+}
+
 const SCROLLBACK_CAP = 500 * 1024;
 
 export class PiSession {
@@ -119,20 +131,12 @@ export class PiSession {
   }
 
   private recomputeEffectiveSize(): void {
-    const visibleAttachments = [...this.attachments].filter(
-      (attachment) => attachment.visible && attachment.cols !== undefined && attachment.rows !== undefined,
-    );
+    const visibleAttachments = [...this.attachments].filter(isVisibleSizedAttachment);
     if (visibleAttachments.length === 0) {
       return;
     }
 
     const narrowest = visibleAttachments.reduce((current, next) => {
-      if (next.cols === undefined || next.rows === undefined) {
-        return current;
-      }
-      if (current.cols === undefined || current.rows === undefined) {
-        return next;
-      }
       if (next.cols < current.cols) {
         return next;
       }
@@ -142,9 +146,6 @@ export class PiSession {
       return current;
     });
 
-    if (narrowest.cols === undefined || narrowest.rows === undefined) {
-      return;
-    }
     if (narrowest.cols === this.effectiveCols && narrowest.rows === this.effectiveRows) {
       return;
     }

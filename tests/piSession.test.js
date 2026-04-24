@@ -131,6 +131,32 @@ test('PiSession updates PTY size when the narrowest visible view becomes hidden'
   assert.deepEqual(ptyStub.__calls.resize.at(-1), { cols: 120, rows: 40 });
 });
 
+test('PiSession chooses a later attached view when it is the narrowest visible view', () => {
+  const s = new PiSession(CONFIG, ptyStub.spawn);
+  const wide = s.attachView('editor', () => {});
+  const narrow = s.attachView('assistant', () => {});
+
+  wide.setVisible(true);
+  wide.setSize(140, 50);
+  narrow.setVisible(true);
+  narrow.setSize(88, 30);
+
+  assert.deepEqual(ptyStub.__calls.resize.at(-1), { cols: 88, rows: 30 });
+});
+
+test('PiSession chooses the shorter visible view when widths match', () => {
+  const s = new PiSession(CONFIG, ptyStub.spawn);
+  const taller = s.attachView('editor', () => {});
+  const shorter = s.attachView('assistant', () => {});
+
+  taller.setVisible(true);
+  taller.setSize(100, 50);
+  shorter.setVisible(true);
+  shorter.setSize(100, 25);
+
+  assert.deepEqual(ptyStub.__calls.resize.at(-1), { cols: 100, rows: 25 });
+});
+
 test('PiSession keeps the previous PTY size when no views are visible', () => {
   const s = new PiSession(CONFIG, ptyStub.spawn);
   const a = s.attachView('assistant', () => {});
