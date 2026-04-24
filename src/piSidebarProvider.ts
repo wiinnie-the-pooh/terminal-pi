@@ -34,18 +34,24 @@ export class PiSidebarProvider implements vscode.WebviewViewProvider {
       ).toString(),
     });
 
-    const unsubscribe = this.piSession.addSender(
+    const attachment = this.piSession.attachView(
+      'assistant-sidebar',
       (msg) => void webview.postMessage(msg),
     );
+    attachment.setVisible(webviewView.visible);
+
+    webviewView.onDidChangeVisibility(() => {
+      attachment.setVisible(webviewView.visible);
+    });
 
     webview.onDidReceiveMessage((msg: { type: string; data?: string; cols?: number; rows?: number }) => {
       if (msg.type === 'input' && msg.data !== undefined) {
         this.piSession.write(msg.data);
       } else if (msg.type === 'resize' && msg.cols !== undefined && msg.rows !== undefined) {
-        this.piSession.resize(msg.cols, msg.rows);
+        attachment.setSize(msg.cols, msg.rows);
       }
     });
 
-    webviewView.onDidDispose(() => unsubscribe());
+    webviewView.onDidDispose(() => attachment.dispose());
   }
 }
