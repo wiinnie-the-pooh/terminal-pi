@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const Module = require('module');
+const path = require('node:path');
 
 const originalResolve = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
@@ -12,54 +13,47 @@ Module._resolveFilename = function (request, ...rest) {
 
 const { PiTerminalManager } = require('../out/terminal.js');
 
+const FAKE_EXT_PATH = '/fake/ext';
+const CMD = 'cursor --wait';
+const PROMPT_FILE = '/home/user/prompt.md';
+
+const expectedBundledHotkeysExtension = path.join(
+  FAKE_EXT_PATH,
+  'extensions',
+  'pi-dock-hotkeys',
+  'src',
+  'index.js',
+);
+const EXT_ARGS = ['--extension', expectedBundledHotkeysExtension];
+
 function stubManager() {
-  const manager = new PiTerminalManager({ subscriptions: [], extensionPath: '/fake/ext' });
+  const manager = new PiTerminalManager({ subscriptions: [], extensionPath: FAKE_EXT_PATH });
   const calls = [];
   manager.createAndShowTerminal = async (...args) => { calls.push(args); };
   return { manager, calls };
 }
 
-test('runInteractive passes empty args for blank defaultArgs', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runInteractive('', 'cursor --wait');
-  assert.deepEqual(calls, [['cursor --wait', []]]);
-});
+for (const [desc, defaultArgs, cmd, expectedArgs] of [
+  ['passes empty args for blank defaultArgs',          '',                                    CMD,          [...EXT_ARGS]],
+  ['passes empty args for whitespace-only defaultArgs','   ',                                 'code --wait',[...EXT_ARGS]],
+  ['splits defaultArgs into individual tokens',        '--thinking low --model openai/gpt-4o',CMD,          ['--thinking', 'low', '--model', 'openai/gpt-4o', ...EXT_ARGS]],
+]) {
+  test(`runInteractive ${desc}`, async () => {
+    const { manager, calls } = stubManager();
+    await manager.runInteractive(defaultArgs, cmd);
+    assert.deepEqual(calls, [[cmd, expectedArgs]]);
+  });
+}
 
-test('runInteractive passes empty args for whitespace-only defaultArgs', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runInteractive('   ', 'code --wait');
-  assert.deepEqual(calls, [['code --wait', []]]);
-});
-
-test('runInteractive splits defaultArgs into individual tokens', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runInteractive('--thinking low --model openai/gpt-4o', 'cursor --wait');
-  assert.deepEqual(calls, [[
-    'cursor --wait',
-    ['--thinking', 'low', '--model', 'openai/gpt-4o'],
-  ]]);
-});
-
-test('runWithPrompt passes file as @-prefixed arg with no extra context', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runWithPrompt('cursor --wait', '', '/home/user/prompt.md', '');
-  assert.deepEqual(calls, [['cursor --wait', ['@/home/user/prompt.md']]]);
-});
-
-test('runWithPrompt appends extra context when provided', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runWithPrompt('cursor --wait', '', '/home/user/prompt.md', 'focus on errors');
-  assert.deepEqual(calls, [['cursor --wait', ['@/home/user/prompt.md', 'focus on errors']]]);
-});
-
-test('runWithPrompt ignores whitespace-only extra context', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runWithPrompt('cursor --wait', '', '/home/user/prompt.md', '   ');
-  assert.deepEqual(calls, [['cursor --wait', ['@/home/user/prompt.md']]]);
-});
-
-test('runWithPrompt combines defaultArgs and file path', async () => {
-  const { manager, calls } = stubManager();
-  await manager.runWithPrompt('cursor --wait', '--thinking low', '/home/user/prompt.md', '');
-  assert.deepEqual(calls, [['cursor --wait', ['--thinking', 'low', '@/home/user/prompt.md']]]);
-});
+for (const [desc, defaultArgs, extra, expectedArgs] of [
+  ['passes file as @-prefixed arg with no extra context', '',             '',               [...EXT_ARGS, `@${PROMPT_FILE}`]],
+  ['appends extra context when provided',                 '',             'focus on errors',[...EXT_ARGS, `@${PROMPT_FILE}`, 'focus on errors']],
+  ['ignores whitespace-only extra context',               '',             '   ',            [...EXT_ARGS, `@${PROMPT_FILE}`]],
+  ['combines defaultArgs and file path',                  '--thinking low','',              ['--thinking', 'low', ...EXT_ARGS, `@${PROMPT_FILE}`]],
+]) {
+  test(`runWithPrompt ${desc}`, async () => {
+    const { manager, calls } = stubManager();
+    await manager.runWithPrompt(CMD, defaultArgs, PROMPT_FILE, extra);
+    assert.deepEqual(calls, [[CMD, expectedArgs]]);
+  });
+}

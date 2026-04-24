@@ -22,6 +22,8 @@
 
 - **Configurable** -- Set default CLI flags (`--model openai/gpt-4o`), choose your external editor command, and fine-tune terminal behavior through VS Code settings.
 
+- **VS Code-friendly hotkeys** -- Alternate shortcuts for actions VS Code would otherwise intercept (`Ctrl+C`, `Ctrl+L`, etc.). Type `/hotkeys-original` to revert to Pi's built-in keys, or `/hotkeys-pidock` to bring them back.
+
 <details>
 <summary>Resource type details</summary>
 
@@ -52,6 +54,25 @@ Pi Dock auto-detects your VS Code variant and exports a matching `EDITOR` / `VIS
 If auto-detection fails, Pi Dock preserves your existing `VISUAL` / `EDITOR` values. Override this with the `piDock.editorCommand` setting.
 
 </details>
+
+## Additional Shortcuts in Pi Dock
+
+Pi Dock adds alternate shortcuts for the keys VS Code would otherwise steal. Most of Pi's `Ctrl` shortcuts become `Alt`:
+
+| Pi Dock shortcut | Action | Pi built-in shortcut |
+| ---------------- | ------ | -------------------- |
+| `Alt+C` | Clear editor | `Ctrl+C` |
+| `Alt+D` | Exit when editor is empty | `Ctrl+D` |
+| `Alt+T` | Cycle thinking level | `Shift+Tab` |
+| `Alt+P` | Cycle to next model | `Ctrl+P` |
+| `Shift+Alt+P` | Cycle to previous model | `Shift+Ctrl+P` |
+| `Alt+O` | Toggle tool output | `Ctrl+O` |
+| `Ctrl+Shift+Enter` | Queue follow-up message | `Alt+Enter` |
+
+Use these slash commands inside Pi Dock:
+
+- `/hotkeys-pidock` -- enable the Pi Dock shortcut layer
+- `/hotkeys-original` -- revert to Pi's built-in shortcuts
 
 ## Commands
 

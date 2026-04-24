@@ -80,10 +80,16 @@ export class PiTerminalManager implements vscode.Disposable {
   /* c8 ignore stop */
 
   private buildArgs(defaultArgs: string): string[] {
-    if (!defaultArgs.trim()) {
-      return [];
-    }
-    return defaultArgs.trim().split(/\s+/);
+    const args = defaultArgs.trim()
+      ? defaultArgs.trim().split(/\s+/)
+      : [];
+
+    args.push(
+      '--extension',
+      path.join(this.context.extensionPath, 'extensions', 'pi-dock-hotkeys', 'src', 'index.js'),
+    );
+
+    return args;
   }
 
   public async runInteractive(
@@ -118,11 +124,12 @@ export class PiTerminalManager implements vscode.Disposable {
   ): Promise<void> {
     await this.createAndShowTerminal(
       editorCommand,
-      buildPiResourceArgs({
-        defaultArgs,
-        mode,
-        resources,
-      }),
+      this.buildArgs('')
+        .concat(buildPiResourceArgs({
+          defaultArgs,
+          mode,
+          resources,
+        })),
     );
   }
 

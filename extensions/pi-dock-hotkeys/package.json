@@ -1,0 +1,15 @@
+{
+  "name": "pi-dock-hotkeys",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pi extension that adds VS Code-friendly alternate hotkeys for Pi Dock sessions.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.js"
+    ]
+  }
+}
