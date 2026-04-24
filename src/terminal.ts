@@ -86,7 +86,7 @@ export class PiTerminalManager implements vscode.Disposable {
 
     args.push(
       '--extension',
-      path.join(this.context.extensionPath, 'extensions', 'pi-agent-hotkeys', 'pi-agent-hotkeys.js'),
+      path.join(this.context.extensionPath, 'extensions', 'pi-agent-hotkeys', 'vs-code-hotkeys.js'),
     );
 
     return args;

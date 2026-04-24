@@ -16,7 +16,7 @@ async function loadPackageManifest() {
 
 test('hotkeys package manifest points Pi at the flattened top-level entry file', async () => {
   const pkg = await loadPackageManifest();
-  assert.deepEqual(pkg.pi?.extensions, ['./pi-agent-hotkeys.js']);
+  assert.deepEqual(pkg.pi?.extensions, ['./vs-code-hotkeys.js']);
 });
 
 test('hotkeys helper exports the supported profile constants', async () => {
@@ -76,5 +76,5 @@ test('buildProfileCommandMessage explains how to switch back and lists shortcuts
 
   const originalMessage = buildProfileCommandMessage(PROFILE_ORIGINAL);
   assert.match(originalMessage, /Original Pi hotkeys enabled/i);
-  assert.match(originalMessage, /\/hotkeys-piagent/);
+  assert.match(originalMessage, /\/hotkeys-vs-code/);
 });

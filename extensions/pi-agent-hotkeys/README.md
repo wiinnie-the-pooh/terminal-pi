@@ -7,14 +7,14 @@ Instead, it registers alternate shortcuts through the Pi extension API and lets 
 
 ## Slash commands
 
-- `/hotkeys-piagent` - enable the Pi Coding Agent shortcut layer for the current session
-- `/hotkeys-original` - disable the Pi Coding Agent shortcut layer and leave only Pi's built-in shortcuts active
+- `/hotkeys-vs-code` - enable the VS Code-compatible shortcut layer for the current session
+- `/hotkeys-original` - disable the VS Code-compatible shortcut layer and leave only Pi's built-in shortcuts active
 
 The current mode is also shown in the footer as a status item.
 
-## Pi Coding Agent shortcut layer
+## VS Code-compatible shortcut layer
 
-When `/hotkeys-piagent` is active, this extension adds these alternate shortcuts:
+When `/hotkeys-vs-code` is active, this extension adds these alternate shortcuts:
 
 - `Alt+C` -> Clear editor
 - `Alt+T` -> Cycle thinking level
@@ -40,7 +40,7 @@ In particular, Pi's native `Ctrl+L` does not work by submitting `/model` text. I
 From this folder:
 
 ```sh
-pi -e ./pi-agent-hotkeys.js
+pi -e ./vs-code-hotkeys.js
 ```
 
 ## Run it automatically with Pi
@@ -60,7 +60,7 @@ This package uses the manifest approach:
 ```json
 {
   "pi": {
-    "extensions": ["./pi-agent-hotkeys.js"]
+    "extensions": ["./vs-code-hotkeys.js"]
   }
 }
 ```
@@ -86,7 +86,7 @@ Then start Pi normally.
 Pi Coding Agent itself can also attach this extension only for docked sessions. If you want to do that manually, launch Pi with:
 
 ```sh
---extension <path-to-pi-agent-hotkeys>/pi-agent-hotkeys.js
+--extension <path-to-pi-agent-hotkeys>/vs-code-hotkeys.js
 ```
 
 That keeps standalone Pi untouched while giving Pi Coding Agent sessions the alternate shortcut layer.
@@ -96,7 +96,7 @@ That keeps standalone Pi untouched while giving Pi Coding Agent sessions the alt
 This folder is intentionally self-contained and flat:
 
 - `package.json`
-- `pi-agent-hotkeys.js`
+- `vs-code-hotkeys.js`
 - `hotkeys.js`
 - `README.md`
 

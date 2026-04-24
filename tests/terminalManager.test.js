@@ -21,7 +21,7 @@ const expectedBundledHotkeysExtension = path.join(
   FAKE_EXT_PATH,
   'extensions',
   'pi-agent-hotkeys',
-  'pi-agent-hotkeys.js',
+  'vs-code-hotkeys.js',
 );
 const EXT_ARGS = ['--extension', expectedBundledHotkeysExtension];
 

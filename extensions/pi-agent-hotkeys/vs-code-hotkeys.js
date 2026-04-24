@@ -94,8 +94,8 @@ export default function piAgentHotkeysExtension(pi) {
     updateStatus(ctx);
   });
 
-  pi.registerCommand("hotkeys-piagent", {
-    description: "Enable Pi Coding Agent-friendly alternate hotkeys for this session",
+  pi.registerCommand("hotkeys-vs-code", {
+    description: "Enable VS Code-compatible alternate hotkeys for this session",
     handler: async (_args, ctx) => {
       persistProfile(pi, PROFILE_PIAGENT);
       updateStatus(ctx);
@@ -104,7 +104,7 @@ export default function piAgentHotkeysExtension(pi) {
   });
 
   pi.registerCommand("hotkeys-original", {
-    description: "Disable the Pi Coding Agent shortcut layer and keep Pi defaults only",
+    description: "Disable the VS Code-compatible shortcut layer and keep Pi defaults only",
     handler: async (_args, ctx) => {
       persistProfile(pi, PROFILE_ORIGINAL);
       updateStatus(ctx);

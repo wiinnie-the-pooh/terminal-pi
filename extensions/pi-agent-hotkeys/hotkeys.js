@@ -74,18 +74,18 @@ export function buildProfileCommandMessage(profile) {
     ? "VS Code-friendly hotkeys enabled"
     : "Original Pi hotkeys enabled";
   const switchHint = isPiAgent
-    ? "Run /hotkeys-original to disable the Pi Coding Agent shortcut layer."
-    : "Run /hotkeys-piagent to enable the Pi Coding Agent shortcut layer again.";
+    ? "Run /hotkeys-original to disable the VS Code-compatible shortcut layer."
+    : "Run /hotkeys-vs-code to enable the VS Code-compatible shortcut layer again.";
 
   const rows = HOTKEY_DEFINITIONS
     .map((entry) => `- ${toDisplayKey(entry.shortcut)} -> ${entry.label} (Pi default: ${entry.original})`)
     .join("\n");
 
-  return `${heading}.\n${switchHint}\n\nPi Coding Agent shortcut layer:\n${rows}`;
+  return `${heading}.\n${switchHint}\n\nVS Code-compatible shortcut layer:\n${rows}`;
 }
 
 export function buildStatusText(profile) {
-  return profile === PROFILE_PIAGENT ? "hotkeys: Pi Coding Agent" : "hotkeys: original";
+  return profile === PROFILE_PIAGENT ? "hotkeys: VS Code Compatible" : "hotkeys: original";
 }
 
 export function toDisplayKey(shortcut) {

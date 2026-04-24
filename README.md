@@ -22,7 +22,7 @@
 
 - **Configurable** -- Set default CLI flags (`--model openai/gpt-4o`), choose your external editor command, and fine-tune terminal behavior through VS Code settings.
 
-- **VS Code-friendly hotkeys** -- Alternate shortcuts for actions VS Code would otherwise intercept (`Ctrl+C`, `Ctrl+L`, etc.). Type `/hotkeys-original` to revert to Pi's built-in keys, or `/hotkeys-piagent` to bring them back.
+- **VS Code-friendly hotkeys** -- Alternate shortcuts for actions VS Code would otherwise intercept (`Ctrl+C`, `Ctrl+L`, etc.). Type `/hotkeys-original` to revert to Pi's built-in keys, or `/hotkeys-vs-code` to bring them back.
 
 <details>
 <summary>Resource type details</summary>
@@ -71,7 +71,7 @@ Pi Coding Agent adds alternate shortcuts for the keys VS Code would otherwise st
 
 Use these slash commands inside Pi Coding Agent:
 
-- `/hotkeys-piagent` -- enable the Pi Coding Agent shortcut layer
+- `/hotkeys-vs-code` -- enable the VS Code-compatible shortcut layer
 - `/hotkeys-original` -- revert to Pi's built-in shortcuts
 
 ## Commands
