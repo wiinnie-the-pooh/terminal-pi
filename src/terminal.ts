@@ -9,6 +9,19 @@ import { resolveEditorCommand } from './editorCommandResolver';
 import { getPiTerminalEnv } from './terminalEnv';
 import { buildPiResourceArgs, type PiResourceMode } from './piResourceArgs';
 
+export function buildPiArgs(defaultArgs: string, extensionPath: string): string[] {
+  const args = defaultArgs.trim()
+    ? defaultArgs.trim().split(/\s+/)
+    : [];
+
+  args.push(
+    '--extension',
+    path.join(extensionPath, 'extensions', 'vs-code-hotkeys', 'vs-code-hotkeys.js'),
+  );
+
+  return args;
+}
+
 export class PiTerminalManager implements vscode.Disposable {
   /* c8 ignore start */
   /**
@@ -80,16 +93,7 @@ export class PiTerminalManager implements vscode.Disposable {
   /* c8 ignore stop */
 
   private buildArgs(defaultArgs: string): string[] {
-    const args = defaultArgs.trim()
-      ? defaultArgs.trim().split(/\s+/)
-      : [];
-
-    args.push(
-      '--extension',
-      path.join(this.context.extensionPath, 'extensions', 'vs-code-hotkeys', 'vs-code-hotkeys.js'),
-    );
-
-    return args;
+    return buildPiArgs(defaultArgs, this.context.extensionPath);
   }
 
   public async runInteractive(
