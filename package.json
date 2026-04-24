@@ -177,8 +177,10 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "copy-webview-assets": "node scripts/copy-webview-assets.js",
+    "vscode:prepublish": "npm run copy-webview-assets && npm run compile-only",
+    "compile": "npm run copy-webview-assets && npm run compile-only",
+    "compile-only": "tsc -p ./",
     "test": "npm run compile && node run-tests.js",
     "coverage": "npm run compile && c8 node run-tests.js",
     "diff-coverage": "node run-diff-coverage.js",
@@ -194,9 +196,14 @@
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
     "@vscode/vsce": "^3.9.1",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
     "c8": "^11.0.0",
     "eslint": "^10.2.1",
     "globals": "^17.5.0",
     "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "node-pty": "^1.1.0"
   }
 }
