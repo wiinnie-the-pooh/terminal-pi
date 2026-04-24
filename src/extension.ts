@@ -1,11 +1,19 @@
+import * as crypto from 'node:crypto';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { getConfig, type PiConfig } from './config';
+import { resolveEditorCommand } from './editorCommandResolver';
 import {
   getEligibleResourcePaths,
   isEligibleFile,
   type ExplorerSelectionEntry,
   type FileLikeUri,
 } from './fileSelection';
+import { PiPanel } from './piPanel';
+import { resolveNodePath } from './piResolver';
+import type { PiResourceMode } from './piResourceArgs';
+import { PiSession } from './piSession';
+import { PiSidebarProvider } from './piSidebarProvider';
 import {
   isPiTerminalName,
   PI_TERMINAL_ACTIVE_CONTEXT,
@@ -17,11 +25,12 @@ import {
   type ResourcePickerMode,
   type ResourceQuickPickItem,
 } from './resourcePicker';
-import { PiTerminalManager } from './terminal';
-import type { PiResourceMode } from './piResourceArgs';
+import { buildPiArgs, PiTerminalManager } from './terminal';
+import { getPiTerminalEnv } from './terminalEnv';
 
 let statusBarItem: vscode.StatusBarItem | undefined;
 let terminalManager: PiTerminalManager;
+let piSession: PiSession;
 
 interface ResourceTerminalManager {
   runWithResources(
@@ -47,6 +56,35 @@ interface ResourceActionHandlerDeps {
 export function activate(context: vscode.ExtensionContext): void {
   terminalManager = new PiTerminalManager(context);
   context.subscriptions.push(terminalManager);
+
+  const cfg = getConfig();
+  const nodePath = resolveNodePath();
+  const launcherPath = path.join(context.extensionPath, 'out', 'piLauncher.js');
+  const sessionId = crypto.randomUUID();
+  const piArgs = buildPiArgs(cfg.defaultArgs, context.extensionPath);
+  const resolvedEditorCommand = resolveEditorCommand({
+    configuredEditorCommand: cfg.editorCommand,
+    appHost: vscode.env.appHost,
+    uriScheme: vscode.env.uriScheme,
+    appName: vscode.env.appName,
+  });
+  const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
+
+  piSession = new PiSession({
+    file: nodePath,
+    args: [launcherPath, '--session', sessionId, ...piArgs],
+    env: { ...process.env, ...editorEnv } as NodeJS.ProcessEnv,
+  });
+  context.subscriptions.push({ dispose: () => piSession.dispose() });
+
+  const sidebarProvider = new PiSidebarProvider(piSession, context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      PiSidebarProvider.viewId,
+      sidebarProvider,
+      { webviewOptions: { retainContextWhenHidden: true } },
+    ),
+  );
 
   const runResourceAction = createResourceActionHandler({
     getConfig,
@@ -103,6 +141,9 @@ export function activate(context: vscode.ExtensionContext): void {
           );
         }),
     ),
+    vscode.commands.registerCommand('piBay.openPanel', () => {
+      PiPanel.createOrReveal(piSession, context.extensionUri);
+    }),
   );
 
   setupStatusBar(context);

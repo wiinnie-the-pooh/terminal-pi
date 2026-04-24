@@ -29,6 +29,41 @@ test('package.json contributes piBay.runWithPrompt command with correct title', 
   assert.equal(titles.get('piBay.runWithPrompt'), 'Run Pi with Prompt...');
 });
 
+test('package.json contributes piBay.openPanel command with correct title', () => {
+  const titles = getCommandTitles(pkg.contributes.commands);
+
+  assert.equal(titles.get('piBay.openPanel'), 'Open Pi Bay Panel');
+});
+
+test('package.json contributes the Pi Bay activity bar container and session view', () => {
+  assert.deepEqual(pkg.contributes.viewsContainers?.activitybar, [
+    {
+      id: 'piBay',
+      title: 'Pi Bay',
+      icon: 'resources/icons/pi-light.svg',
+    },
+  ]);
+
+  assert.deepEqual(pkg.contributes.views?.piBay, [
+    {
+      type: 'webview',
+      id: 'piBay.session',
+      name: 'Pi Bay',
+    },
+  ]);
+});
+
+function getViewTitleMenuItem(command) {
+  return getMenuItem(pkg.contributes.menus['view/title'], command);
+}
+
+test('package.json contributes a view/title menu entry for piBay.openPanel', () => {
+  const item = getViewTitleMenuItem('piBay.openPanel');
+
+  assert.equal(item?.when, 'view == piBay.session');
+  assert.equal(item?.group, 'navigation');
+});
+
 test('package.json contributes explorer context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['explorer/context']);
 

@@ -66,8 +66,32 @@
         "command": "piBay.runWithPrompt",
         "title": "Run Pi with Prompt...",
         "category": "Pi Bay"
+      },
+      {
+        "command": "piBay.openPanel",
+        "title": "Open Pi Bay Panel",
+        "category": "Pi Bay",
+        "icon": "$(open-preview)"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "piBay",
+          "title": "Pi Bay",
+          "icon": "resources/icons/pi-light.svg"
+        }
+      ]
+    },
+    "views": {
+      "piBay": [
+        {
+          "type": "webview",
+          "id": "piBay.session",
+          "name": "Pi Bay"
+        }
+      ]
+    },
     "configuration": {
       "title": "Pi Bay",
       "properties": {
@@ -110,6 +134,13 @@
         {
           "command": "piBay.run",
           "group": "navigation@-1"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "piBay.openPanel",
+          "when": "view == piBay.session",
+          "group": "navigation"
         }
       ],
       "explorer/context": [
