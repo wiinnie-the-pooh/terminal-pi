@@ -9,17 +9,34 @@ export interface PiSpawnConfig {
 
 type PtySpawnFn = typeof nodePty.spawn;
 
-type PiSessionMessage =
+export type PiSessionMessage =
   | { type: 'scrollback'; data: string }
   | { type: 'data'; data: string }
   | { type: 'exit'; code: number | undefined };
+
+export interface PiViewAttachment {
+  setVisible(visible: boolean): void;
+  setSize(cols: number, rows: number): void;
+  dispose(): void;
+}
+
+interface PiViewAttachmentState {
+  id: string;
+  send: (msg: PiSessionMessage) => void;
+  visible: boolean;
+  cols: number | undefined;
+  rows: number | undefined;
+}
 
 const SCROLLBACK_CAP = 500 * 1024;
 
 export class PiSession {
   private readonly pty: IPty;
   private scrollback = '';
-  private readonly senders = new Set<(msg: PiSessionMessage) => void>();
+  private legacySenderId = 0;
+  private effectiveCols = 80;
+  private effectiveRows = 24;
+  private readonly attachments = new Set<PiViewAttachmentState>();
 
   constructor(config: PiSpawnConfig, ptySpawn: PtySpawnFn = nodePty.spawn) {
     this.pty = ptySpawn(config.file, config.args, {
@@ -34,22 +51,46 @@ export class PiSession {
       if (this.scrollback.length > SCROLLBACK_CAP) {
         this.scrollback = this.scrollback.slice(this.scrollback.length - SCROLLBACK_CAP);
       }
-      for (const sender of this.senders) {
-        sender({ type: 'data', data });
-      }
+      this.broadcast({ type: 'data', data });
     });
 
     this.pty.onExit(({ exitCode }) => {
-      for (const sender of this.senders) {
-        sender({ type: 'exit', code: exitCode });
-      }
+      this.broadcast({ type: 'exit', code: exitCode });
     });
   }
 
   addSender(fn: (msg: PiSessionMessage) => void): () => void {
-    this.senders.add(fn);
-    fn({ type: 'scrollback', data: this.scrollback });
-    return () => this.senders.delete(fn);
+    const attachment = this.attachView(`legacy-sender-${this.legacySenderId++}`, fn);
+    return () => attachment.dispose();
+  }
+
+  attachView(id: string, send: (msg: PiSessionMessage) => void): PiViewAttachment {
+    const state: PiViewAttachmentState = {
+      id,
+      send,
+      visible: false,
+      cols: undefined,
+      rows: undefined,
+    };
+
+    this.attachments.add(state);
+    send({ type: 'scrollback', data: this.scrollback });
+
+    return {
+      setVisible: (visible: boolean) => {
+        state.visible = visible;
+        this.recomputeEffectiveSize();
+      },
+      setSize: (cols: number, rows: number) => {
+        state.cols = cols;
+        state.rows = rows;
+        this.recomputeEffectiveSize();
+      },
+      dispose: () => {
+        this.attachments.delete(state);
+        this.recomputeEffectiveSize();
+      },
+    };
   }
 
   getScrollback(): string {
@@ -61,11 +102,55 @@ export class PiSession {
   }
 
   resize(cols: number, rows: number): void {
+    this.effectiveCols = cols;
+    this.effectiveRows = rows;
     this.pty.resize(cols, rows);
   }
 
   dispose(): void {
     this.pty.kill();
-    this.senders.clear();
+    this.attachments.clear();
+  }
+
+  private broadcast(msg: PiSessionMessage): void {
+    for (const attachment of this.attachments) {
+      attachment.send(msg);
+    }
+  }
+
+  private recomputeEffectiveSize(): void {
+    const visibleAttachments = [...this.attachments].filter(
+      (attachment) => attachment.visible && attachment.cols !== undefined && attachment.rows !== undefined,
+    );
+    if (visibleAttachments.length === 0) {
+      return;
+    }
+
+    const narrowest = visibleAttachments.reduce((current, next) => {
+      if (next.cols === undefined || next.rows === undefined) {
+        return current;
+      }
+      if (current.cols === undefined || current.rows === undefined) {
+        return next;
+      }
+      if (next.cols < current.cols) {
+        return next;
+      }
+      if (next.cols === current.cols && next.rows < current.rows) {
+        return next;
+      }
+      return current;
+    });
+
+    if (narrowest.cols === undefined || narrowest.rows === undefined) {
+      return;
+    }
+    if (narrowest.cols === this.effectiveCols && narrowest.rows === this.effectiveRows) {
+      return;
+    }
+
+    this.effectiveCols = narrowest.cols;
+    this.effectiveRows = narrowest.rows;
+    this.pty.resize(narrowest.cols, narrowest.rows);
   }
 }
