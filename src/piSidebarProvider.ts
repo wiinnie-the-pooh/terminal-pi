@@ -6,11 +6,12 @@ export class PiSidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = 'piBay.session';
 
   constructor(
-    private readonly piSession: PiSession,
+    private readonly getSession: () => PiSession,
     private readonly extensionUri: vscode.Uri,
   ) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
+    const piSession = this.getSession();
     const webview = webviewView.webview;
 
     webview.options = {
@@ -34,7 +35,7 @@ export class PiSidebarProvider implements vscode.WebviewViewProvider {
       ).toString(),
     });
 
-    const attachment = this.piSession.attachView(
+    const attachment = piSession.attachView(
       'assistant-sidebar',
       (msg) => void webview.postMessage(msg),
     );
@@ -46,7 +47,7 @@ export class PiSidebarProvider implements vscode.WebviewViewProvider {
 
     webview.onDidReceiveMessage((msg: { type: string; data?: string; cols?: number; rows?: number }) => {
       if (msg.type === 'input' && msg.data !== undefined) {
-        this.piSession.write(msg.data);
+        piSession.write(msg.data);
       } else if (msg.type === 'resize' && msg.cols !== undefined && msg.rows !== undefined) {
         attachment.setSize(msg.cols, msg.rows);
       }

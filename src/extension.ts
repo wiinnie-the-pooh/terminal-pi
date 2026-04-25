@@ -30,7 +30,37 @@ import { getPiTerminalEnv } from './terminalEnv';
 
 let statusBarItem: vscode.StatusBarItem | undefined;
 let terminalManager: PiTerminalManager;
-let piSession: PiSession;
+let piSession: PiSession | undefined;
+let piExtensionPath = '';
+
+export function buildPiSessionArgs(extensionPath: string, defaultArgs: string): string[] {
+  const launcherPath = path.join(extensionPath, 'out', 'piLauncher.js');
+  const sessionId = crypto.randomUUID();
+  const piArgs = buildPiArgs(defaultArgs, extensionPath);
+  return [launcherPath, '--session', sessionId, ...piArgs];
+}
+
+/* c8 ignore start */
+function ensurePiSession(): PiSession {
+  if (!piSession) {
+    const cfg = getConfig();
+    const nodePath = resolveNodePath();
+    const resolvedEditorCommand = resolveEditorCommand({
+      configuredEditorCommand: cfg.editorCommand,
+      appHost: vscode.env.appHost,
+      uriScheme: vscode.env.uriScheme,
+      appName: vscode.env.appName,
+    });
+    const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
+    piSession = new PiSession({
+      file: nodePath,
+      args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs),
+      env: { ...process.env, ...editorEnv },
+    });
+  }
+  return piSession;
+}
+/* c8 ignore stop */
 
 interface ResourceTerminalManager {
   runWithResources(
@@ -57,34 +87,16 @@ export function activate(context: vscode.ExtensionContext): void {
   terminalManager = new PiTerminalManager(context);
   context.subscriptions.push(terminalManager);
 
-  const cfg = getConfig();
-  const nodePath = resolveNodePath();
-  const launcherPath = path.join(context.extensionPath, 'out', 'piLauncher.js');
-  const sessionId = crypto.randomUUID();
-  const piArgs = buildPiArgs(cfg.defaultArgs, context.extensionPath);
-  const resolvedEditorCommand = resolveEditorCommand({
-    configuredEditorCommand: cfg.editorCommand,
-    appHost: vscode.env.appHost,
-    uriScheme: vscode.env.uriScheme,
-    appName: vscode.env.appName,
-  });
-  const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
+  piExtensionPath = context.extensionPath;
+  context.subscriptions.push({ dispose: () => piSession?.dispose() });
 
-  // piSession = new PiSession({
-  //   file: nodePath,
-  //   args: [launcherPath, '--session', sessionId, ...piArgs],
-  //   env: { ...process.env, ...editorEnv },
-  // });
-  // context.subscriptions.push({ dispose: () => piSession.dispose() });
-
-  // const primaryPiViewProvider = new PiSidebarProvider(piSession, context.extensionUri);
-  // context.subscriptions.push(
-  //   vscode.window.registerWebviewViewProvider(
-  //     PiSidebarProvider.viewId,
-  //     primaryPiViewProvider,
-  //     { webviewOptions: { retainContextWhenHidden: true } },
-  //   ),
-  // );
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      PiSidebarProvider.viewId,
+      new PiSidebarProvider(ensurePiSession, context.extensionUri),
+      { webviewOptions: { retainContextWhenHidden: true } },
+    ),
+  );
 
   const runResourceAction = createResourceActionHandler({
     getConfig,
@@ -141,9 +153,9 @@ export function activate(context: vscode.ExtensionContext): void {
           );
         }),
     ),
-    // vscode.commands.registerCommand('piBay.openPanel', () => {
-    //   PiPanel.createOrReveal(piSession, context.extensionUri);
-    // }),
+    vscode.commands.registerCommand('piBay.openPanel', () => {
+      PiPanel.createOrReveal(ensurePiSession, context.extensionUri);
+    }),
   );
 
   setupStatusBar(context);

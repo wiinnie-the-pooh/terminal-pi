@@ -57,14 +57,14 @@ function makeWebviewView() {
 const FAKE_URI = { path: '/fake/ext' };
 
 test('PiSidebarProvider.resolveWebviewView enables scripts on the webview', () => {
-  const provider = new PiSidebarProvider(makeSession(), FAKE_URI);
+  const provider = new PiSidebarProvider(() => makeSession(), FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   assert.equal(view.webview.options.enableScripts, true);
 });
 
 test('PiSidebarProvider.resolveWebviewView sets html on the webview', () => {
-  const provider = new PiSidebarProvider(makeSession(), FAKE_URI);
+  const provider = new PiSidebarProvider(() => makeSession(), FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   assert.ok(view.webview.html.includes('<!DOCTYPE html>'));
@@ -72,7 +72,7 @@ test('PiSidebarProvider.resolveWebviewView sets html on the webview', () => {
 
 test('PiSidebarProvider attaches the webview to PiSession with a stable view id', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   assert.equal(session.__calls[0].type, 'attach');
@@ -81,7 +81,7 @@ test('PiSidebarProvider attaches the webview to PiSession with a stable view id'
 
 test('PiSidebarProvider sends PiSession messages to the webview', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   session.__calls[0].send({ type: 'data', data: 'hello' });
@@ -90,7 +90,7 @@ test('PiSidebarProvider sends PiSession messages to the webview', () => {
 
 test('PiSidebarProvider marks the webview visible when resolved', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   assert.deepEqual(session.__calls.find((call) => call.type === 'visible'), { type: 'visible', value: true });
@@ -98,7 +98,7 @@ test('PiSidebarProvider marks the webview visible when resolved', () => {
 
 test('PiSidebarProvider reports visibility changes to the attachment', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   view.__setVisible(false);
@@ -115,7 +115,7 @@ test('PiSidebarProvider reports visibility changes to the attachment', () => {
 
 test('PiSidebarProvider forwards input messages to session.write', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   view.__triggerMessage({ type: 'input', data: 'hello' });
@@ -124,7 +124,7 @@ test('PiSidebarProvider forwards input messages to session.write', () => {
 
 test('PiSidebarProvider forwards resize messages to attachment.setSize', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   view.__triggerMessage({ type: 'resize', cols: 100, rows: 30 });
@@ -133,7 +133,7 @@ test('PiSidebarProvider forwards resize messages to attachment.setSize', () => {
 
 test('PiSidebarProvider detaches from PiSession on dispose', () => {
   const session = makeSession();
-  const provider = new PiSidebarProvider(session, FAKE_URI);
+  const provider = new PiSidebarProvider(() => session, FAKE_URI);
   const view = makeWebviewView();
   provider.resolveWebviewView(view);
   view.__triggerDispose();

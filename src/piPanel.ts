@@ -8,13 +8,13 @@ export class PiPanel {
   private readonly panel: vscode.WebviewPanel;
   private readonly attachment: PiViewAttachment;
 
-  static createOrReveal(piSession: PiSession, extensionUri: vscode.Uri): void {
+  static createOrReveal(getSession: () => PiSession, extensionUri: vscode.Uri): void {
     if (PiPanel.instance) {
       PiPanel.instance.panel.reveal();
       PiPanel.instance.attachment.setVisible(true);
       return;
     }
-    PiPanel.instance = new PiPanel(piSession, extensionUri);
+    PiPanel.instance = new PiPanel(getSession(), extensionUri);
   }
 
   private constructor(piSession: PiSession, extensionUri: vscode.Uri) {
