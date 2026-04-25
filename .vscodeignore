@@ -11,7 +11,6 @@ run-tests.js
 run-diff-coverage.js
 tsconfig.json
 node_modules/**
-!node_modules/node-pty/**
 out/**/*.js.map
 *.vsix
 .remember/**

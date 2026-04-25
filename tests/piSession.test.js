@@ -5,7 +5,6 @@ const Module = require('module');
 const originalResolve = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
   if (request === 'vscode') return require.resolve('./__fixtures__/vscode-stub.js');
-  if (request === 'node-pty') return require.resolve('./__fixtures__/node-pty-stub.js');
   return originalResolve.call(this, request, ...rest);
 };
 

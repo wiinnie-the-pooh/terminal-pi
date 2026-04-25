@@ -52,11 +52,17 @@ function ensurePiSession(): PiSession {
       appName: vscode.env.appName,
     });
     const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
-    piSession = new PiSession({
-      file: nodePath,
-      args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs),
-      env: { ...process.env, ...editorEnv },
-    });
+    const ptyPath = path.join(vscode.env.appRoot, 'node_modules', 'node-pty');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const nodePty: typeof import('node-pty') = require(ptyPath);
+    piSession = new PiSession(
+      {
+        file: nodePath,
+        args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs),
+        env: { ...process.env, ...editorEnv },
+      },
+      nodePty.spawn,
+    );
   }
   return piSession;
 }

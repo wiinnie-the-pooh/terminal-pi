@@ -1,4 +1,4 @@
-import * as nodePty from 'node-pty';
+import type * as nodePty from 'node-pty';
 import type { IPty } from 'node-pty';
 
 export interface PiSpawnConfig {
@@ -50,7 +50,7 @@ export class PiSession {
   private effectiveRows = 24;
   private readonly attachments = new Set<PiViewAttachmentState>();
 
-  constructor(config: PiSpawnConfig, ptySpawn: PtySpawnFn = nodePty.spawn) {
+  constructor(config: PiSpawnConfig, ptySpawn: PtySpawnFn) {
     this.pty = ptySpawn(config.file, config.args, {
       name: 'xterm-256color',
       cols: 80,
