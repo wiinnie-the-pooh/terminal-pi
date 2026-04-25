@@ -70,21 +70,21 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
 
-  piSession = new PiSession({
-    file: nodePath,
-    args: [launcherPath, '--session', sessionId, ...piArgs],
-    env: { ...process.env, ...editorEnv },
-  });
-  context.subscriptions.push({ dispose: () => piSession.dispose() });
+  // piSession = new PiSession({
+  //   file: nodePath,
+  //   args: [launcherPath, '--session', sessionId, ...piArgs],
+  //   env: { ...process.env, ...editorEnv },
+  // });
+  // context.subscriptions.push({ dispose: () => piSession.dispose() });
 
-  const primaryPiViewProvider = new PiSidebarProvider(piSession, context.extensionUri);
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      PiSidebarProvider.viewId,
-      primaryPiViewProvider,
-      { webviewOptions: { retainContextWhenHidden: true } },
-    ),
-  );
+  // const primaryPiViewProvider = new PiSidebarProvider(piSession, context.extensionUri);
+  // context.subscriptions.push(
+  //   vscode.window.registerWebviewViewProvider(
+  //     PiSidebarProvider.viewId,
+  //     primaryPiViewProvider,
+  //     { webviewOptions: { retainContextWhenHidden: true } },
+  //   ),
+  // );
 
   const runResourceAction = createResourceActionHandler({
     getConfig,
@@ -141,9 +141,9 @@ export function activate(context: vscode.ExtensionContext): void {
           );
         }),
     ),
-    vscode.commands.registerCommand('piBay.openPanel', () => {
-      PiPanel.createOrReveal(piSession, context.extensionUri);
-    }),
+    // vscode.commands.registerCommand('piBay.openPanel', () => {
+    //   PiPanel.createOrReveal(piSession, context.extensionUri);
+    // }),
   );
 
   setupStatusBar(context);
