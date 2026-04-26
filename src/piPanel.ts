@@ -37,6 +37,27 @@ export class PiPanel {
     new PiPanel(panel, getSession(), extensionUri);
   }
 
+  static split(getSession: () => PiSession, extensionUri: vscode.Uri): void {
+    if (PiPanel.panels.size === 0) {
+      return;
+    }
+
+    const panel = vscode.window.createWebviewPanel(
+      'piBay.panel',
+      'Pi Editor View',
+      vscode.ViewColumn.Beside,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [
+          vscode.Uri.joinPath(extensionUri, 'resources', 'webview'),
+        ],
+      },
+    );
+
+    new PiPanel(panel, getSession(), extensionUri);
+  }
+
   private constructor(panel: vscode.WebviewPanel, piSession: PiSession, extensionUri: vscode.Uri) {
     this.panel = panel;
 

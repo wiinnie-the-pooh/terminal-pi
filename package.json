@@ -73,6 +73,11 @@
         "title": "Open Pi Editor View",
         "category": "Pi Bay",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "piBay.splitPanel",
+        "title": "Split Pi Editor View",
+        "category": "Pi Bay"
       }
     ],
     "viewsContainers": {
@@ -205,6 +210,18 @@
         "args": {
           "text": "\u001b[1;3A"
         }
+      },
+      {
+        "command": "piBay.splitPanel",
+        "key": "ctrl+\\",
+        "mac": "cmd+\\",
+        "when": "activeWebviewPanelId == 'piBay.panel'"
+      },
+      {
+        "command": "piBay.splitPanel",
+        "key": "ctrl+k ctrl+\\",
+        "mac": "cmd+k cmd+\\",
+        "when": "activeWebviewPanelId == 'piBay.panel'"
       }
     ]
   },

@@ -175,6 +175,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('piBay.openPanel', () => {
       PiPanel.createOrReveal(ensurePiSession, context.extensionUri);
     }),
+    vscode.commands.registerCommand('piBay.splitPanel', () => {
+      PiPanel.split(ensurePiSession, context.extensionUri);
+    }),
   );
 
   setupStatusBar(context);

@@ -1,4 +1,4 @@
-const test = require('node:test');
+﻿const test = require('node:test');
 const assert = require('node:assert/strict');
 const pkg = require('../package.json');
 
@@ -165,4 +165,25 @@ test('package.json contributes ctrl+g sendSequence keybinding for Pi terminals',
 
 test('package.json contributes alt+up sendSequence keybinding for Pi terminals', () => {
   assertSendSequenceKeybinding('alt+up', '\u001b[1;3A');
+});
+
+test('package.json contributes piBay.splitPanel command with correct title', () => {
+  const titles = getCommandTitles(pkg.contributes.commands);
+  assert.equal(titles.get('piBay.splitPanel'), 'Split Pi Editor View');
+});
+
+test('package.json contributes ctrl+\\ keybinding scoped to Pi panels', () => {
+  const kbs = getKeybindings(pkg.contributes.keybindings);
+  const kb = kbs.get('ctrl+\\');
+  assert.ok(kb, 'ctrl+\\ keybinding should exist');
+  assert.equal(kb.command, 'piBay.splitPanel');
+  assert.equal(kb.when, "activeWebviewPanelId == 'piBay.panel'");
+});
+
+test('package.json contributes ctrl+k ctrl+\\ keybinding scoped to Pi panels', () => {
+  const kbs = getKeybindings(pkg.contributes.keybindings);
+  const kb = kbs.get('ctrl+k ctrl+\\');
+  assert.ok(kb, 'ctrl+k ctrl+\\ keybinding should exist');
+  assert.equal(kb.command, 'piBay.splitPanel');
+  assert.equal(kb.when, "activeWebviewPanelId == 'piBay.panel'");
 });

@@ -6,7 +6,7 @@ module.exports = {
       return { path: [p, ...parts].join('/') };
     },
   },
-  ViewColumn: { One: 1 },
+  ViewColumn: { One: 1, Beside: -1 },
   window: {
     createWebviewPanel(viewType, title, column, options) {
       let disposeHandler = null;
@@ -25,6 +25,7 @@ module.exports = {
         },
         reveal() { panel.__revealed = true; panel.visible = true; },
         __revealed: false,
+        __viewColumn: column,
         __posted: posted,
         onDidDispose(h) { disposeHandler = h; return { dispose: () => {} }; },
         onDidChangeViewState(h) { viewStateHandler = h; return { dispose: () => {} }; },
@@ -36,9 +37,11 @@ module.exports = {
         },
       };
       module.exports.window.__lastPanel = panel;
+      module.exports.window.__allPanels.push(panel);
       return panel;
     },
     __lastPanel: null,
+    __allPanels: [],
     onDidCloseTerminal: () => ({ dispose: () => {} }),
     showErrorMessage: async () => undefined,
     registerWebviewViewProvider: () => ({ dispose: () => {} }),

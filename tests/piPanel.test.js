@@ -63,11 +63,11 @@ const FAKE_URI = { path: '/fake/ext' };
 
 // After each test, dispose all tracked panels so the set is cleared for the next test.
 afterEach(() => {
-  const lastPanel = vscodeStub.window.__lastPanel;
-  if (lastPanel) {
-    lastPanel.__triggerDispose();
-    vscodeStub.window.__lastPanel = null;
+  for (const panel of vscodeStub.window.__allPanels) {
+    panel.__triggerDispose();
   }
+  vscodeStub.window.__lastPanel = null;
+  vscodeStub.window.__allPanels = [];
 });
 
 test('PiPanel.createOrReveal creates a new WebviewPanel', () => {
@@ -236,4 +236,51 @@ test('Multiple restored panels each receive session messages independently', () 
   assert.deepEqual(panel2.__posted.at(-1), { type: 'data', data: 'to-panel-2' });
   panel1.__triggerDispose();
   panel2.__triggerDispose();
+});
+
+// --- split path ---
+
+test('PiPanel.split creates a new WebviewPanel at ViewColumn.Beside', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  const firstPanel = vscodeStub.window.__lastPanel;
+  PiPanel.split(() => session, FAKE_URI);
+  const splitPanel = vscodeStub.window.__lastPanel;
+  assert.notEqual(splitPanel, firstPanel, 'split should create a new panel');
+  assert.equal(splitPanel.__viewColumn, vscodeStub.ViewColumn.Beside);
+});
+
+test('PiPanel.split attaches to the same session with a distinct ID', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  PiPanel.split(() => session, FAKE_URI);
+  const attachCalls = session.__calls.filter((c) => c.type === 'attach');
+  assert.equal(attachCalls.length, 2);
+  assert.notEqual(attachCalls[0].id, attachCalls[1].id);
+});
+
+test('PiPanel.split is a no-op when no panels exist', () => {
+  PiPanel.split(() => makeSession(), FAKE_URI);
+  assert.equal(vscodeStub.window.__lastPanel, null, 'split should not create a panel when none exist');
+});
+
+test('PiPanel.split panel delivers session messages to its webview', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  PiPanel.split(() => session, FAKE_URI);
+  const splitAttach = session.__calls.filter((c) => c.type === 'attach').at(-1);
+  splitAttach.send({ type: 'scrollback', data: 'prior output' });
+  assert.deepEqual(vscodeStub.window.__lastPanel.__posted.at(-1), { type: 'scrollback', data: 'prior output' });
+});
+
+test('PiPanel.split panel disposes independently leaving the original intact', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  const originalPanel = vscodeStub.window.__lastPanel;
+  PiPanel.split(() => session, FAKE_URI);
+  const splitPanel = vscodeStub.window.__lastPanel;
+  splitPanel.__triggerDispose();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  assert.equal(originalPanel.__revealed, true, 'createOrReveal should reveal the original panel after split is closed');
+  assert.equal(vscodeStub.window.__allPanels.length, 2, 'no new panel should have been created');
 });

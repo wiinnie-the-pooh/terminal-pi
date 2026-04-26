@@ -104,6 +104,16 @@ Run these checks in a live VS Code window after installing the extension from a 
 | A4 | Run `Pi Bay: Open Pi Editor View` from the Command Palette or the `Pi` view title action | A separate `Pi Editor View` editor tab opens as an optional second viewport |
 | A5 | Run `Pi Bay: Run Pi Bay` or click the status bar button | The existing integrated terminal flow is unchanged: a terminal named `Pi Bay` opens and starts `pi` |
 
+#### Split Pi Editor View
+
+| # | Action | Expected result |
+|---|--------|----------------|
+| S1 | Open a `Pi Editor View`, focus it, press `Ctrl+\` (Windows/Linux) or `Cmd+\` (Mac) | A second `Pi Editor View` opens beside the first; both show the same session transcript |
+| S2 | Type input in either split view | Output appears in both views simultaneously |
+| S3 | Close one split view | The other remains unaffected; `Open Pi Editor View` still reveals the surviving panel |
+| S4 | Run `Pi Bay: Split Pi Editor View` from the Command Palette while a `Pi Editor View` is focused | Same result as S1 |
+| S5 | Press `Ctrl+\` while a non-Pi editor is focused | Default VS Code split-editor behavior fires (no Pi panel is created) |
+
 #### Shared-session two-viewport flow
 
 1. Open the assistant-area `Pi` view.
