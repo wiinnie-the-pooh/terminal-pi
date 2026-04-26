@@ -108,11 +108,12 @@ Run these checks in a live VS Code window after installing the extension from a 
 
 | # | Action | Expected result |
 |---|--------|----------------|
-| S1 | Open a `Pi Editor View`, focus it, press `Ctrl+\` (Windows/Linux) or `Cmd+\` (Mac) | A second `Pi Editor View` opens beside the first; both show the same session transcript |
-| S2 | Type input in either split view | Output appears in both views simultaneously |
-| S3 | Close one split view | The other remains unaffected; `Open Pi Editor View` still reveals the surviving panel |
-| S4 | Run `Pi Bay: Split Pi Editor View` from the Command Palette while a `Pi Editor View` is focused | Same result as S1 |
-| S5 | Press `Ctrl+\` while a non-Pi editor is focused | Default VS Code split-editor behavior fires (no Pi panel is created) |
+| S1 | Open a `Pi Editor View`, focus it, then run VS Code's built-in `View: Split Editor Right` command or click the Split Editor Right toolbar action | A second `Pi Editor View` opens beside the first; both show the same session transcript |
+| S2 | Open a `Pi Editor View`, focus it, then run VS Code's built-in `View: Split Editor Down` command | A second `Pi Editor View` opens below the first; both show the same session transcript |
+| S3 | Open a `Pi Editor View`, focus it, press `Ctrl+\` (Windows/Linux) or `Cmd+\` (Mac) | A second `Pi Editor View` opens beside the first via VS Code's native split command |
+| S4 | Type input in either split view | Output appears in both views simultaneously |
+| S5 | Close one split view | The other remains unaffected; `Open Pi Editor View` still reveals the surviving panel |
+| S6 | Press `Ctrl+\` while a non-Pi editor is focused | Default VS Code split-editor behavior fires (no Pi panel is created) |
 
 #### Shared-session two-viewport flow
 

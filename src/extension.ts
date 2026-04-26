@@ -9,10 +9,11 @@ import {
   type ExplorerSelectionEntry,
   type FileLikeUri,
 } from './fileSelection';
-import { PiPanel } from './piPanel';
+import { PiEditorProvider } from './piEditorProvider';
 import { resolveNodePath } from './piResolver';
 import type { PiResourceMode } from './piResourceArgs';
 import { PiSession } from './piSession';
+import { PiSessionFs } from './piSessionFs';
 import { PiSidebarProvider } from './piSidebarProvider';
 import {
   isPiTerminalName,
@@ -103,18 +104,25 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push({ dispose: () => piSession?.dispose() });
 
   const ensurePiSession = makeEnsurePiSession(context);
+  const editorProvider = new PiEditorProvider(ensurePiSession, context.extensionUri);
 
   context.subscriptions.push(
+    vscode.workspace.registerFileSystemProvider('pi-bay', new PiSessionFs(), {
+      isReadonly: true,
+    }),
     vscode.window.registerWebviewViewProvider(
       PiSidebarProvider.viewId,
       new PiSidebarProvider(ensurePiSession, context.extensionUri),
       { webviewOptions: { retainContextWhenHidden: true } },
     ),
-    vscode.window.registerWebviewPanelSerializer('piBay.panel', {
-      async deserializeWebviewPanel(panel: vscode.WebviewPanel, _state: unknown): Promise<void> {
-        PiPanel.restore(panel, ensurePiSession, context.extensionUri);
+    vscode.window.registerCustomEditorProvider(
+      PiEditorProvider.viewType,
+      editorProvider,
+      {
+        webviewOptions: { retainContextWhenHidden: true },
+        supportsMultipleEditorsPerDocument: true,
       },
-    }),
+    ),
   );
 
   const runResourceAction = createResourceActionHandler({
@@ -173,10 +181,7 @@ export function activate(context: vscode.ExtensionContext): void {
         }),
     ),
     vscode.commands.registerCommand('piBay.openPanel', () => {
-      PiPanel.createOrReveal(ensurePiSession, context.extensionUri);
-    }),
-    vscode.commands.registerCommand('piBay.splitPanel', () => {
-      PiPanel.split(ensurePiSession, context.extensionUri);
+      editorProvider.revealOrOpen();
     }),
   );
 

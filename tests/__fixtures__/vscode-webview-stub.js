@@ -1,6 +1,17 @@
 module.exports = {
   ConfigurationTarget: { Global: 1, Workspace: 2, WorkspaceFolder: 3 },
+  EventEmitter: class {
+    constructor() {
+      this.event = () => ({ dispose: () => {} });
+    }
+    fire() {}
+    dispose() {}
+  },
+  FileType: { File: 1, Directory: 2 },
   Uri: {
+    parse(value) {
+      return { path: value.replace(/^[^:]+:/, '') };
+    },
     joinPath(base, ...parts) {
       const p = typeof base === 'string' ? base : (base.path ?? '');
       return { path: [p, ...parts].join('/') };
@@ -50,5 +61,16 @@ module.exports = {
     onDidCloseTerminal: () => ({ dispose: () => {} }),
     showErrorMessage: async () => undefined,
     registerWebviewViewProvider: () => ({ dispose: () => {} }),
+    registerCustomEditorProvider: () => ({ dispose: () => {} }),
+  },
+  commands: {
+    __executed: [],
+    executeCommand(command, ...args) {
+      module.exports.commands.__executed.push({ command, args });
+      return Promise.resolve(undefined);
+    },
+  },
+  workspace: {
+    registerFileSystemProvider: () => ({ dispose: () => {} }),
   },
 };
