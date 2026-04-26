@@ -7,6 +7,11 @@ module.exports = {
     Workspace: 2,
     WorkspaceFolder: 3,
   },
+  Uri: {
+    parse(value) {
+      return { path: value.replace(/^[^:]+:/, '') };
+    },
+  },
   window: {
     onDidCloseTerminal: () => ({ dispose: () => {} }),
     showErrorMessage: async () => undefined,
