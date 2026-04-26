@@ -41,6 +41,17 @@ test('PiSession spawns PTY with the provided env', () => {
   assert.deepEqual(ptyStub.__calls.spawn[0].opts.env, CONFIG.env);
 });
 
+test('PiSession spawns PTY with the provided cwd', () => {
+  const config = { ...CONFIG, cwd: '/workspace/project' };
+  new PiSession(config, ptyStub.spawn);
+  assert.equal(ptyStub.__calls.spawn[0].opts.cwd, '/workspace/project');
+});
+
+test('PiSession spawns PTY with undefined cwd when not provided', () => {
+  new PiSession(CONFIG, ptyStub.spawn);
+  assert.equal(ptyStub.__calls.spawn[0].opts.cwd, undefined);
+});
+
 // --- write / resize / dispose ---
 
 test('PiSession.write forwards data to the PTY', () => {

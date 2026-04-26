@@ -64,6 +64,7 @@ function makeEnsurePiSession(context: vscode.ExtensionContext): () => PiSession 
           file: nodePath,
           args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs, sessionId),
           env: { ...process.env, ...editorEnv },
+          cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
         },
         nodePty.spawn,
       );

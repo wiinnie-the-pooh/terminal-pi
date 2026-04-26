@@ -5,6 +5,7 @@ export interface PiSpawnConfig {
   file: string;
   args: string[];
   env: Record<string, string | undefined>;
+  cwd?: string;
 }
 
 type PtySpawnFn = typeof nodePty.spawn;
@@ -56,6 +57,7 @@ export class PiSession {
       cols: 80,
       rows: 24,
       env: config.env,
+      cwd: config.cwd,
     });
 
     this.pty.onData((data) => {
