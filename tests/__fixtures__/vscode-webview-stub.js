@@ -15,6 +15,7 @@ module.exports = {
       const posted = [];
       const panel = {
         visible: true,
+        viewColumn: column,
         webview: {
           html: '',
           cspSource: 'test-csp',
@@ -33,6 +34,10 @@ module.exports = {
         __triggerMessage(msg) { messageHandler?.(msg); },
         __setVisible(value) {
           panel.visible = value;
+          viewStateHandler?.({ webviewPanel: panel });
+        },
+        __setViewColumn(value) {
+          panel.viewColumn = value;
           viewStateHandler?.({ webviewPanel: panel });
         },
       };

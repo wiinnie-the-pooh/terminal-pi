@@ -30,11 +30,11 @@ export class PiPanel {
       },
     );
 
-    new PiPanel(panel, getSession(), extensionUri);
+    new PiPanel(panel, getSession, extensionUri);
   }
 
   static restore(panel: vscode.WebviewPanel, getSession: () => PiSession, extensionUri: vscode.Uri): void {
-    new PiPanel(panel, getSession(), extensionUri);
+    new PiPanel(panel, getSession, extensionUri);
   }
 
   static split(getSession: () => PiSession, extensionUri: vscode.Uri): void {
@@ -55,12 +55,30 @@ export class PiPanel {
       },
     );
 
-    new PiPanel(panel, getSession(), extensionUri);
+    new PiPanel(panel, getSession, extensionUri);
   }
 
-  private constructor(panel: vscode.WebviewPanel, piSession: PiSession, extensionUri: vscode.Uri) {
+  private static backfill(getSession: () => PiSession, extensionUri: vscode.Uri, column: vscode.ViewColumn): void {
+    const panel = vscode.window.createWebviewPanel(
+      'piBay.panel',
+      'Pi Editor View',
+      column,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [
+          vscode.Uri.joinPath(extensionUri, 'resources', 'webview'),
+        ],
+      },
+    );
+
+    new PiPanel(panel, getSession, extensionUri);
+  }
+
+  private constructor(panel: vscode.WebviewPanel, getSession: () => PiSession, extensionUri: vscode.Uri) {
     this.panel = panel;
 
+    const piSession = getSession();
     const webview = this.panel.webview;
 
     webview.options = {
@@ -90,7 +108,16 @@ export class PiPanel {
     );
     this.attachment.setVisible(this.panel.visible);
 
+    let lastViewColumn = this.panel.viewColumn;
     this.panel.onDidChangeViewState(() => {
+      const newColumn = this.panel.viewColumn;
+      if (newColumn !== undefined && lastViewColumn !== undefined && newColumn !== lastViewColumn) {
+        const targetColumn = lastViewColumn;
+        lastViewColumn = newColumn;
+        PiPanel.backfill(getSession, extensionUri, targetColumn);
+      } else {
+        lastViewColumn = newColumn;
+      }
       this.attachment.setVisible(this.panel.visible);
     });
 

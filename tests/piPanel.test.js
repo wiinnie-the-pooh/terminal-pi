@@ -284,3 +284,39 @@ test('PiPanel.split panel disposes independently leaving the original intact', (
   assert.equal(originalPanel.__revealed, true, 'createOrReveal should reveal the original panel after split is closed');
   assert.equal(vscodeStub.window.__allPanels.length, 2, 'no new panel should have been created');
 });
+
+// --- backfill on view-column change (split-editor interception) ---
+
+test('Moving a Pi panel to a different column backfills the original column with a new panel', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  const originalPanel = vscodeStub.window.__lastPanel;
+  assert.equal(originalPanel.viewColumn, vscodeStub.ViewColumn.One);
+
+  originalPanel.__setViewColumn(2);
+
+  const backfilledPanel = vscodeStub.window.__lastPanel;
+  assert.notEqual(backfilledPanel, originalPanel, 'a new panel should have been created');
+  assert.equal(backfilledPanel.viewColumn, vscodeStub.ViewColumn.One, 'backfilled panel should be at the original column');
+});
+
+test('Backfilled panel attaches to the same session with a distinct ID', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  vscodeStub.window.__lastPanel.__setViewColumn(2);
+
+  const attachCalls = session.__calls.filter((c) => c.type === 'attach');
+  assert.equal(attachCalls.length, 2);
+  assert.notEqual(attachCalls[0].id, attachCalls[1].id);
+});
+
+test('No backfill when viewColumn stays the same', () => {
+  const session = makeSession();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  const panel = vscodeStub.window.__lastPanel;
+
+  panel.__setVisible(false);
+  panel.__setVisible(true);
+
+  assert.equal(vscodeStub.window.__allPanels.length, 1, 'no extra panel should be created for visibility changes');
+});
