@@ -110,6 +110,11 @@ export function activate(context: vscode.ExtensionContext): void {
       new PiSidebarProvider(ensurePiSession, context.extensionUri),
       { webviewOptions: { retainContextWhenHidden: true } },
     ),
+    vscode.window.registerWebviewPanelSerializer('piBay.panel', {
+      async deserializeWebviewPanel(panel: vscode.WebviewPanel, _state: unknown): Promise<void> {
+        PiPanel.restore(panel, ensurePiSession, context.extensionUri);
+      },
+    }),
   );
 
   const runResourceAction = createResourceActionHandler({

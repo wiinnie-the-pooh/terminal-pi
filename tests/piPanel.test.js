@@ -29,13 +29,43 @@ function makeSession() {
   };
 }
 
+function makePanel() {
+  let disposeHandler = null;
+  let messageHandler = null;
+  let viewStateHandler = null;
+  const posted = [];
+  const panel = {
+    visible: true,
+    webview: {
+      html: '',
+      cspSource: 'test-csp',
+      options: {},
+      asWebviewUri(uri) { return { toString: () => `webview:${uri.path}` }; },
+      onDidReceiveMessage(h) { messageHandler = h; return { dispose: () => {} }; },
+      postMessage(m) { posted.push(m); },
+    },
+    reveal() { panel.__revealed = true; panel.visible = true; },
+    __revealed: false,
+    __posted: posted,
+    onDidDispose(h) { disposeHandler = h; return { dispose: () => {} }; },
+    onDidChangeViewState(h) { viewStateHandler = h; return { dispose: () => {} }; },
+    __triggerDispose() { disposeHandler?.(); },
+    __triggerMessage(msg) { messageHandler?.(msg); },
+    __setVisible(value) {
+      panel.visible = value;
+      viewStateHandler?.({ webviewPanel: panel });
+    },
+  };
+  return panel;
+}
+
 const FAKE_URI = { path: '/fake/ext' };
 
-// After each test, dispose the panel so the singleton is cleared for the next test.
+// After each test, dispose all tracked panels so the set is cleared for the next test.
 afterEach(() => {
-  const panel = vscodeStub.window.__lastPanel;
-  if (panel) {
-    panel.__triggerDispose();
+  const lastPanel = vscodeStub.window.__lastPanel;
+  if (lastPanel) {
+    lastPanel.__triggerDispose();
     vscodeStub.window.__lastPanel = null;
   }
 });
@@ -54,7 +84,7 @@ test('PiPanel attaches as a second view through PiSession.attachView', () => {
   const session = makeSession();
   PiPanel.createOrReveal(() => session, FAKE_URI);
   assert.equal(session.__calls[0].type, 'attach');
-  assert.equal(session.__calls[0].id, 'editor-panel');
+  assert.ok(session.__calls[0].id.startsWith('editor-panel-'));
 });
 
 test('PiPanel sends PiSession messages to the webview', () => {
@@ -132,4 +162,78 @@ test('PiPanel.createOrReveal creates a new panel after previous panel was dispos
   vscodeStub.window.__lastPanel = null;
   PiPanel.createOrReveal(() => session, FAKE_URI);
   assert.ok(vscodeStub.window.__lastPanel, 'expected a new panel after dispose');
+});
+
+// --- restore path ---
+
+test('PiPanel.restore populates an existing panel webview with HTML', () => {
+  const panel = makePanel();
+  PiPanel.restore(panel, () => makeSession(), FAKE_URI);
+  assert.ok(panel.webview.html.includes('<!DOCTYPE html>'));
+  panel.__triggerDispose();
+});
+
+test('PiPanel.restore attaches to PiSession with an editor-panel-* view ID', () => {
+  const session = makeSession();
+  const panel = makePanel();
+  PiPanel.restore(panel, () => session, FAKE_URI);
+  assert.equal(session.__calls[0].type, 'attach');
+  assert.ok(session.__calls[0].id.startsWith('editor-panel-'));
+  panel.__triggerDispose();
+});
+
+test('PiPanel.restore sends session messages to the restored panel', () => {
+  const session = makeSession();
+  const panel = makePanel();
+  PiPanel.restore(panel, () => session, FAKE_URI);
+  session.__calls[0].send({ type: 'data', data: 'restored' });
+  assert.deepEqual(panel.__posted, [{ type: 'data', data: 'restored' }]);
+  panel.__triggerDispose();
+});
+
+test('PiPanel.createOrReveal reveals a restored panel instead of creating a new one', () => {
+  const session = makeSession();
+  const panel = makePanel();
+  PiPanel.restore(panel, () => session, FAKE_URI);
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  assert.equal(vscodeStub.window.__lastPanel, null, 'createOrReveal should not have called createWebviewPanel');
+  assert.equal(panel.__revealed, true);
+  panel.__triggerDispose();
+});
+
+test('PiPanel.restore clears the panel from the set on dispose', () => {
+  const session = makeSession();
+  const panel = makePanel();
+  PiPanel.restore(panel, () => session, FAKE_URI);
+  panel.__triggerDispose();
+  PiPanel.createOrReveal(() => session, FAKE_URI);
+  assert.ok(vscodeStub.window.__lastPanel, 'expected a new panel after restored panel was disposed');
+});
+
+test('Multiple PiPanel.restore calls create independent panels sharing the same session', () => {
+  const session = makeSession();
+  const panel1 = makePanel();
+  const panel2 = makePanel();
+  PiPanel.restore(panel1, () => session, FAKE_URI);
+  PiPanel.restore(panel2, () => session, FAKE_URI);
+  const attachCalls = session.__calls.filter((c) => c.type === 'attach');
+  assert.equal(attachCalls.length, 2);
+  assert.notEqual(attachCalls[0].id, attachCalls[1].id, 'each panel should have a distinct attachment ID');
+  panel1.__triggerDispose();
+  panel2.__triggerDispose();
+});
+
+test('Multiple restored panels each receive session messages independently', () => {
+  const session = makeSession();
+  const panel1 = makePanel();
+  const panel2 = makePanel();
+  PiPanel.restore(panel1, () => session, FAKE_URI);
+  PiPanel.restore(panel2, () => session, FAKE_URI);
+  const attachCalls = session.__calls.filter((c) => c.type === 'attach');
+  attachCalls[0].send({ type: 'data', data: 'to-panel-1' });
+  attachCalls[1].send({ type: 'data', data: 'to-panel-2' });
+  assert.deepEqual(panel1.__posted.at(-1), { type: 'data', data: 'to-panel-1' });
+  assert.deepEqual(panel2.__posted.at(-1), { type: 'data', data: 'to-panel-2' });
+  panel1.__triggerDispose();
+  panel2.__triggerDispose();
 });

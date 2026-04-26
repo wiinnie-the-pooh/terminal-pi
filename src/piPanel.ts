@@ -3,22 +3,21 @@ import type { PiSession, PiViewAttachment } from './piSession';
 import { generateNonce, getWebviewTemplate } from './webviewTemplate';
 
 export class PiPanel {
-  private static instance: PiPanel | undefined;
+  private static readonly panels = new Set<PiPanel>();
+  private static nextId = 0;
 
   private readonly panel: vscode.WebviewPanel;
   private readonly attachment: PiViewAttachment;
 
   static createOrReveal(getSession: () => PiSession, extensionUri: vscode.Uri): void {
-    if (PiPanel.instance) {
-      PiPanel.instance.panel.reveal();
-      PiPanel.instance.attachment.setVisible(true);
+    const first = PiPanel.panels.values().next().value;
+    if (first) {
+      first.panel.reveal();
+      first.attachment.setVisible(true);
       return;
     }
-    PiPanel.instance = new PiPanel(getSession(), extensionUri);
-  }
 
-  private constructor(piSession: PiSession, extensionUri: vscode.Uri) {
-    this.panel = vscode.window.createWebviewPanel(
+    const panel = vscode.window.createWebviewPanel(
       'piBay.panel',
       'Pi Editor View',
       vscode.ViewColumn.One,
@@ -31,7 +30,24 @@ export class PiPanel {
       },
     );
 
+    new PiPanel(panel, getSession(), extensionUri);
+  }
+
+  static restore(panel: vscode.WebviewPanel, getSession: () => PiSession, extensionUri: vscode.Uri): void {
+    new PiPanel(panel, getSession(), extensionUri);
+  }
+
+  private constructor(panel: vscode.WebviewPanel, piSession: PiSession, extensionUri: vscode.Uri) {
+    this.panel = panel;
+
     const webview = this.panel.webview;
+
+    webview.options = {
+      enableScripts: true,
+      localResourceRoots: [
+        vscode.Uri.joinPath(extensionUri, 'resources', 'webview'),
+      ],
+    };
 
     webview.html = getWebviewTemplate({
       cspSource: webview.cspSource,
@@ -48,7 +64,7 @@ export class PiPanel {
     });
 
     this.attachment = piSession.attachView(
-      'editor-panel',
+      `editor-panel-${PiPanel.nextId++}`,
       (msg) => void webview.postMessage(msg),
     );
     this.attachment.setVisible(this.panel.visible);
@@ -65,9 +81,11 @@ export class PiPanel {
       }
     });
 
+    PiPanel.panels.add(this);
+
     this.panel.onDidDispose(() => {
       this.attachment.dispose();
-      PiPanel.instance = undefined;
+      PiPanel.panels.delete(this);
     });
   }
 }

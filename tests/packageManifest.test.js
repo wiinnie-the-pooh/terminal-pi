@@ -39,6 +39,10 @@ test('package.json requires the minimum VS Code version for secondary sidebar vi
   assert.equal(pkg.engines.vscode, '^1.106.0');
 });
 
+test('package.json includes onWebviewPanel activation event for panel restoration', () => {
+  assert.ok(pkg.activationEvents.includes('onWebviewPanel:piBay.panel'));
+});
+
 test('package.json does not contribute a custom piBay activity bar container', () => {
   assert.equal(pkg.contributes.viewsContainers?.activitybar?.some((view) => view.id === 'piBay') ?? false, false);
 });
