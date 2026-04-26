@@ -29,6 +29,49 @@ test('package.json contributes piBay.runWithPrompt command with correct title', 
   assert.equal(titles.get('piBay.runWithPrompt'), 'Run Pi with Prompt...');
 });
 
+test('package.json contributes piBay.openPanel command with optional editor view title', () => {
+  const titles = getCommandTitles(pkg.contributes.commands);
+
+  assert.equal(titles.get('piBay.openPanel'), 'Open Pi Editor View');
+});
+
+test('package.json requires the minimum VS Code version for secondary sidebar view placement', () => {
+  assert.equal(pkg.engines.vscode, '^1.106.0');
+});
+
+test('package.json does not contribute a custom piBay activity bar container', () => {
+  assert.equal(pkg.contributes.viewsContainers?.activitybar?.some((view) => view.id === 'piBay') ?? false, false);
+});
+
+test('package.json contributes the primary Pi view to the secondary sidebar', () => {
+  assert.deepEqual(pkg.contributes.viewsContainers?.secondarySidebar, [
+    {
+      id: 'piBay',
+      title: 'Pi Bay',
+      icon: 'resources/icons/pi-light.svg',
+    },
+  ]);
+
+  assert.deepEqual(pkg.contributes.views?.piBay, [
+    {
+      type: 'webview',
+      id: 'piBay.session',
+      name: 'Pi',
+    },
+  ]);
+});
+
+function getViewTitleMenuItem(command) {
+  return getMenuItem(pkg.contributes.menus['view/title'], command);
+}
+
+test('package.json contributes a view/title menu entry for piBay.openPanel', () => {
+  const item = getViewTitleMenuItem('piBay.openPanel');
+
+  assert.equal(item?.when, 'view == piBay.session');
+  assert.equal(item?.group, 'navigation');
+});
+
 test('package.json contributes explorer context menu entries for all Pi resource actions', () => {
   const commands = getMenuCommands(pkg.contributes.menus['explorer/context']);
 

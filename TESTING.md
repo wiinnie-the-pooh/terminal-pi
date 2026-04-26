@@ -90,6 +90,53 @@ Run through the relevant scenarios after every non-trivial change.
 | 48 | Run `piBay.runWithSkill` with a skill file; close VS Code; reopen (restore enabled) | Pi terminal reopens and resumes the session via sidecar map; skill context is part of the resumed conversation |
 | 49 | Focus a Pi terminal and press `Alt+Up` | VS Code: sends the Alt+Up escape sequence (`ESC [ 1 ; 3 A`) to the terminal; Pi receives the key event instead of VS Code: intercepting it |
 
+### Assistant-area hybrid Pi view verification
+
+Run these checks in a live VS Code window after installing the extension from a freshly built `.vsix`.
+
+#### Placement and default-open behavior
+
+| # | Action | Expected result |
+|---|--------|----------------|
+| A1 | Open the secondary side bar / assistant area and locate Pi Bay | Pi appears there as a `Pi` webview, not as a dedicated Pi Bay Activity Bar icon/container |
+| A2 | Open the `Pi` assistant-area view | The embedded terminal view appears in the secondary side bar/assistant area |
+| A3 | Open the `Pi` assistant-area view from a fresh window | The editor tab does **not** open automatically |
+| A4 | Run `Pi Bay: Open Pi Editor View` from the Command Palette or the `Pi` view title action | A separate `Pi Editor View` editor tab opens as an optional second viewport |
+| A5 | Run `Pi Bay: Run Pi Bay` or click the status bar button | The existing integrated terminal flow is unchanged: a terminal named `Pi Bay` opens and starts `pi` |
+
+#### Shared-session two-viewport flow
+
+1. Open the assistant-area `Pi` view.
+2. In the embedded terminal, run a command or prompt that produces several lines of output, including wrapped lines.
+3. Run `Pi Bay: Open Pi Editor View`.
+4. Confirm the editor view shows the same transcript as the assistant-area view.
+5. Type additional input in either surface.
+6. Confirm output appears in both surfaces, proving both are attached to one live Pi session.
+7. Scroll the editor tab upward while leaving the assistant view at the bottom.
+8. Confirm the two surfaces can keep independent scroll positions while sharing the same live transcript.
+
+#### Narrow-visible-view-wins sizing
+
+1. Open both the assistant-area `Pi` view and the optional `Pi Editor View`.
+2. Make the assistant-area view visibly narrower than the editor tab.
+3. Generate output with long lines.
+4. Confirm wrapping/formatting in both views matches the narrow assistant-area width.
+5. Hide or close the narrow assistant-area view while leaving the editor view visible.
+6. Generate more long-line output.
+7. Confirm wrapping updates to the remaining wider editor viewport.
+8. Reopen the assistant-area view and make it narrow again.
+9. Confirm new output returns to the narrow wrapping policy.
+
+#### Session persistence and exit behavior
+
+1. Open the assistant-area `Pi` view and verify Pi is running.
+2. Close/hide all embedded Pi views while the process is still running.
+3. Reopen the assistant-area `Pi` view.
+4. Confirm the same session resumes and prior transcript is still visible.
+5. Let Pi exit normally from the embedded terminal.
+6. Close and reopen the embedded view.
+7. Confirm the exited transcript remains visible and Pi does **not** auto-restart merely because the view reopened.
+
 ### Adding more pass-through keybindings
 
 If additional keys need to be forwarded to Pi, add a new entry to `package.json` under `contributes.keybindings` using `workbench.action.terminal.sendSequence`, the desired `key`, and the same `when` clause (`terminalFocus && piBay.activeTerminal`). Add a corresponding one-line test in `tests/packageManifest.test.js` using `assertSendSequenceKeybinding(key, text)`. Finally, document the new key in the smoke-checklist table above.

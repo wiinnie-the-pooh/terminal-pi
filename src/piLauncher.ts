@@ -2,7 +2,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'path';
-import { clearInterval, setInterval, setTimeout } from 'timers';
+import { clearInterval, setInterval } from 'timers';
 
 export function mapFilePath(baseDir: string, guid: string): string {
   return path.join(baseDir, '.piagent', guid + '.map');
@@ -89,16 +89,61 @@ export function parsePiScriptPath(
   return path.win32.resolve(expanded);
 }
 
-export function buildLaunchArgs(args: string[], isRestore: boolean, mappedSessionId?: string): string[] {
-  const sIdx = args.indexOf('--session');
-  if (isRestore && mappedSessionId) {
-    return ['--continue', '--session', mappedSessionId];
-  }
-  if (!isRestore) {
-    if (sIdx < 0 || sIdx + 1 >= args.length) return args;
-    return [...args.slice(0, sIdx), ...args.slice(sIdx + 2)];
+export function buildLaunchArgs(args: string[], piSessionId?: string): string[] {
+  if (piSessionId !== undefined) {
+    return ['--continue', '--session', piSessionId, ...args];
   }
   return args;
+}
+
+export interface LauncherArgs {
+  guid: string | undefined;
+  baseDir: string;
+  argsForPi: string[];
+}
+
+/**
+ * Parse the argv array passed to the piLauncher script entry point.
+ *
+ * --session <guid>   Pi Bay's own GUID. Consumed here; not forwarded to pi.
+ * --session-dir <d>  Directory for session storage. Used as baseDir for
+ *                    snapshot/poll AND forwarded to pi via argsForPi so pi
+ *                    also writes sessions there.
+ *
+ * For either flag, if the value token is missing the flag is ignored and the
+ * default is used. Only the first occurrence of each flag is honoured.
+ */
+export function parseLauncherArgs(argv: string[], defaultBaseDir: string): LauncherArgs {
+  let guid: string | undefined;
+  let baseDir: string | undefined;
+  const argsForPi: string[] = [];
+
+  let i = 0;
+  while (i < argv.length) {
+    const arg = argv[i];
+    if (arg === '--session' && guid === undefined) {
+      const val = argv[i + 1];
+      if (val !== undefined && !val.startsWith('-')) {
+        guid = val;
+        i += 2;
+        continue;
+      }
+    } else if (arg === '--session-dir' && baseDir === undefined) {
+      const val = argv[i + 1];
+      if (val !== undefined && !val.startsWith('-')) {
+        baseDir = val;
+        // Forward both flag and value so pi also writes to this dir.
+        argsForPi.push(arg, val);
+        i += 2;
+        continue;
+      }
+    } else {
+      argsForPi.push(arg);
+    }
+    i++;
+  }
+
+  return { guid, baseDir: baseDir ?? defaultBaseDir, argsForPi };
 }
 
 /* c8 ignore start */
@@ -159,16 +204,16 @@ function resolvePiCommand(): PiCommand {
 
 if (require.main === module) {
   process.title = 'Pi Bay';
-  const piArgs = process.argv.slice(2);
-  const sIdx = piArgs.indexOf('--session');
-  const guid = sIdx >= 0 && sIdx + 1 < piArgs.length ? piArgs[sIdx + 1] : undefined;
-  const baseDir = path.join(os.homedir(), '.pi', 'agent', 'sessions');
+  const defaultBaseDir = path.join(os.homedir(), '.pi', 'agent', 'sessions');
+  const { guid, baseDir, argsForPi } = parseLauncherArgs(process.argv.slice(2), defaultBaseDir);
 
   const isRestore = guid ? hasSessionMap(baseDir, guid) : false;
-  const mappedId = isRestore && guid ? readMapFile(mapFilePath(baseDir, guid)) : undefined;
-  const finalArgs = buildLaunchArgs(piArgs, isRestore && !!mappedId, mappedId);
+  const piSessionId = isRestore && guid ? readMapFile(mapFilePath(baseDir, guid)) : undefined;
+  const finalArgs = buildLaunchArgs(argsForPi, piSessionId);
 
   let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+  let runPollNow: (() => void) | undefined;
 
   if (guid && !isRestore) {
     const snapshot = collectSessionFiles(baseDir);
@@ -181,14 +226,15 @@ if (require.main === module) {
         pollTimer = undefined;
       }
     };
-    pollTimer = setInterval(poll, 2000);
-    setTimeout(() => {
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = undefined; }
-    }, 60000);
+    pollTimer = setInterval(poll, 5000);
+    runPollNow = poll;
   }
 
   const { executable, prefixArgs } = resolvePiCommand();
   const child = spawn(executable, [...prefixArgs, ...finalArgs], { stdio: 'inherit' });
+  // Run one poll tick immediately after spawn in case Pi creates its session file
+  // very quickly (avoids the 5-second blind spot from setInterval's initial delay).
+  runPollNow?.();
   child.on('exit', (code) => {
     if (pollTimer) clearInterval(pollTimer);
     process.exit(code ?? 1);

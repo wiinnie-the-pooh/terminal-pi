@@ -1,11 +1,19 @@
+import * as crypto from 'node:crypto';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { getConfig, type PiConfig } from './config';
+import { resolveEditorCommand } from './editorCommandResolver';
 import {
   getEligibleResourcePaths,
   isEligibleFile,
   type ExplorerSelectionEntry,
   type FileLikeUri,
 } from './fileSelection';
+import { PiPanel } from './piPanel';
+import { resolveNodePath } from './piResolver';
+import type { PiResourceMode } from './piResourceArgs';
+import { PiSession } from './piSession';
+import { PiSidebarProvider } from './piSidebarProvider';
 import {
   isPiTerminalName,
   PI_TERMINAL_ACTIVE_CONTEXT,
@@ -17,11 +25,54 @@ import {
   type ResourcePickerMode,
   type ResourceQuickPickItem,
 } from './resourcePicker';
-import { PiTerminalManager } from './terminal';
-import type { PiResourceMode } from './piResourceArgs';
+import { buildPiArgs, PiTerminalManager } from './terminal';
+import { getPiTerminalEnv } from './terminalEnv';
 
 let statusBarItem: vscode.StatusBarItem | undefined;
 let terminalManager: PiTerminalManager;
+let piSession: PiSession | undefined;
+let piExtensionPath = '';
+
+export function buildPiSessionArgs(extensionPath: string, defaultArgs: string, sessionId?: string): string[] {
+  const launcherPath = path.join(extensionPath, 'out', 'piLauncher.js');
+  const id = sessionId ?? crypto.randomUUID();
+  const piArgs = buildPiArgs(defaultArgs, extensionPath);
+  return [launcherPath, '--session', id, ...piArgs];
+}
+
+/* c8 ignore start */
+function makeEnsurePiSession(context: vscode.ExtensionContext): () => PiSession {
+  return function ensurePiSession(): PiSession {
+    if (!piSession) {
+      const cfg = getConfig();
+      const nodePath = resolveNodePath();
+      const resolvedEditorCommand = resolveEditorCommand({
+        configuredEditorCommand: cfg.editorCommand,
+        appHost: vscode.env.appHost,
+        uriScheme: vscode.env.uriScheme,
+        appName: vscode.env.appName,
+      });
+      const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
+      const ptyPath = path.join(vscode.env.appRoot, 'node_modules', 'node-pty');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const nodePty: typeof import('node-pty') = require(ptyPath);
+      const persistedGuid = context.workspaceState.get<string>('piSession.guid');
+      const sessionId = persistedGuid ?? crypto.randomUUID();
+      void context.workspaceState.update('piSession.guid', sessionId);
+      piSession = new PiSession(
+        {
+          file: nodePath,
+          args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs, sessionId),
+          env: { ...process.env, ...editorEnv },
+          cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+        },
+        nodePty.spawn,
+      );
+    }
+    return piSession;
+  };
+}
+/* c8 ignore stop */
 
 interface ResourceTerminalManager {
   runWithResources(
@@ -47,6 +98,19 @@ interface ResourceActionHandlerDeps {
 export function activate(context: vscode.ExtensionContext): void {
   terminalManager = new PiTerminalManager(context);
   context.subscriptions.push(terminalManager);
+
+  piExtensionPath = context.extensionPath;
+  context.subscriptions.push({ dispose: () => piSession?.dispose() });
+
+  const ensurePiSession = makeEnsurePiSession(context);
+
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      PiSidebarProvider.viewId,
+      new PiSidebarProvider(ensurePiSession, context.extensionUri),
+      { webviewOptions: { retainContextWhenHidden: true } },
+    ),
+  );
 
   const runResourceAction = createResourceActionHandler({
     getConfig,
@@ -103,6 +167,9 @@ export function activate(context: vscode.ExtensionContext): void {
           );
         }),
     ),
+    vscode.commands.registerCommand('piBay.openPanel', () => {
+      PiPanel.createOrReveal(ensurePiSession, context.extensionUri);
+    }),
   );
 
   setupStatusBar(context);
