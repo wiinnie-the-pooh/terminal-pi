@@ -33,38 +33,43 @@ let terminalManager: PiTerminalManager;
 let piSession: PiSession | undefined;
 let piExtensionPath = '';
 
-export function buildPiSessionArgs(extensionPath: string, defaultArgs: string): string[] {
+export function buildPiSessionArgs(extensionPath: string, defaultArgs: string, sessionId?: string): string[] {
   const launcherPath = path.join(extensionPath, 'out', 'piLauncher.js');
-  const sessionId = crypto.randomUUID();
+  const id = sessionId ?? crypto.randomUUID();
   const piArgs = buildPiArgs(defaultArgs, extensionPath);
-  return [launcherPath, '--session', sessionId, ...piArgs];
+  return [launcherPath, '--session', id, ...piArgs];
 }
 
 /* c8 ignore start */
-function ensurePiSession(): PiSession {
-  if (!piSession) {
-    const cfg = getConfig();
-    const nodePath = resolveNodePath();
-    const resolvedEditorCommand = resolveEditorCommand({
-      configuredEditorCommand: cfg.editorCommand,
-      appHost: vscode.env.appHost,
-      uriScheme: vscode.env.uriScheme,
-      appName: vscode.env.appName,
-    });
-    const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
-    const ptyPath = path.join(vscode.env.appRoot, 'node_modules', 'node-pty');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const nodePty: typeof import('node-pty') = require(ptyPath);
-    piSession = new PiSession(
-      {
-        file: nodePath,
-        args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs),
-        env: { ...process.env, ...editorEnv },
-      },
-      nodePty.spawn,
-    );
-  }
-  return piSession;
+function makeEnsurePiSession(context: vscode.ExtensionContext): () => PiSession {
+  return function ensurePiSession(): PiSession {
+    if (!piSession) {
+      const cfg = getConfig();
+      const nodePath = resolveNodePath();
+      const resolvedEditorCommand = resolveEditorCommand({
+        configuredEditorCommand: cfg.editorCommand,
+        appHost: vscode.env.appHost,
+        uriScheme: vscode.env.uriScheme,
+        appName: vscode.env.appName,
+      });
+      const editorEnv = getPiTerminalEnv(cfg.editorCommand, resolvedEditorCommand);
+      const ptyPath = path.join(vscode.env.appRoot, 'node_modules', 'node-pty');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const nodePty: typeof import('node-pty') = require(ptyPath);
+      const persistedGuid = context.workspaceState.get<string>('piSession.guid');
+      const sessionId = persistedGuid ?? crypto.randomUUID();
+      void context.workspaceState.update('piSession.guid', sessionId);
+      piSession = new PiSession(
+        {
+          file: nodePath,
+          args: buildPiSessionArgs(piExtensionPath, cfg.defaultArgs, sessionId),
+          env: { ...process.env, ...editorEnv },
+        },
+        nodePty.spawn,
+      );
+    }
+    return piSession;
+  };
 }
 /* c8 ignore stop */
 
@@ -95,6 +100,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
   piExtensionPath = context.extensionPath;
   context.subscriptions.push({ dispose: () => piSession?.dispose() });
+
+  const ensurePiSession = makeEnsurePiSession(context);
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(

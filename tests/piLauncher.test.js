@@ -14,6 +14,7 @@ const {
   hasSessionMap,
   buildLaunchArgs,
   parsePiScriptPath,
+  parseLauncherArgs,
 } = require('../out/piLauncher.js');
 
 const TEST_GUID = '019db074-5cf3-7351-ae95-ad317c30d27d';
@@ -231,48 +232,33 @@ test('hasSessionMap returns false for nonexistent base directory', () => {
 // buildLaunchArgs
 // ---------------------------------------------------------------------------
 
-test('buildLaunchArgs strips --session and guid on fresh start', () => {
-  const args = ['--session', TEST_GUID, '--thinking', 'low'];
-  assert.deepEqual(buildLaunchArgs(args, false), ['--thinking', 'low']);
+test('buildLaunchArgs returns args unchanged on fresh start', () => {
+  const args = ['--thinking', 'low'];
+  assert.deepEqual(buildLaunchArgs(args), args);
 });
 
-test('buildLaunchArgs strips --session and guid preserving surrounding args', () => {
-  const args = ['--thinking', 'low', '--session', TEST_GUID, '--skill', '/s'];
-  assert.deepEqual(buildLaunchArgs(args, false), ['--thinking', 'low', '--skill', '/s']);
-});
-
-test('buildLaunchArgs returns --continue with mapped session ID on restore', () => {
-  const args = ['--session', TEST_GUID, '--thinking', 'low', '--skill', '/s'];
+test('buildLaunchArgs prepends --continue --session <piSessionId> on restore', () => {
+  const args = ['--thinking', 'low', '--skill', '/s'];
   assert.deepEqual(
-    buildLaunchArgs(args, true, PI_SESSION_ID),
-    ['--continue', '--session', PI_SESSION_ID],
+    buildLaunchArgs(args, PI_SESSION_ID),
+    ['--continue', '--session', PI_SESSION_ID, '--thinking', 'low', '--skill', '/s'],
   );
 });
 
-test('buildLaunchArgs passes args through on restore when no mappedSessionId', () => {
-  const args = ['--session', TEST_GUID, '--thinking', 'low'];
-  assert.deepEqual(buildLaunchArgs(args, true, undefined), args);
+test('buildLaunchArgs preserves --extension flag on restore', () => {
+  const args = ['--extension', '/path/to/ext.js'];
+  assert.deepEqual(
+    buildLaunchArgs(args, PI_SESSION_ID),
+    ['--continue', '--session', PI_SESSION_ID, '--extension', '/path/to/ext.js'],
+  );
 });
 
-test('buildLaunchArgs passes all args through when no --session present (fresh)', () => {
-  const args = ['--thinking', 'low'];
-  assert.deepEqual(buildLaunchArgs(args, false), args);
+test('buildLaunchArgs handles empty args on fresh start', () => {
+  assert.deepEqual(buildLaunchArgs([]), []);
 });
 
-test('buildLaunchArgs passes all args through when no --session present (restore)', () => {
-  const args = ['--thinking', 'low'];
-  assert.deepEqual(buildLaunchArgs(args, true), args);
-});
-
-test('buildLaunchArgs handles --session at end without value', () => {
-  const args = ['--thinking', 'low', '--session'];
-  assert.deepEqual(buildLaunchArgs(args, false), args);
-  assert.deepEqual(buildLaunchArgs(args, true), args);
-});
-
-test('buildLaunchArgs handles empty args', () => {
-  assert.deepEqual(buildLaunchArgs([], false), []);
-  assert.deepEqual(buildLaunchArgs([], true), []);
+test('buildLaunchArgs handles empty args on restore', () => {
+  assert.deepEqual(buildLaunchArgs([], PI_SESSION_ID), ['--continue', '--session', PI_SESSION_ID]);
 });
 
 // ---------------------------------------------------------------------------
@@ -328,4 +314,93 @@ test('parsePiScriptPath extracts script from legacy %~dp0 .cmd wrapper', () => {
 
 test('parsePiScriptPath returns undefined when no script reference present', () => {
   assert.equal(parsePiScriptPath('@echo off\r\necho hello\r\n', SAMPLE_CMD_PATH), undefined);
+});
+
+// ---------------------------------------------------------------------------
+// parseLauncherArgs
+// ---------------------------------------------------------------------------
+
+const DEFAULT_BASE = '/home/user/.pi/agent/sessions';
+const SAMPLE_GUID = '019db074-5cf3-7351-ae95-ad317c30d27d';
+const SAMPLE_DIR = '/custom/session/dir';
+
+test('parseLauncherArgs returns default baseDir and undefined guid for empty argv', () => {
+  const result = parseLauncherArgs([], DEFAULT_BASE);
+  assert.equal(result.guid, undefined);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  assert.deepEqual(result.argsForPi, []);
+});
+
+test('parseLauncherArgs extracts --session guid and removes it from argsForPi', () => {
+  const result = parseLauncherArgs(['--session', SAMPLE_GUID, '--thinking', 'low'], DEFAULT_BASE);
+  assert.equal(result.guid, SAMPLE_GUID);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  assert.deepEqual(result.argsForPi, ['--thinking', 'low']);
+});
+
+test('parseLauncherArgs extracts --session-dir as baseDir and keeps it in argsForPi', () => {
+  const result = parseLauncherArgs(['--session-dir', SAMPLE_DIR, '--thinking', 'low'], DEFAULT_BASE);
+  assert.equal(result.guid, undefined);
+  assert.equal(result.baseDir, SAMPLE_DIR);
+  assert.deepEqual(result.argsForPi, ['--session-dir', SAMPLE_DIR, '--thinking', 'low']);
+});
+
+test('parseLauncherArgs handles --session and --session-dir together (session first)', () => {
+  const result = parseLauncherArgs(['--session', SAMPLE_GUID, '--session-dir', SAMPLE_DIR], DEFAULT_BASE);
+  assert.equal(result.guid, SAMPLE_GUID);
+  assert.equal(result.baseDir, SAMPLE_DIR);
+  assert.deepEqual(result.argsForPi, ['--session-dir', SAMPLE_DIR]);
+});
+
+test('parseLauncherArgs handles --session-dir and --session together (dir first)', () => {
+  const result = parseLauncherArgs(['--session-dir', SAMPLE_DIR, '--session', SAMPLE_GUID], DEFAULT_BASE);
+  assert.equal(result.guid, SAMPLE_GUID);
+  assert.equal(result.baseDir, SAMPLE_DIR);
+  assert.deepEqual(result.argsForPi, ['--session-dir', SAMPLE_DIR]);
+});
+
+test('parseLauncherArgs falls back to default when --session-dir is the last arg with no value', () => {
+  const result = parseLauncherArgs(['--thinking', 'low', '--session-dir'], DEFAULT_BASE);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  assert.deepEqual(result.argsForPi, ['--thinking', 'low']);
+});
+
+test('parseLauncherArgs falls back to default when --session has no value', () => {
+  const result = parseLauncherArgs(['--session'], DEFAULT_BASE);
+  assert.equal(result.guid, undefined);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  assert.deepEqual(result.argsForPi, []);
+});
+
+test('parseLauncherArgs ignores subsequent --session occurrences (keeps first)', () => {
+  const secondGuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+  const result = parseLauncherArgs(['--session', SAMPLE_GUID, '--session', secondGuid], DEFAULT_BASE);
+  assert.equal(result.guid, SAMPLE_GUID);
+  // second --session is not consumed as a flag (guid already set), so both tokens appear in argsForPi
+  assert.ok(result.argsForPi.includes('--session'));
+  assert.ok(result.argsForPi.includes(secondGuid));
+});
+
+test('parseLauncherArgs ignores subsequent --session-dir occurrences (keeps first)', () => {
+  const secondDir = '/other/dir';
+  const result = parseLauncherArgs(['--session-dir', SAMPLE_DIR, '--session-dir', secondDir], DEFAULT_BASE);
+  assert.equal(result.baseDir, SAMPLE_DIR);
+  assert.ok(result.argsForPi.includes(secondDir));
+});
+
+test('parseLauncherArgs preserves unrelated args unchanged', () => {
+  const argv = ['--extension', '/path/to/ext.js', '--thinking', 'high', '--no-tools'];
+  const result = parseLauncherArgs(argv, DEFAULT_BASE);
+  assert.equal(result.guid, undefined);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  assert.deepEqual(result.argsForPi, argv);
+});
+
+test('parseLauncherArgs treats a flag-like value after --session-dir as missing (no value)', () => {
+  // --session-dir followed immediately by another flag -- value is skipped, fallback used
+  const result = parseLauncherArgs(['--session-dir', '--thinking', 'low'], DEFAULT_BASE);
+  assert.equal(result.baseDir, DEFAULT_BASE);
+  // --thinking and low should still be present in argsForPi
+  assert.ok(result.argsForPi.includes('--thinking'));
+  assert.ok(result.argsForPi.includes('low'));
 });

@@ -43,3 +43,18 @@ test('buildPiSessionArgs generates a unique UUID on each call', () => {
   const args2 = buildPiSessionArgs(EXT_PATH, '');
   assert.notEqual(args1[2], args2[2]);
 });
+
+test('buildPiSessionArgs uses provided sessionId instead of generating a new UUID', () => {
+  const fixedId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+  const args = buildPiSessionArgs(EXT_PATH, '', fixedId);
+  assert.equal(args[2], fixedId);
+});
+
+test('buildPiSessionArgs with provided sessionId still generates UUID when called again without one', () => {
+  const fixedId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+  const args1 = buildPiSessionArgs(EXT_PATH, '', fixedId);
+  const args2 = buildPiSessionArgs(EXT_PATH, '');
+  assert.equal(args1[2], fixedId);
+  assert.match(args2[2], /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+  assert.notEqual(args2[2], fixedId);
+});
