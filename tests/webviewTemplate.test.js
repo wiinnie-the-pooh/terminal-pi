@@ -35,6 +35,12 @@ test('getWebviewTemplate includes the CSP source in the meta tag', () => {
   assert.ok(getWebviewTemplate(OPTS).includes(OPTS.cspSource));
 });
 
+test('getWebviewTemplate gives Pi sessions editor-like top and left padding', () => {
+  const html = getWebviewTemplate(OPTS);
+  assert.match(html, /body \{[^}]*padding: 8px 0 0 8px;/);
+  assert.match(html, /body \{[^}]*box-sizing: border-box;/);
+});
+
 test('generateNonce returns a 32-character alphanumeric string', () => {
   const nonce = generateNonce();
   assert.match(nonce, /^[A-Za-z0-9]{32}$/);
