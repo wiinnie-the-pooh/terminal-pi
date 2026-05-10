@@ -1,12 +1,23 @@
 module.exports = {
   ConfigurationTarget: { Global: 1, Workspace: 2, WorkspaceFolder: 3 },
+  EventEmitter: class {
+    constructor() {
+      this.event = () => ({ dispose: () => {} });
+    }
+    fire() {}
+    dispose() {}
+  },
+  FileType: { File: 1, Directory: 2 },
   Uri: {
+    parse(value) {
+      return { path: value.replace(/^[^:]+:/, '') };
+    },
     joinPath(base, ...parts) {
       const p = typeof base === 'string' ? base : (base.path ?? '');
       return { path: [p, ...parts].join('/') };
     },
   },
-  ViewColumn: { One: 1 },
+  ViewColumn: { One: 1, Beside: -1 },
   window: {
     createWebviewPanel(viewType, title, column, options) {
       let disposeHandler = null;
@@ -15,6 +26,7 @@ module.exports = {
       const posted = [];
       const panel = {
         visible: true,
+        viewColumn: column,
         webview: {
           html: '',
           cspSource: 'test-csp',
@@ -25,6 +37,7 @@ module.exports = {
         },
         reveal() { panel.__revealed = true; panel.visible = true; },
         __revealed: false,
+        __viewColumn: column,
         __posted: posted,
         onDidDispose(h) { disposeHandler = h; return { dispose: () => {} }; },
         onDidChangeViewState(h) { viewStateHandler = h; return { dispose: () => {} }; },
@@ -34,13 +47,30 @@ module.exports = {
           panel.visible = value;
           viewStateHandler?.({ webviewPanel: panel });
         },
+        __setViewColumn(value) {
+          panel.viewColumn = value;
+          viewStateHandler?.({ webviewPanel: panel });
+        },
       };
       module.exports.window.__lastPanel = panel;
+      module.exports.window.__allPanels.push(panel);
       return panel;
     },
     __lastPanel: null,
+    __allPanels: [],
     onDidCloseTerminal: () => ({ dispose: () => {} }),
     showErrorMessage: async () => undefined,
     registerWebviewViewProvider: () => ({ dispose: () => {} }),
+    registerCustomEditorProvider: () => ({ dispose: () => {} }),
+  },
+  commands: {
+    __executed: [],
+    executeCommand(command, ...args) {
+      module.exports.commands.__executed.push({ command, args });
+      return Promise.resolve(undefined);
+    },
+  },
+  workspace: {
+    registerFileSystemProvider: () => ({ dispose: () => {} }),
   },
 };

@@ -1,4 +1,4 @@
-const test = require('node:test');
+﻿const test = require('node:test');
 const assert = require('node:assert/strict');
 const pkg = require('../package.json');
 
@@ -37,6 +37,22 @@ test('package.json contributes piBay.openPanel command with optional editor view
 
 test('package.json requires the minimum VS Code version for secondary sidebar view placement', () => {
   assert.equal(pkg.engines.vscode, '^1.106.0');
+});
+
+test('package.json activates for the Pi custom editor instead of the old webview panel', () => {
+  assert.ok(pkg.activationEvents.includes('onCustomEditor:piBay.editorPanel'));
+  assert.equal(pkg.activationEvents.includes('onWebviewPanel:piBay.panel'), false);
+});
+
+test('package.json contributes the Pi custom readonly editor', () => {
+  assert.deepEqual(pkg.contributes.customEditors, [
+    {
+      viewType: 'piBay.editorPanel',
+      displayName: 'Pi Editor View',
+      selector: [{ filenamePattern: '*.pi-session' }],
+      priority: 'option',
+    },
+  ]);
 });
 
 test('package.json does not contribute a custom piBay activity bar container', () => {
@@ -161,4 +177,19 @@ test('package.json contributes ctrl+g sendSequence keybinding for Pi terminals',
 
 test('package.json contributes alt+up sendSequence keybinding for Pi terminals', () => {
   assertSendSequenceKeybinding('alt+up', '\u001b[1;3A');
+});
+
+test('package.json does not contribute the old custom split command', () => {
+  const titles = getCommandTitles(pkg.contributes.commands);
+  assert.equal(titles.has('piBay.splitPanel'), false);
+});
+
+test('package.json leaves ctrl+\\ to VS Code native editor splitting', () => {
+  const kbs = getKeybindings(pkg.contributes.keybindings);
+  assert.equal(kbs.has('ctrl+\\'), false);
+});
+
+test('package.json leaves ctrl+k ctrl+\\ to VS Code native editor splitting', () => {
+  const kbs = getKeybindings(pkg.contributes.keybindings);
+  assert.equal(kbs.has('ctrl+k ctrl+\\'), false);
 });

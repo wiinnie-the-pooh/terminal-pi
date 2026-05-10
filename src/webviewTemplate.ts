@@ -28,8 +28,9 @@ export function getWebviewTemplate(opts: WebviewTemplateOptions): string {
   ">
   <link rel="stylesheet" href="${xtermCssUri}">
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: transparent; }
-    #terminal { height: 100%; }
+    html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: transparent; }
+    body { margin: 0; padding: 8px 0 0 8px; height: 100%; overflow: hidden; background: transparent; box-sizing: border-box; }
+    #terminal { height: 100%; width: 100%; }
   </style>
 </head>
 <body>

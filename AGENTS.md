@@ -128,6 +128,22 @@ npm run update-coverage-thresholds
 
 This is useful after adding tests that raise coverage -- it keeps the gate current without manual editing.
 
+### Improving coverage
+
+When tasked with improving code coverage, follow this sequence:
+
+1. **Diagnose first.** Run `npm run coverage` and `npm run diff-coverage` before changing anything. The global gate in `.c8rc.json` is already 100/100/100/100 on `out/**/*.js`, so real gaps live behind `/* c8 ignore */` directives in `src/` (currently present in `extension.ts`, `terminal.ts`, `piLauncher.ts`, `piResolver.ts`, `terminalEnv.ts`, `pythonActivationGuard.ts`, `config.ts`) or in code newly added on the branch.
+
+2. **Test behavior, not implementation.** Each new test must assert an observable output that a real caller would care about -- a return value, a thrown error, or an emitted argument. Do not write tests whose sole purpose is to execute a code path. A test that passes trivially without exercising a meaningful invariant adds maintenance cost without adding safety. Coverage is a signal, not a goal.
+
+3. **Prefer extraction over speculative tests.** When a `/* c8 ignore */` block hides logic worth testing, extract it into a pure helper module (the established pattern: `piResourceArgs.ts`, `pythonActivationGuard.ts`, `terminalEnv.ts`, `piLauncher.ts`) and add unit tests against that helper. Leave the thin VS Code-bound caller under `c8 ignore`. Avoid adding low-value edge-case tests to helpers that are already at 100%.
+
+4. **Never delete code based on a coverage signal alone.** The automated suite covers non-VS-Code helpers only (see the note below). A code path with zero coverage is not evidence of unreachability -- it may be a VS Code API path exercised only via `TESTING.md`. Before removing anything, cross-check `package.json` `contributes.commands` / `contributes.menus` wiring and the manual checklist in `TESTING.md`.
+
+5. **Keep refactors surgical.** Coverage work is a separate concern from feature changes -- do not bundle architectural rewrites into a coverage PR. If decoupling is genuinely needed to make a unit testable, do the minimum extraction required.
+
+6. **Update the baseline when it moves.** After tests land that raise actual coverage, run `npm run update-coverage-thresholds` so the gate stays current.
+
 Coverage reports are written to `coverage/` and include text, LCOV, and HTML output. In CI the coverage report is uploaded as a build artifact and a summary is posted to the job summary page.
 
 For human verification in a live VS Code instance, see `TESTING.md`.
